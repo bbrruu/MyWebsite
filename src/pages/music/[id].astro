@@ -1,0 +1,124 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getCollection, render } from "astro:content";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("music");
+  return posts.map((post) => ({
+    params: { id: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+---
+
+<Layout title={`${post.data.songName} - 拾音集`}>
+  <div class="paper-texture"></div>
+
+  <article class="music-page">
+    <header class="music-header">
+      <p class="meta">拾音集 / {post.data.pubDate?.toLocaleDateString()}</p>
+      <h1>{post.data.artist} — 《{post.data.songName}》</h1>
+    </header>
+
+    <div class="video-section">
+      {post.data.youtubeId ? (
+        <div class="video-container">
+          <iframe 
+            src={`https://www.youtube.com/embed/${post.data.youtubeId}`}
+            title="YouTube video player" 
+            frameborder="0" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowfullscreen>
+          </iframe>
+        </div>
+      ) : (
+        <div class="video-placeholder">影片讀取中或未提供 ID</div>
+      )}
+    </div>
+
+    <section class="lyrics-section">
+      <div class="lyrics-label">LYRICS / 歌詞</div>
+      <div class="lyrics-scroll-box">
+        <pre>{post.data.lyrics}</pre>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <section class="reflection-section">
+      <div class="reflection-label">REFLECTIONS / 心得</div>
+      <div class="content-body">
+        <Content />
+      </div>
+    </section>
+  </article>
+</Layout>
+
+<style>
+  /* --- 音樂內頁人文感樣式 --- */
+  .music-page {
+    max-width: 800px;
+    margin: 3rem auto;
+    padding: 0 1.5rem;
+    font-family: "Noto Serif TC", serif;
+    color: var(--ink);
+  }
+
+  .music-header { text-align: center; margin-bottom: 3rem; }
+  .music-header h1 { font-size: 1.8rem; margin-top: 0.5rem; }
+  .meta { color: var(--accent); font-size: 0.9rem; letter-spacing: 2px; }
+
+  /* 影片區 */
+  .video-container {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 比例 */
+    height: 0;
+    overflow: hidden;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  }
+  .video-container iframe {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    border-radius: 4px;
+  }
+
+  /* 歌詞區：設定為頁面高度的 40% */
+  .lyrics-section { margin: 3rem 0; }
+  .lyrics-label { font-size: 0.7rem; color: var(--muted); border-bottom: 1px solid var(--border); margin-bottom: 1rem; padding-bottom: 5px; }
+  
+  .lyrics-scroll-box {
+    height: 40vh; /* 佔據螢幕高度的 40% */
+    overflow-y: auto;
+    background: rgba(139, 69, 19, 0.03); /* 極淡的皮革棕背景 */
+    padding: 2rem;
+    border-left: 2px solid var(--accent);
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: var(--accent) transparent;
+  }
+  
+  /* 歌詞內文字樣式 */
+  .lyrics-scroll-box pre {
+    white-space: pre-wrap;
+    font-family: "Noto Serif TC", serif;
+    line-height: 2.2;
+    text-align: center;
+    color: #555;
+    margin: 0;
+  }
+
+  /* 心得區 */
+  .reflection-label { font-size: 0.7rem; color: var(--muted); margin-bottom: 1rem; }
+  .content-body {
+    line-height: 1.8;
+    font-size: 1.05rem;
+  }
+
+  .divider { border: 0; border-top: 1px solid var(--border); margin: 4rem 0 2rem; }
+
+  /* 捲軸美化 (Chrome/Safari) */
+  .lyrics-scroll-box::-webkit-scrollbar { width: 4px; }
+  .lyrics-scroll-box::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
+</style>

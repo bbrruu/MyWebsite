@@ -1,0 +1,113 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getCollection, render } from "astro:content";
+
+// 1. 告訴 Astro 總共有哪些文章頁面要產生
+export async function getStaticPaths() {
+  const posts = await getCollection("blog");
+  return posts.map((post) => ({
+    params: { id: post.id }, // 這裡的 id 要對應檔名的 [id]
+    props: { post },         // 把整篇文章的資料傳下去
+  }));
+}
+
+// 2. 從 props 取得文章資料
+const { post } = Astro.props;
+// 3. 將 Markdown 內容轉換成 HTML 組件
+const { Content } = await render(post);
+---
+
+<Layout title={post.data.title}>
+  <div class="terminal-container">
+    <aside class="system-meta">
+      <div class="status-line">
+        <span class="label">STATUS:</span>
+        <span class={`value ${post.data.status.toLowerCase()}`}>{post.data.status}</span>
+      </div>
+      <div class="meta-item">
+        <span class="label">LOCATION:</span> {post.data.location}
+      </div>
+      <div class="meta-item">
+        <span class="label">MOOD:</span> {post.data.mood}
+      </div>
+      <div class="tech-tags">
+        {post.data.techStack.map(tech => <span class="tech-tag">{tech}</span>)}
+      </div>
+    </aside>
+
+    <article class="glass-content">
+      <header>
+        <span class="timestamp">[{post.data.pubDate?.toISOString()}]</span>
+        <h1>{post.data.title}</h1>
+      </header>
+      
+      <div class="markdown-body">
+        <Content />
+      </div>
+    </article>
+  </div>
+</Layout>
+
+<style>
+  /* 炫砲科技風 CSS */
+  .terminal-container {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 2rem;
+    max-width: 1100px;
+    margin: 3rem auto;
+    font-family: 'Fira Code', 'JetBrains Mono', monospace; /* 程式碼字體 */
+    color: #00ff41; /* 經典終端機綠 */
+  }
+
+  /* 側邊欄樣式 */
+  .system-meta {
+    background: rgba(0, 20, 0, 0.9);
+    padding: 1.5rem;
+    border: 1px solid #00ff41;
+    border-radius: 4px;
+    box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
+    height: fit-content;
+    position: sticky;
+    top: 2rem;
+  }
+
+  .label { color: #888; font-size: 0.8rem; display: block; }
+  .value { font-weight: bold; text-transform: uppercase; }
+  .value.debugging { color: #ff3e00; text-shadow: 0 0 5px #ff3e00; } /* 警告紅 */
+
+  /* 毛玻璃主內容 */
+  .glass-content {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 3rem;
+    border-radius: 15px;
+    color: #e0e0e0;
+  }
+
+  h1 { 
+    font-size: 2.5rem; 
+    color: #fff; 
+    text-shadow: 2px 2px 0px #ff00ff; /* 霓虹錯視感 */
+    margin: 1rem 0;
+  }
+
+  .timestamp { color: #00ff41; opacity: 0.6; font-size: 0.8rem; }
+
+  /* 讓 Markdown 內容也有科技感 */
+  .markdown-body :global(h2) {
+    border-bottom: 1px solid #00ff41;
+    padding-bottom: 0.5rem;
+    color: #00ff41;
+  }
+
+  .tech-tag {
+    display: inline-block;
+    background: #003300;
+    border: 1px solid #00ff41;
+    padding: 2px 8px;
+    font-size: 0.7rem;
+    margin: 4px;
+  }
+</style>

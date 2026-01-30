@@ -1,11 +1,158 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+import Layout from "../layouts/Layout.astro";
+import { getCollection } from "astro:content";
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+// 1. 統一抓取邏輯 (加上排序，確保最新在上面)
+const allPosts = (await getCollection("blog")).sort((a,b)=>b.data.pubDate.valueOf()-a.data.pubDate.valueOf()).slice(0, 3);
+const allResearch = (await getCollection("research")).sort((a,b)=>b.data.pubDate.valueOf()-a.data.pubDate.valueOf()).slice(0, 3);
+const allReading = (await getCollection("reading")).sort((a,b)=>b.data.pubDate.valueOf()-a.data.pubDate.valueOf()).slice(0, 3);
+const allMusic = (await getCollection("music")).sort((a,b)=>b.data.pubDate.valueOf()-a.data.pubDate.valueOf()).slice(0, 3);
+
+const today = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
 ---
 
-<Layout>
-	<Welcome />
+<Layout title="學思手札 | 格物致知">
+  <div class="paper-texture"></div>
+
+  <main class="container">
+    <nav class="top-nav">
+      <div class="nav-links">
+        <a href="/">首頁 / INDEX</a>
+        <a href="/blog">日誌</a>
+        <a href="/research">學術</a>
+        <a href="/reading">閱冊</a>
+        <a href="/music">拾音</a>
+      </div>
+      <div class="current-time"><span id="live-time"></span></div>
+    </nav>
+
+    <header class="banner-header">
+      <div class="banner-bg">
+        <img src="/images/banner.jpg" alt="Academic Banner" />
+        <div class="banner-overlay"></div>
+      </div>
+      <div class="banner-content">
+        <div class="date-stamp">{today}</div>
+        <h1>格物致知 <span>學術與生活的四重奏</span></h1>
+      </div>
+    </header>
+
+    <div class="quad-grid">
+      
+      <section class="module">
+        <h2>生活隨筆 <small>JOURNAL</small></h2>
+        <div class="list-container">
+          {allPosts.map(post => (
+            <a href={`/blog/${post.id}`} class="unified-item">
+              <span class="meta-tag">LOG</span>
+              <span class="title">{post.data.title}</span>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      <section class="module">
+        <h2>文獻回顧 <small>LITERATURE</small></h2>
+        <div class="list-container">
+          {allResearch.length > 0 ? allResearch.map(paper => (
+            <a href={`/research/${paper.id}`} class="unified-item">
+              <span class="meta-tag academic">{paper.data.field || 'Research'}</span>
+              <span class="title">{paper.data.title}</span>
+            </a>
+          )) : <p class="empty-hint">暫無文獻檔案...</p>}
+        </div>
+      </section>
+
+      <section class="module">
+        <h2>閱冊筆記 <small>READING</small></h2>
+        <div class="list-container">
+          {allReading.map(book => (
+            <a href={`/reading/${book.id}`} class="unified-item">
+              <span class="meta-tag book">{book.data.author}</span>
+              <span class="title">{book.data.bookTitle}</span>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      <section class="module">
+        <h2>拾音集 <small>MUSIC</small></h2>
+        <div class="list-container">
+          {allMusic.map(m => (
+            <a href={`/music/${m.id}`} class="unified-item">
+              <span class="meta-tag music">{m.data.artist}</span>
+              <span class="title">{m.data.songName}</span>
+            </a>
+          ))}
+        </div>
+      </section>
+
+    </div>
+  </main>
 </Layout>
+
+<script>
+  function updateTime() {
+    const clock = document.getElementById('live-time');
+    const now = new Date();
+    if (clock) clock.textContent = now.toLocaleTimeString('zh-TW', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  }
+  setInterval(updateTime, 1000);
+  updateTime();
+</script>
+
+<style>
+  :root {
+    --ink: #2c2c2c; --paper: #fdfaf6; --accent: #8b4513; --muted: #8e8e8e; --border: #e0dcd5;
+  }
+
+  body { background-color: var(--paper); color: var(--ink); font-family: "Noto Serif TC", serif; margin: 0; }
+  .paper-texture { position: fixed; inset: 0; z-index: -1; opacity: 0.03; background-image: url('https://www.transparenttextures.com/patterns/paper-fibers.png'); pointer-events: none; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+
+  /* 導覽與橫幅樣式 (延用人文感) */
+  .top-nav { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 1rem; margin-bottom: 2rem; font-size: 0.85rem; }
+  .nav-links a { text-decoration: none; color: var(--muted); margin-right: 1.2rem; transition: 0.3s; }
+  .nav-links a:hover { color: var(--accent); }
+  .current-time { color: var(--accent); font-family: monospace; }
+
+  .banner-header { position: relative; height: 260px; margin-bottom: 4rem; display: flex; justify-content: center; align-items: center; overflow: hidden; border-bottom: 2px solid var(--accent); }
+  .banner-bg { position: absolute; inset: 0; z-index: -1; }
+  .banner-bg img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(60%) sepia(25%); opacity: 0.8; }
+  .banner-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(253, 250, 246, 0.3), var(--paper)); }
+  .banner-content { text-align: center; position: relative; z-index: 2; }
+  h1 { font-size: 2.2rem; margin: 0; font-weight: 700; text-shadow: 0 1px 2px white; }
+  h1 span { display: block; font-size: 0.9rem; font-weight: 400; color: var(--muted); margin-top: 0.5rem; }
+  .date-stamp { font-size: 0.75rem; color: var(--muted); margin-bottom: 0.5rem; }
+
+  /* 核心修正：統一的四宮格與清單樣式 */
+  .quad-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; }
+  .module h2 { font-size: 1.1rem; border-bottom: 1px solid var(--ink); padding-bottom: 0.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: baseline; }
+  .module h2 small { font-size: 0.7rem; color: var(--accent); font-family: sans-serif; letter-spacing: 1px; }
+
+  .list-container { display: flex; flex-direction: column; }
+
+  /* 統一所有項目的外觀 */
+  .unified-item {
+    display: flex; align-items: center; padding: 1rem 0; border-bottom: 1px dashed var(--border);
+    text-decoration: none; color: var(--ink); font-size: 0.95rem; transition: all 0.3s ease;
+  }
+
+  .unified-item:hover { background-color: rgba(139, 69, 19, 0.03); padding-left: 8px; color: var(--accent); border-bottom-style: solid; }
+
+  /* 統一的標籤樣式 */
+  .meta-tag {
+    font-size: 0.7rem; padding: 2px 8px; border: 1px solid var(--border);
+    margin-right: 15px; min-width: 60px; text-align: center; color: var(--muted);
+    font-family: sans-serif; text-transform: uppercase;
+  }
+  .meta-tag.academic { color: #4a6741; border-color: #4a6741; } /* 墨綠 */
+  .meta-tag.book { color: #8b4513; border-color: #8b4513; }     /* 皮革棕 */
+  .meta-tag.music { color: #4682b4; border-color: #4682b4; }    /* 鋼琴藍 */
+
+  .title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .empty-hint { font-size: 0.85rem; color: var(--muted); font-style: italic; }
+
+  @media (max-width: 768px) { .quad-grid { grid-template-columns: 1fr; gap: 2rem; } }
+</style>
