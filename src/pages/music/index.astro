@@ -1,0 +1,144 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+
+// 1. 抓取所有音樂
+const allMusic = await getCollection("music");
+
+// 2. 邏輯：根據歌手分類
+// 我們建立一個物件，鍵 (Key) 是歌手名，值 (Value) 是該歌手的歌曲陣列
+const groupedMusic = allMusic.reduce((acc, song) => {
+    const artist = song.data.artist;
+    if (!acc[artist]) {
+        acc[artist] = [];
+    }
+    acc[artist].push(song);
+    return acc;
+}, {});
+
+// 3. 取得所有歌手名稱並排序
+const artists = Object.keys(groupedMusic).sort();
+---
+
+<Layout title="拾音集目錄">
+    <div class="paper-texture"></div>
+
+    <main class="catalog-container">
+        <header class="catalog-header">
+            <p class="subtitle">MUSIC ARCHIVE</p>
+            <h1>拾音目錄 <span>依創作者分類</span></h1>
+            <hr class="short-line" />
+        </header>
+
+        <div class="artist-sections">
+            {
+                artists.map((artist) => (
+                    <section class="artist-block">
+                        <div class="artist-info">
+                            <h2 class="artist-name">{artist}</h2>
+                            <span class="count">
+                                {groupedMusic[artist].length} Tracks
+                            </span>
+                        </div>
+
+                        <div class="song-list">
+                            {groupedMusic[artist].map((song) => (
+                                <a href={`/music/${song.id}`} class="song-item">
+                                    <span class="song-title">
+                                        《{song.data.songName}》
+                                    </span>
+                                    <span class="song-date">
+                                        {song.data.pubDate?.toLocaleDateString()}
+                                    </span>
+                                </a>
+                            ))}
+                        </div>
+                    </section>
+                ))
+            }
+        </div>
+
+        {artists.length === 0 && <p class="empty">尚無音樂收藏紀錄。</p>}
+    </main>
+</Layout>
+
+<style>
+    .catalog-container {
+        max-width: 800px;
+        margin: 4rem auto;
+        padding: 0 1.5rem;
+        font-family: "Noto Serif TC", serif;
+        color: var(--ink);
+    }
+
+    .catalog-header {
+        text-align: center;
+        margin-bottom: 5rem;
+    }
+    .catalog-header h1 {
+        font-size: 2rem;
+        margin-top: 0.5rem;
+    }
+    .catalog-header h1 span {
+        display: block;
+        font-size: 0.9rem;
+        color: var(--muted);
+        font-weight: 400;
+        margin-top: 5px;
+    }
+    .short-line {
+        width: 40px;
+        border: 1px solid var(--accent);
+        margin: 2rem auto;
+    }
+
+    .artist-sections {
+        display: flex;
+        flex-direction: column;
+        gap: 4rem;
+    }
+
+    /* 歌手區塊標題 */
+    .artist-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        border-bottom: 2px solid var(--ink);
+        padding-bottom: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .artist-name {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--accent);
+    }
+    .count {
+        font-size: 0.8rem;
+        color: var(--muted);
+        font-family: sans-serif;
+    }
+
+    /* 歌曲列表樣式 */
+    .song-list {
+        display: flex;
+        flex-direction: column;
+    }
+    .song-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 1rem 0;
+        text-decoration: none;
+        color: var(--ink);
+        border-bottom: 1px dashed var(--border);
+        transition: 0.3s;
+    }
+    .song-item:hover {
+        padding-left: 10px;
+        color: var(--accent);
+        background-color: rgba(139, 69, 19, 0.02);
+    }
+    .song-date {
+        font-size: 0.85rem;
+        color: var(--muted);
+    }
+</style>

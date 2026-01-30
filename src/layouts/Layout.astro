@@ -1,24 +1,34 @@
+---
+// 1. 取得從各分頁傳過來的 title
+const { title } = Astro.props;
+
+// 2. 設定一個基礎站名
+const baseTitle = "Bruce的個人網站";
+// 如果有傳 title 進來，就顯示 "頁面名 | 站名"；沒有的話就只顯示站名
+const finalTitle = title ? title : baseTitle;
+---
 <!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="generator" content={Astro.generator} />
-		<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
-		<title>Astro Basics</title>
-	</head>
-	<body>
-		<slot />
-	</body>
+<html lang="zh-Hant">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="icon" href="/favicon.ico" />
+        <meta name="generator" content={Astro.generator} />
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
+        
+        <title>{finalTitle}</title>
+    </head>
+    <body>
+        <slot />
+    </body>
 </html>
 
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
+<style is:global>
+    /* 建議加上 is:global 確保樣式能影響到所有分頁 */
+    html, body {
+        margin: 0;
+        padding: 0;
+        background-color: #fdfaf6; /* 確保人文感底色一致 */
+    }
 </style>

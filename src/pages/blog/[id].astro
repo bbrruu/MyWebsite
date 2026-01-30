@@ -2,112 +2,80 @@
 import Layout from "../../layouts/Layout.astro";
 import { getCollection, render } from "astro:content";
 
-// 1. 告訴 Astro 總共有哪些文章頁面要產生
 export async function getStaticPaths() {
   const posts = await getCollection("blog");
   return posts.map((post) => ({
-    params: { id: post.id }, // 這裡的 id 要對應檔名的 [id]
-    props: { post },         // 把整篇文章的資料傳下去
+    params: { id: post.id },
+    props: { post },
   }));
 }
 
-// 2. 從 props 取得文章資料
 const { post } = Astro.props;
-// 3. 將 Markdown 內容轉換成 HTML 組件
 const { Content } = await render(post);
 ---
 
 <Layout title={post.data.title}>
-  <div class="terminal-container">
-    <aside class="system-meta">
-      <div class="status-line">
-        <span class="label">STATUS:</span>
-        <span class={`value ${post.data.status.toLowerCase()}`}>{post.data.status}</span>
-      </div>
-      <div class="meta-item">
-        <span class="label">LOCATION:</span> {post.data.location}
-      </div>
-      <div class="meta-item">
-        <span class="label">MOOD:</span> {post.data.mood}
-      </div>
-      <div class="tech-tags">
-        {post.data.techStack.map(tech => <span class="tech-tag">{tech}</span>)}
-      </div>
-    </aside>
+  <div class="paper-texture"></div>
 
-    <article class="glass-content">
-      <header>
-        <span class="timestamp">[{post.data.pubDate?.toISOString()}]</span>
-        <h1>{post.data.title}</h1>
-      </header>
-      
-      <div class="markdown-body">
-        <Content />
+  <article class="journal-post">
+    <header class="post-header">
+      <div class="post-meta">
+        <span class="date">{post.data.pubDate.toLocaleDateString('zh-TW')}</span>
+        <span class="sep">/</span>
+        <span class="location">於 {post.data.location || '台北'}</span>
       </div>
-    </article>
-  </div>
+      <h1 class="post-title">{post.data.title}</h1>
+      <div class="mood-tag">
+        今日心情：<span class="mood-text">{post.data.mood || '平靜'}</span>
+      </div>
+    </header>
+
+    <section class="post-content">
+      <Content />
+    </section>
+
+    <footer class="post-footer">
+      <hr class="ink-line" />
+      <div class="tech-stack">
+        {post.data.techStack && post.data.techStack.length > 0 && (
+          <p>當日探究：{post.data.techStack.join(', ')}</p>
+        )}
+      </div>
+      <a href="/blog" class="back-link">← 回到日誌目錄</a>
+    </footer>
+  </article>
 </Layout>
 
 <style>
-  /* 炫砲科技風 CSS */
-  .terminal-container {
-    display: grid;
-    grid-template-columns: 250px 1fr;
-    gap: 2rem;
-    max-width: 1100px;
-    margin: 3rem auto;
-    font-family: 'Fira Code', 'JetBrains Mono', monospace; /* 程式碼字體 */
-    color: #00ff41; /* 經典終端機綠 */
+  .journal-post {
+    max-width: 700px;
+    margin: 5rem auto;
+    padding: 0 1.5rem;
+    font-family: "Noto Serif TC", serif;
+    color: var(--ink);
+    line-height: 2; /* 增加行距，提升人文感的呼吸空間 */
   }
 
-  /* 側邊欄樣式 */
-  .system-meta {
-    background: rgba(0, 20, 0, 0.9);
-    padding: 1.5rem;
-    border: 1px solid #00ff41;
-    border-radius: 4px;
-    box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
-    height: fit-content;
-    position: sticky;
-    top: 2rem;
-  }
-
-  .label { color: #888; font-size: 0.8rem; display: block; }
-  .value { font-weight: bold; text-transform: uppercase; }
-  .value.debugging { color: #ff3e00; text-shadow: 0 0 5px #ff3e00; } /* 警告紅 */
-
-  /* 毛玻璃主內容 */
-  .glass-content {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 3rem;
-    border-radius: 15px;
-    color: #e0e0e0;
-  }
-
-  h1 { 
-    font-size: 2.5rem; 
-    color: #fff; 
-    text-shadow: 2px 2px 0px #ff00ff; /* 霓虹錯視感 */
-    margin: 1rem 0;
-  }
-
-  .timestamp { color: #00ff41; opacity: 0.6; font-size: 0.8rem; }
-
-  /* 讓 Markdown 內容也有科技感 */
-  .markdown-body :global(h2) {
-    border-bottom: 1px solid #00ff41;
-    padding-bottom: 0.5rem;
-    color: #00ff41;
-  }
-
-  .tech-tag {
+  .post-header { text-align: center; margin-bottom: 4rem; }
+  .post-meta { font-size: 0.9rem; color: var(--muted); letter-spacing: 1px; }
+  .post-title { font-size: 2.4rem; margin: 1rem 0; font-weight: 700; }
+  
+  .mood-tag {
     display: inline-block;
-    background: #003300;
-    border: 1px solid #00ff41;
-    padding: 2px 8px;
-    font-size: 0.7rem;
-    margin: 4px;
+    padding: 4px 12px;
+    background: rgba(139, 69, 19, 0.05);
+    border-radius: 20px;
+    font-size: 0.85rem;
+    color: var(--accent);
   }
+
+  /* 文章內容樣式優化 */
+  .post-content { font-size: 1.1rem; text-align: justify; }
+  .post-content :global(p) { margin-bottom: 2rem; }
+  .post-content :global(h2) { font-size: 1.5rem; margin-top: 3rem; border-left: 3px solid var(--accent); padding-left: 1rem; }
+
+  .post-footer { margin-top: 6rem; text-align: center; color: var(--muted); }
+  .ink-line { border: 0; border-top: 1px solid var(--border); margin-bottom: 2rem; }
+  .back-link { text-decoration: none; color: var(--accent); font-size: 0.9rem; transition: 0.3s; }
+  .back-link:hover { text-decoration: underline; }
 </style>

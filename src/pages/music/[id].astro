@@ -14,7 +14,7 @@ const { post } = Astro.props;
 const { Content } = await render(post);
 ---
 
-<Layout title={`${post.data.songName} - 拾音集`}>
+<Layout title={`${post.data.artist} |《${post.data.songName}》`}>
   <div class="paper-texture"></div>
 
   <article class="music-page">

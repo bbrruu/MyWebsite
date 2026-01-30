@@ -1,0 +1,241 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+
+// 1. 抓取所有部落格文章並按日期排序
+const allPosts = (await getCollection("blog")).sort(
+    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+
+// 2. 邏輯：按年份/月份分組（增加檔案檢索的儀式感）
+const groupedPosts = allPosts.reduce((acc, post) => {
+    const date = new Date(post.data.pubDate);
+    const yearMonth = `${date.getFullYear()}年 ${date.getMonth() + 1}月`;
+    if (!acc[yearMonth]) acc[yearMonth] = [];
+    acc[yearMonth].push(post);
+    return acc;
+}, {});
+
+const months = Object.keys(groupedPosts);
+---
+
+<Layout title="生活隨筆 | 拾光日誌">
+    <div class="paper-texture"></div>
+
+    <main class="blog-archive">
+        <header class="archive-header">
+            <nav class="breadcrumb">
+                <a href="/">HOME</a> / <span class="current">JOURNAL</span>
+            </nav>
+            <h1>生活隨筆 <span>記錄瑣碎而真實的瞬間</span></h1>
+            <hr class="ink-line" />
+        </header>
+
+        <div class="archive-content">
+            {
+                months.map((month) => (
+                    <section class="month-group">
+                        <div class="month-indicator">
+                            <span class="dot" />
+                            <h2>{month}</h2>
+                        </div>
+
+                        <div class="post-links">
+                            {groupedPosts[month].map((post) => (
+                                <a
+                                    href={`/blog/${post.id}`}
+                                    class="journal-entry"
+                                >
+                                    <div class="entry-meta">
+                                        <span class="day">
+                                            {new Date(
+                                                post.data.pubDate,
+                                            ).getDate()}
+                                            日
+                                        </span>
+                                        <span class="location">
+                                            {post.data.location || "Taipei"}
+                                        </span>
+                                    </div>
+
+                                    <div class="entry-body">
+                                        <h3 class="entry-title">
+                                            {post.data.title}
+                                        </h3>
+                                        <div class="entry-footer">
+                                            <span class="mood">
+                                                心情：{post.data.mood}
+                                            </span>
+                                            <span class="status">
+                                                [{post.data.status}]
+                                            </span>
+                                        </div>
+                                    </div>
+                                </a>
+                            ))}
+                        </div>
+                    </section>
+                ))
+            }
+        </div>
+
+        {
+            allPosts.length === 0 && (
+                <p class="empty-state">目前尚未有任何紀錄。</p>
+            )
+        }
+    </main>
+</Layout>
+
+<style>
+    /* --- 人文感專屬 CSS --- */
+    :root {
+        --ink: #2c2c2c;
+        --paper: #fdfaf6;
+        --accent: #8b4513;
+        --muted: #8e8e8e;
+        --border: #e0dcd5;
+    }
+
+    .blog-archive {
+        max-width: 800px;
+        margin: 4rem auto;
+        padding: 0 1.5rem;
+        font-family: "Noto Serif TC", serif;
+        color: var(--ink);
+    }
+
+    /* 導覽與標題 */
+    .breadcrumb {
+        font-size: 0.8rem;
+        color: var(--muted);
+        letter-spacing: 2px;
+        margin-bottom: 1rem;
+    }
+    .breadcrumb a {
+        text-decoration: none;
+        color: inherit;
+    }
+    .breadcrumb a:hover {
+        color: var(--accent);
+    }
+
+    .archive-header h1 {
+        font-size: 2.2rem;
+        margin: 0;
+    }
+    .archive-header h1 span {
+        display: block;
+        font-size: 0.9rem;
+        font-weight: 400;
+        color: var(--muted);
+        margin-top: 10px;
+    }
+    .ink-line {
+        border: 0;
+        border-top: 1px solid var(--ink);
+        width: 60px;
+        margin: 2rem 0 4rem;
+    }
+
+    /* 月份分組樣式 */
+    .month-group {
+        position: relative;
+        /* 1. 增加左側間距，讓給月份標題和日期數字 */
+        padding-left: 3.5rem;
+        border-left: 1px solid var(--border);
+        margin-bottom: 5rem;
+        margin-left: 1rem; /* 讓整條線往右移一點，避免貼到螢幕邊緣 */
+    }
+
+    .month-indicator {
+        position: absolute;
+        /* 2. 讓月份標題精準對齊圓點 */
+        left: -7px; /* 圓點位置 */
+        top: -2.5rem; /* 往上提，不要跟第一篇文章擠在一起 */
+        display: flex;
+        align-items: center;
+        white-space: nowrap;
+    }
+
+    .month-indicator .dot {
+        width: 13px;
+        height: 13px;
+        background: var(--accent);
+        border-radius: 50%;
+        margin-right: 1.5rem;
+        box-shadow: 0 0 0 4px var(--paper); /* 用背景色做遮罩，讓線條在圓點處斷開 */
+    }
+
+    .month-indicator h2 {
+        font-size: 1.2rem;
+        margin: 0;
+        color: var(--accent);
+        font-weight: 700;
+    }
+
+    /* 日誌條目佈局修正 */
+    .journal-entry {
+        display: flex;
+        gap: 2.5rem; /* 增加日期與標題之間的距離 */
+        text-decoration: none;
+        color: inherit;
+        padding: 2rem 0;
+        border-bottom: 1px dashed var(--border);
+        transition: 0.3s;
+        align-items: flex-start;
+    }
+
+    .entry-meta {
+        display: flex;
+        flex-direction: column;
+        min-width: 80px; /* 增加寬度，確保日期不會換行 */
+        text-align: right; /* 日期靠右對齊，標題靠左，形成對稱感 */
+    }
+
+    .entry-meta .day {
+        font-size: 1.8rem; /* 稍微放大日期數字 */
+        font-weight: 700;
+        line-height: 1;
+        color: var(--ink);
+    }
+
+    .entry-meta .location {
+        font-size: 0.75rem;
+        color: var(--muted);
+        margin-top: 8px;
+        white-space: nowrap;
+    }
+
+    .entry-body {
+        flex: 1;
+        padding-top: 4px; /* 微調標題高度，對齊日期數字頂部 */
+    }
+    .entry-title {
+        font-size: 1.2rem;
+        margin: 0 0 8px 0;
+    }
+
+    .entry-footer {
+        font-size: 0.8rem;
+        color: var(--muted);
+        display: flex;
+        gap: 1rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        color: var(--muted);
+        font-style: italic;
+    }
+
+    @media (max-width: 600px) {
+        .journal-entry {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .month-group {
+            padding-left: 1.5rem;
+        }
+    }
+</style>
