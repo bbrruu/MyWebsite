@@ -2,143 +2,155 @@
 import Layout from "../../layouts/Layout.astro";
 import { getCollection } from "astro:content";
 
-// 1. 抓取所有音樂
-const allMusic = await getCollection("music");
+const allMusic = (await getCollection("music")).sort(
+    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
 
-// 2. 邏輯：根據歌手分類
-// 我們建立一個物件，鍵 (Key) 是歌手名，值 (Value) 是該歌手的歌曲陣列
-const groupedMusic = allMusic.reduce((acc, song) => {
-    const artist = song.data.artist;
-    if (!acc[artist]) {
-        acc[artist] = [];
-    }
-    acc[artist].push(song);
+const groupedByArtist = allMusic.reduce((acc, post) => {
+    const artist = post.data.artist || "佚名";
+    if (!acc[artist]) acc[artist] = [];
+    acc[artist].push(post);
     return acc;
 }, {});
 
-// 3. 取得所有歌手名稱並排序
-const artists = Object.keys(groupedMusic).sort();
+const artists = Object.keys(groupedByArtist);
 ---
 
-<Layout title="拾音集目錄">
+<Layout title="拾音集 | 樂評編目">
     <div class="paper-texture"></div>
 
-    <main class="catalog-container">
-        <header class="catalog-header">
-            <p class="subtitle">MUSIC ARCHIVE</p>
-            <h1>拾音目錄 <span>依創作者分類</span></h1>
-            <hr class="short-line" />
+    <main class="music-archive">
+        <header class="archive-header">
+            <nav class="breadcrumb">
+                <a href="/">HOME</a>
+                <span class="sep">/</span>
+                <span class="current">MUSIC</span>
+            </nav>
+            <h1>拾音集</h1>
+            <div class="header-line"></div>
         </header>
 
-        <div class="artist-sections">
-            {
-                artists.map((artist) => (
-                    <section class="artist-block">
-                        <div class="artist-info">
-                            <h2 class="artist-name">{artist}</h2>
-                            <span class="count">
-                                {groupedMusic[artist].length} Tracks
-                            </span>
+        <div class="archive-content">
+            {artists.map((artist) => (
+                <section class="artist-section">
+                    <div class="artist-header">
+                        <div class="artist-name-group">
+                            <span class="prefix">Artist</span>
+                            <h2 class="artist-title">{artist}</h2>
                         </div>
+                        <div class="track-count">{groupedByArtist[artist].length} Posts</div>
+                    </div>
 
-                        <div class="song-list">
-                            {groupedMusic[artist].map((song) => (
-                                <a href={`/music/${song.id}`} class="song-item">
-                                    <span class="song-title">
-                                        《{song.data.songName}》
-                                    </span>
-                                    <span class="song-date">
-                                        {song.data.pubDate?.toLocaleDateString()}
-                                    </span>
+                    <div class="song-list">
+                        {groupedByArtist[artist].map((post) => (
+                            <div class="song-wrapper">
+                                <a href={`/music/${post.id}`} class="music-entry">
+                                    <div class="title-swap-container">
+                                        <div class="title-default">
+                                            {post.data.title} <span class="song-mark">《{post.data.songName}》</span>
+                                        </div>
+                                        <div class="title-hover">
+                                            <span class="focus-artist">{post.data.artist}</span> <span class="song-mark">《{post.data.songName}》</span>
+                                        </div>
+                                    </div>
+                                    <div class="entry-arrow">VIEW →</div>
                                 </a>
-                            ))}
-                        </div>
-                    </section>
-                ))
-            }
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            ))}
         </div>
-
-        {artists.length === 0 && <p class="empty">尚無音樂收藏紀錄。</p>}
     </main>
 </Layout>
 
 <style>
-    .catalog-container {
-        max-width: 800px;
-        margin: 4rem auto;
-        padding: 0 1.5rem;
-        font-family: "Noto Serif TC", serif;
-        color: var(--ink);
+    :root {
+        --ink: #2c2c2c;
+        --paper: #fdfaf6;
+        --accent: #8b4513;
+        --muted: #8e8e8e;
+        --border: #e0dcd5;
     }
 
-    .catalog-header {
-        text-align: center;
-        margin-bottom: 5rem;
-    }
-    .catalog-header h1 {
-        font-size: 2rem;
-        margin-top: 0.5rem;
-    }
-    .catalog-header h1 span {
-        display: block;
-        font-size: 0.9rem;
-        color: var(--muted);
-        font-weight: 400;
-        margin-top: 5px;
-    }
-    .short-line {
-        width: 40px;
-        border: 1px solid var(--accent);
-        margin: 2rem auto;
+    .music-archive { 
+        max-width: 800px; /* 稍微縮小容器寬度，讓視覺更聚焦 */
+        margin: 4rem auto; 
+        padding: 0 1.5rem; 
+        font-family: "Noto Serif TC", serif; 
     }
 
-    .artist-sections {
-        display: flex;
-        flex-direction: column;
-        gap: 4rem;
+    /* 麵包屑 */
+    .breadcrumb { 
+        display: flex; align-items: center; gap: 0.6rem; 
+        font-family: sans-serif; font-size: 0.65rem; 
+        letter-spacing: 0.15rem; margin-bottom: 1.5rem; 
     }
+    .breadcrumb a, .breadcrumb .sep, .breadcrumb .current { text-decoration: none; color: var(--muted) !important; }
+    .breadcrumb .current { font-weight: 700; color: var(--ink) !important; text-transform: uppercase; }
 
-    /* 歌手區塊標題 */
-    .artist-info {
-        display: flex;
-        justify-content: space-between;
-        align-items: baseline;
-        border-bottom: 2px solid var(--ink);
-        padding-bottom: 0.5rem;
+    /* 大標題縮小 */
+    .archive-header h1 { font-size: 2.2rem; margin: 0; font-weight: 700; letter-spacing: -0.5px; }
+    
+    .header-line { width: 100%; height: 1px; background: var(--border); margin: 1.5rem 0 4rem; position: relative; }
+    .header-line::after { content: ''; position: absolute; left: 0; top: -1px; width: 60px; height: 3px; background: var(--accent); }
+
+    /* --- 歌手區隔：整體縮小 --- */
+    .artist-section { margin-bottom: 5rem; }
+    
+    .artist-header {
+        display: flex; justify-content: space-between; align-items: flex-end;
+        padding-bottom: 0.8rem; border-bottom: 1.5px solid var(--ink);
         margin-bottom: 1.5rem;
     }
-    .artist-name {
-        font-size: 1.4rem;
-        font-weight: 700;
-        color: var(--accent);
-    }
-    .count {
-        font-size: 0.8rem;
-        color: var(--muted);
-        font-family: sans-serif;
-    }
 
-    /* 歌曲列表樣式 */
-    .song-list {
-        display: flex;
-        flex-direction: column;
-    }
-    .song-item {
-        display: flex;
-        justify-content: space-between;
-        padding: 1rem 0;
-        text-decoration: none;
-        color: var(--ink);
-        border-bottom: 1px dashed var(--border);
+    .artist-name-group { display: flex; flex-direction: column; gap: 0.1rem; }
+    .artist-name-group .prefix { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); font-family: sans-serif; }
+    .artist-title { font-size: 1.6rem; margin: 0; color: var(--ink); font-weight: 700; } /* 從 2.2 縮小到 1.6 */
+    
+    .track-count { font-size: 0.7rem; font-family: sans-serif; color: var(--muted); padding-bottom: 0.3rem; }
+
+    /* --- 音樂項目：精簡間距與字級 --- */
+    .music-entry {
+        display: flex; align-items: center; justify-content: space-between;
+        text-decoration: none; color: inherit;
+        padding: 1.2rem 0; border-bottom: 1px dashed var(--border);
         transition: 0.3s;
     }
-    .song-item:hover {
-        padding-left: 10px;
-        color: var(--accent);
-        background-color: rgba(139, 69, 19, 0.02);
+    
+    .title-swap-container {
+        flex: 1; position: relative;
+        height: 2rem; /* 高度隨之縮小 */
+        overflow: hidden;
+        display: flex; align-items: center;
     }
-    .song-date {
-        font-size: 0.85rem;
-        color: var(--muted);
+
+    .title-default, .title-hover {
+        font-size: 1.1rem; /* 從 1.4 縮小到 1.1 */
+        font-weight: 700;
+        transition: all 0.45s cubic-bezier(0.23, 1, 0.32, 1);
+        white-space: nowrap;
+        line-height: 2rem;
+    }
+
+    .title-hover {
+        position: absolute; top: 0; left: 0; opacity: 0;
+        transform: translateY(10px);
+        color: var(--accent);
+    }
+
+    .song-mark { font-weight: 400; font-size: 0.95rem; color: var(--muted); margin-left: 0.4rem; }
+    .focus-artist { color: var(--accent); }
+
+    /* Hover 動畫 */
+    .music-entry:hover .title-default { opacity: 0; transform: translateY(-10px); }
+    .music-entry:hover .title-hover { opacity: 1; transform: translateY(0); }
+
+    .entry-arrow { font-size: 0.65rem; letter-spacing: 1px; color: var(--muted); opacity: 0; transition: 0.4s; }
+    .music-entry:hover .entry-arrow { opacity: 1; color: var(--accent); }
+
+    @media (max-width: 600px) {
+        .artist-title { font-size: 1.4rem; }
+        .title-default, .title-hover { font-size: 1rem; }
     }
 </style>

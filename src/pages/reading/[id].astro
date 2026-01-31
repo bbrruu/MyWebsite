@@ -1,0 +1,123 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getCollection, render } from "astro:content";
+
+// 1. 定義動態路徑
+export async function getStaticPaths() {
+  const posts = await getCollection("reading"); // 確保抓取 reading 集合
+  return posts.map((post) => ({
+    params: { id: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+---
+
+<Layout title={post.data.title}>
+  <div class="paper-texture"></div>
+
+  <article class="reading-article">
+    <nav class="inner-nav">
+      <a href="/reading" class="back-link">
+        <span class="arrow">←</span>
+        <span class="text">回到閱測目錄 INDEX</span>
+      </a>
+    </nav>
+
+    <header class="post-header">
+      <div class="header-main-row">
+        <div class="title-wrapper">
+          <h1 class="post-title">{post.data.title}</h1>
+          <div class="dynamic-accent-bar"></div>
+        </div>
+        
+        <div class="post-meta">
+          <div class="book-info">
+             <span class="author-name">{post.data.author}</span>
+             <span class="sep">|</span>
+             <span class="book-name">《{post.data.bookName || '未命名書籍'}》</span>
+          </div>
+          <div class="post-date">
+            {post.data.pubDate.toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' })}
+          </div>
+        </div>
+      </div>
+      
+      <div class="full-gray-line"></div>
+    </header>
+
+    <section class="post-content">
+      <Content />
+    </section>
+
+    <footer class="post-footer">
+      <p>文獻摘錄於：{post.data.location || 'Taipei'}</p>
+    </footer>
+  </article>
+</Layout>
+
+<style>
+  .reading-article {
+    max-width: 850px;
+    margin: 5rem auto;
+    padding: 0 2rem;
+    font-family: "Noto Serif TC", serif;
+    color: #2c2c2c;
+  }
+
+  /* 返回連結互動 */
+  .inner-nav { margin-bottom: 4rem; }
+  .back-link {
+    display: inline-flex; align-items: center; text-decoration: none;
+    color: #8e8e8e; font-size: 0.8rem; letter-spacing: 2px;
+    transition: 0.4s; position: relative; padding-bottom: 5px;
+  }
+  .back-link:hover { color: #8b4513; }
+  .back-link .arrow { margin-right: 10px; transition: 0.4s ease; }
+  .back-link:hover .arrow { transform: translateX(-8px); }
+  .back-link::after {
+    content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 1px;
+    background: #8b4513; transition: 0.4s ease;
+  }
+  .back-link:hover::after { width: 100%; }
+
+  /* 標題佈局 */
+  .header-main-row {
+    display: flex; justify-content: space-between; align-items: flex-end; gap: 2rem;
+  }
+
+  .title-wrapper { position: relative; width: fit-content; }
+  .post-title { font-size: 2.8rem; margin: 0; font-weight: 700; letter-spacing: -1px; }
+
+  .post-meta {
+    text-align: right; font-family: sans-serif; color: #8e8e8e; font-size: 0.95rem;
+  }
+  .book-info { margin-bottom: 0.5rem; color: #2c2c2c; font-weight: 600; }
+  .author-name { color: #8b4513; }
+  .sep { margin: 0 0.5rem; color: #e0dcd5; }
+
+  /* 動態橫槓與底線 */
+  .dynamic-accent-bar {
+    position: absolute; left: 0; bottom: -1.5rem;
+    width: 85%; height: 4px; background-color: #8b4513; border-radius: 2px; z-index: 2;
+  }
+  .full-gray-line {
+    width: 100%; height: 1px; background-color: #e0dcd5; margin-top: 1.5rem;
+  }
+
+  /* 內文質感 */
+  .post-content { line-height: 2.3; font-size: 1.15rem; text-align: justify; margin-top: 3rem; }
+  .post-content :global(p) { margin-bottom: 2.5rem; }
+  
+  .post-footer {
+    margin-top: 8rem; font-size: 0.85rem; color: #8e8e8e; font-style: italic;
+    border-top: 1px dashed #e0dcd5; padding-top: 2rem;
+  }
+
+  @media (max-width: 768px) {
+    .header-main-row { flex-direction: column; align-items: flex-start; }
+    .post-meta { text-align: left; }
+  }
+</style>

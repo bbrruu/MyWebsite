@@ -1,0 +1,133 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+
+// 1. 抓取所有閱測筆記並排序 (最新在前)
+const allReading = (await getCollection("reading")).sort(
+    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+
+// 2. 依照作者 (Author) 分組，且移除日期元素
+const groupedByAuthor = allReading.reduce((acc, post) => {
+    const author = post.data.author || "佚名";
+    if (!acc[author]) acc[author] = [];
+    acc[author].push(post);
+    return acc;
+}, {});
+
+const authors = Object.keys(groupedByAuthor);
+---
+
+<Layout title="閱測筆記 | 書海拾貝">
+    <div class="paper-texture"></div>
+
+    <main class="reading-archive">
+        <header class="archive-header">
+            <nav class="breadcrumb">
+                <a href="/">HOME</a>
+                <span class="sep">/</span>
+                <span class="current">READING</span>
+            </nav>
+            <h1>閱測筆記</h1>
+            <div class="header-line"></div>
+        </header>
+
+        <div class="archive-content">
+            {authors.map((author) => (
+                <section class="author-section">
+                    <div class="author-header">
+                        <div class="author-name-group">
+                            <span class="prefix">Writer / Thinker</span>
+                            <h2 class="author-title">{author}</h2>
+                        </div>
+                        <div class="note-count">{groupedByAuthor[author].length} Notes</div>
+                    </div>
+
+                    <div class="note-list">
+                        {groupedByAuthor[author].map((post) => (
+                            <div class="note-wrapper">
+                                <a href={`/reading/${post.id}`} class="reading-entry">
+                                    <div class="title-swap-container">
+                                        <div class="title-default">
+                                            {post.data.title} <span class="book-mark">《{post.data.bookName || '未命名書籍'}》</span>
+                                        </div>
+                                        <div class="title-hover">
+                                            <span class="focus-author">{post.data.author}</span> <span class="book-mark">《{post.data.bookName || '未命名書籍'}》</span>
+                                        </div>
+                                    </div>
+                                    <div class="entry-arrow">READ →</div>
+                                </a>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            ))}
+        </div>
+    </main>
+</Layout>
+
+<style>
+    :root {
+        --ink: #2c2c2c;
+        --paper: #fdfaf6;
+        --accent: #8b4513;
+        --muted: #8e8e8e;
+        --border: #e0dcd5;
+    }
+
+    .reading-archive { 
+        max-width: 800px; 
+        margin: 4rem auto; 
+        padding: 0 1.5rem; 
+        font-family: "Noto Serif TC", serif; 
+    }
+
+    /* 麵包屑：徹底去紫色 */
+    .breadcrumb { display: flex; align-items: center; gap: 0.6rem; font-family: sans-serif; font-size: 0.65rem; letter-spacing: 0.15rem; margin-bottom: 1.5rem; }
+    .breadcrumb a, .breadcrumb .sep, .breadcrumb .current { text-decoration: none; color: var(--muted) !important; }
+    .breadcrumb .current { font-weight: 700; color: var(--ink) !important; text-transform: uppercase; }
+
+    .archive-header h1 { font-size: 2.2rem; margin: 0; font-weight: 700; letter-spacing: -0.5px; }
+    .header-line { width: 100%; height: 1px; background: var(--border); margin: 1.5rem 0 4rem; position: relative; }
+    .header-line::after { content: ''; position: absolute; left: 0; top: -1px; width: 60px; height: 3px; background: var(--accent); }
+
+    /* 作者分組區隔 */
+    .author-section { margin-bottom: 5rem; }
+    .author-header {
+        display: flex; justify-content: space-between; align-items: flex-end;
+        padding-bottom: 0.8rem; border-bottom: 1.5px solid var(--ink);
+        margin-bottom: 1.5rem;
+    }
+    .author-name-group .prefix { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); font-family: sans-serif; }
+    .author-title { font-size: 1.6rem; margin: 0; color: var(--ink); font-weight: 700; }
+    .note-count { font-size: 0.7rem; color: var(--muted); padding-bottom: 0.3rem; }
+
+    /* 標題交換動畫核心 */
+    .reading-entry {
+        display: flex; align-items: center; justify-content: space-between;
+        text-decoration: none; color: inherit; padding: 1.2rem 0;
+        border-bottom: 1px dashed var(--border); transition: 0.3s;
+    }
+    .title-swap-container {
+        flex: 1; position: relative; height: 2rem; overflow: hidden; display: flex; align-items: center;
+    }
+    .title-default, .title-hover {
+        font-size: 1.1rem; font-weight: 700;
+        transition: all 0.45s cubic-bezier(0.23, 1, 0.32, 1);
+        white-space: nowrap; line-height: 2rem;
+    }
+    .title-hover {
+        position: absolute; top: 0; left: 0; opacity: 0; transform: translateY(10px); color: var(--accent);
+    }
+    .book-mark { font-weight: 400; font-size: 0.95rem; color: var(--muted); margin-left: 0.4rem; }
+    
+    .reading-entry:hover .title-default { opacity: 0; transform: translateY(-10px); }
+    .reading-entry:hover .title-hover { opacity: 1; transform: translateY(0); }
+    .entry-arrow { font-size: 0.65rem; letter-spacing: 1px; color: var(--muted); opacity: 0; transition: 0.4s; }
+    .reading-entry:hover .entry-arrow { opacity: 1; color: var(--accent); }
+
+    @media (max-width: 600px) {
+        .author-title { font-size: 1.4rem; }
+        .title-default, .title-hover { font-size: 1rem; }
+    }
+</style>

@@ -1,7 +1,7 @@
 ---
-title: "深夜研究時的迷幻陪伴"
+title: "哈囉你好嗎"
 songName: "浴室"
-artist: "deca joins"
+artist: "Deca Joins"
 pubDate: 2026-01-30
 youtubeId: "KWlP4gHOvXo"
 lyrics: |

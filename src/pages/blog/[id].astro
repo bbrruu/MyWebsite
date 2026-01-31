@@ -17,17 +17,29 @@ const { Content } = await render(post);
 <Layout title={post.data.title}>
   <div class="paper-texture"></div>
 
-  <article class="journal-post">
+  <article class="journal-article">
+    <nav class="inner-nav">
+      <a href="/blog" class="back-link">
+        <span class="arrow">←</span>
+        <span class="text">回到目錄 INDEX</span>
+      </a>
+    </nav>
+
     <header class="post-header">
-      <div class="post-meta">
-        <span class="date">{post.data.pubDate.toLocaleDateString('zh-TW')}</span>
-        <span class="sep">/</span>
-        <span class="location">於 {post.data.location || '台北'}</span>
+      <div class="header-main-row">
+        <div class="title-wrapper">
+          <h1 class="post-title">{post.data.title}</h1>
+          <div class="dynamic-accent-bar"></div>
+        </div>
+
+        <div class="post-meta">
+          <time>{post.data.pubDate.toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' })}</time>
+          <span class="sep">|</span>
+          <span class="mood-text">{post.data.mood || '還行'}</span>
+        </div>
       </div>
-      <h1 class="post-title">{post.data.title}</h1>
-      <div class="mood-tag">
-        今日心情：<span class="mood-text">{post.data.mood || '平靜'}</span>
-      </div>
+      
+      <div class="full-gray-line"></div>
     </header>
 
     <section class="post-content">
@@ -35,47 +47,97 @@ const { Content } = await render(post);
     </section>
 
     <footer class="post-footer">
-      <hr class="ink-line" />
-      <div class="tech-stack">
-        {post.data.techStack && post.data.techStack.length > 0 && (
-          <p>當日探究：{post.data.techStack.join(', ')}</p>
-        )}
-      </div>
-      <a href="/blog" class="back-link">← 回到日誌目錄</a>
+      <p>記錄於：{post.data.location || 'Taipei'}</p>
     </footer>
   </article>
 </Layout>
 
 <style>
-  .journal-post {
-    max-width: 700px;
+  .journal-article {
+    max-width: 850px;
     margin: 5rem auto;
-    padding: 0 1.5rem;
+    padding: 0 2rem;
     font-family: "Noto Serif TC", serif;
-    color: var(--ink);
-    line-height: 2; /* 增加行距，提升人文感的呼吸空間 */
+    color: #2c2c2c;
   }
 
-  .post-header { text-align: center; margin-bottom: 4rem; }
-  .post-meta { font-size: 0.9rem; color: var(--muted); letter-spacing: 1px; }
-  .post-title { font-size: 2.4rem; margin: 1rem 0; font-weight: 700; }
-  
-  .mood-tag {
-    display: inline-block;
-    padding: 4px 12px;
-    background: rgba(139, 69, 19, 0.05);
-    border-radius: 20px;
-    font-size: 0.85rem;
-    color: var(--accent);
+  /* 返回導覽 */
+  .inner-nav { margin-bottom: 4rem; }
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    color: #8e8e8e;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    transition: 0.4s ease;
+    position: relative;
+    padding-bottom: 5px;
+  }
+  .back-link:hover { color: #8b4513; }
+  .back-link .arrow { margin-right: 8px; transition: 0.4s ease; }
+  .back-link:hover .arrow { transform: translateX(-8px); }
+
+  /* 標題與資訊列 */
+  .header-main-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 2rem;
   }
 
-  /* 文章內容樣式優化 */
-  .post-content { font-size: 1.1rem; text-align: justify; }
-  .post-content :global(p) { margin-bottom: 2rem; }
-  .post-content :global(h2) { font-size: 1.5rem; margin-top: 3rem; border-left: 3px solid var(--accent); padding-left: 1rem; }
+  /* 核心修正：標題包裹容器 */
+  .title-wrapper {
+    position: relative;
+    width: fit-content; /* 寬度剛好等於標題文字寬度 */
+  }
 
-  .post-footer { margin-top: 6rem; text-align: center; color: var(--muted); }
-  .ink-line { border: 0; border-top: 1px solid var(--border); margin-bottom: 2rem; }
-  .back-link { text-decoration: none; color: var(--accent); font-size: 0.9rem; transition: 0.3s; }
-  .back-link:hover { text-decoration: underline; }
+  .post-title {
+    font-size: 2rem;
+    margin: 0;
+    font-weight: 700;
+    letter-spacing: -1px;
+    line-height: 1.2;
+  }
+
+  .post-meta {
+    font-size: 0.95rem;
+    color: #8e8e8e;
+    display: flex;
+    gap: 1rem;
+    font-family: sans-serif;
+    white-space: nowrap;
+  }
+
+  .mood-text { color: #8b4513; font-weight: 600; }
+
+  /* 你的要求：根據字數調整長度 (比字節短一點點) */
+  .dynamic-accent-bar {
+    position: absolute;
+    left: 0;
+    bottom: -1.5rem; /* 與灰色線對齊的高度 */
+    width: 85%;      /* 這裡設定比標題短一點點 (例如 85% 或 90%) */
+    height: 4px;
+    background-color: #8b4513;
+    border-radius: 2px;
+    z-index: 2;      /* 確保壓在灰線上 */
+  }
+
+  /* 全寬灰色基準線 */
+  .full-gray-line {
+    width: 100%;
+    height: 1px;
+    background-color: #e0dcd5;
+    margin-top: 1.5rem; /* 必須與 .dynamic-accent-bar 的 bottom 距離對應 */
+  }
+
+  /* 內文 */
+  .post-content { line-height: 2.3; font-size: 1.15rem; text-align: justify; margin-top: 3rem; }
+  .post-content :global(p) { margin-bottom: 2.5rem; }
+  .post-footer { margin-top: 8rem; font-size: 0.85rem; color: #8e8e8e; border-top: 1px dashed #e0dcd5; padding-top: 2rem; }
+
+  @media (max-width: 768px) {
+    .header-main-row { flex-direction: column; align-items: flex-start; gap: 1rem; }
+    .post-meta { width: 100%; justify-content: flex-end; }
+  }
 </style>

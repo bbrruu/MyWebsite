@@ -2,433 +2,284 @@
 import Layout from "../layouts/Layout.astro";
 import { getCollection } from "astro:content";
 
-// 1. 統一抓取邏輯 (加上排序，確保最新在上面)
-const allPosts = (await getCollection("blog")).sort(
-	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+// 1. 抓取所有內容並排序
+const allJournalPosts = (await getCollection("blog")).sort(
+    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
-const allResearch = (await getCollection("research")).sort(
-	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+const allResearchPosts = (await getCollection("research")).sort(
+    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
-const allReading = (await getCollection("reading")).sort(
-	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+const allReadingPosts = (await getCollection("reading")).sort(
+    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
-const allMusic = (await getCollection("music")).sort(
-	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+const allMusicPosts = (await getCollection("music")).sort(
+    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
-
-const today = new Date().toLocaleDateString("zh-TW", {
-	year: "numeric",
-	month: "long",
-	day: "numeric",
-});
 
 const slogans = [
-	"Learn, Read, Music, and Life",
-	"Do you want to build a snowman",
-	"Lives can find their way out",
-	"Call me maybe",
+    "Learn, Read, Music, and Life",
+    "Do you want to build a snowman",
+    "Lives can find their way out",
+    "Call me maybe",
 ];
 const randomSlogan = slogans[Math.floor(Math.random() * slogans.length)];
 ---
 
 <Layout title="學思手札 | 格物致知">
-	<div class="paper-texture"></div>
+    <div class="paper-texture"></div>
 
-	<main class="container">
-		<nav class="top-nav">
-			<div class="nav-links">
-				<a href="/">首頁 / INDEX</a>
-				<a href="/blog">日誌</a>
-				<a href="/research">學術</a>
-				<a href="/reading">閱冊</a>
-				<a href="/music">拾音</a>
-			</div>
-			<div class="current-time"><span id="live-time"></span></div>
-		</nav>
+    <main transition:animate="fade" class="container">
+        <nav class="top-nav">
+            <div class="nav-links">
+                <a href="/">首頁 / INDEX</a>
+                <a href="/blog">日誌</a>
+                <a href="/research">學術</a>
+                <a href="/reading">閱冊</a>
+                <a href="/music">拾音</a>
+            </div>
+            <div class="current-time"><span id="live-time"></span></div>
+        </nav>
 
-		<header class="banner-header">
-			<div class="banner-bg">
-				<img src="/images/banner.jpg" alt="Academic Banner" />
-				<div class="banner-overlay"></div>
-			</div>
-			<div class="banner-content">
-				<h1>Bruce的個人網站 <span id="slogan">{randomSlogan}</span></h1>
-			</div>
-		</header>
+        <header class="banner-header">
+            <div class="banner-bg">
+                <img src="/images/banner.jpg" alt="Academic Banner" />
+                <div class="banner-overlay"></div>
+            </div>
+            <div class="banner-content">
+                <h1>Bruce的個人網站 <span id="slogan">{randomSlogan}</span></h1>
+            </div>
+        </header>
 
-		<div class="quad-grid">
-			<section class="module">
-				<h2>生活隨筆 <small>JOURNAL</small></h2>
-				<div class="list-container">
-					{
-						allPosts.map((post) => (
-							<a href={`/blog/${post.id}`} class="unified-item">
-								<span class="meta-tag">LOG</span>
-								<span class="title">{post.data.title}</span>
-							</a>
-						))
-					}
-				</div>
-			</section>
+        <div class="quad-grid">
+            
+            <section class="home-section">
+                <a href="/blog" class="section-title-link">
+                    <div class="title-container">
+                        <h2 class="section-title">生活隨筆</h2>
+                        <span class="section-en">JOURNAL</span>
+                        <div class="hover-accent-line"></div>
+                    </div>
+                    <span class="enter-arrow">→</span>
+                </a>
+                <div class="section-content">
+                    {allJournalPosts.slice(0, 3).map((post) => (
+                        <a href={`/blog/${post.id}`} class="preview-item">
+                            <div class="preview-date">
+                                <span class="p-year">{post.data.pubDate.getFullYear()}</span>
+                                <span class="p-day">{post.data.pubDate.getDate()}日</span>
+                            </div>
+                            <div class="preview-body">
+                                <h3 class="p-title">{post.data.title}</h3>
+                                <p class="p-excerpt">{post.data.mood || '今日無事'}</p>
+                            </div>
+                        </a>
+                    ))}
+                    <div class="see-more-wrapper">
+                        <a href="/blog" class="see-more-btn">
+                            <span class="btn-text">查看更多 MORE</span>
+                            <div class="btn-line"></div>
+                        </a>
+                    </div>
+                </div>
+            </section>
 
-			<section class="module">
-				<h2>文獻回顧 <small>LITERATURE</small></h2>
-				<div class="list-container">
-					{
-						allResearch.length > 0 ? (
-							allResearch.map((paper) => (
-								<a
-									href={`/research/${paper.id}`}
-									class="unified-item"
-								>
-									<span class="meta-tag academic">
-										{paper.data.field || "Research"}
-									</span>
-									<span class="title">
-										{paper.data.title}
-									</span>
-								</a>
-							))
-						) : (
-							<p class="empty-hint">暫無文獻檔案...</p>
-						)
-					}
-				</div>
-			</section>
+            <section class="home-section">
+                <a href="/research" class="section-title-link">
+                    <div class="title-container">
+                        <h2 class="section-title">文獻回顧</h2>
+                        <span class="section-en">LITERATURE</span>
+                        <div class="hover-accent-line"></div>
+                    </div>
+                    <span class="enter-arrow">→</span>
+                </a>
+                <div class="section-content">
+                    {allResearchPosts.slice(0, 3).map((post) => (
+                        <a href={`/research/${post.id}`} class="preview-item">
+                            <div class="preview-date">
+                                <span class="p-year">{post.data.pubDate.getFullYear()}</span>
+                                <span class="p-day">{post.data.pubDate.getDate()}日</span>
+                            </div>
+                            <div class="preview-body">
+                                <h3 class="p-title">{post.data.title}</h3>
+                                <p class="p-excerpt">{post.data.category || '學術探究'}</p>
+                            </div>
+                        </a>
+                    ))}
+                    <div class="see-more-wrapper">
+                        <a href="/research" class="see-more-btn">
+                            <span class="btn-text">查看更多 MORE</span>
+                            <div class="btn-line"></div>
+                        </a>
+                    </div>
+                </div>
+            </section>
 
-			<section class="module">
-				<h2>閱冊筆記 <small>READING</small></h2>
-				<div class="list-container">
-					{
-						allReading.map((book) => (
-							<a
-								href={`/reading/${book.id}`}
-								class="unified-item"
-							>
-								<span class="meta-tag book">
-									{book.data.author}
-								</span>
-								<span class="title">{book.data.bookTitle}</span>
-							</a>
-						))
-					}
-				</div>
-			</section>
+            <section class="home-section">
+                <a href="/reading" class="section-title-link">
+                    <div class="title-container">
+                        <h2 class="section-title">閱測筆記</h2>
+                        <span class="section-en">READING</span>
+                        <div class="hover-accent-line"></div>
+                    </div>
+                    <span class="enter-arrow">→</span>
+                </a>
+                <div class="section-content">
+                    {allReadingPosts.slice(0, 3).map((post) => (
+                        <a href={`/reading/${post.id}`} class="preview-item">
+                            <div class="preview-date">
+                                <span class="p-year">{post.data.pubDate.getFullYear()}</span>
+                                <span class="p-day">{post.data.pubDate.getDate()}日</span>
+                            </div>
+                            <div class="preview-body">
+                                <h3 class="p-title">{post.data.title}</h3>
+                                <p class="p-excerpt">{post.data.author || '書海拾貝'}</p>
+                            </div>
+                        </a>
+                    ))}
+                    <div class="see-more-wrapper">
+                        <a href="/reading" class="see-more-btn">
+                            <span class="btn-text">查看更多 MORE</span>
+                            <div class="btn-line"></div>
+                        </a>
+                    </div>
+                </div>
+            </section>
 
-			<section class="module">
-				<h2>拾音集 <small>MUSIC</small></h2>
-				<div class="list-container">
-					{
-						allMusic.map((m) => (
-							<a href={`/music/${m.id}`} class="unified-item">
-								<span class="meta-tag music">
-									{m.data.artist}
-								</span>
-								<span class="title">{m.data.songName}</span>
-							</a>
-						))
-					}
-				</div>
-			</section>
-		</div>
-	</main>
+            <section class="home-section">
+                <a href="/music" class="section-title-link">
+                    <div class="title-container">
+                        <h2 class="section-title">拾音集</h2>
+                        <span class="section-en">MUSIC</span>
+                        <div class="hover-accent-line"></div>
+                    </div>
+                    <span class="enter-arrow">→</span>
+                </a>
+                <div class="section-content">
+                    {allMusicPosts.slice(0, 3).map((post) => (
+                        <a href={`/music/${post.id}`} class="preview-item">
+                            <div class="preview-date">
+                                <span class="p-year">{post.data.pubDate.getFullYear()}</span>
+                                <span class="p-day">{post.data.pubDate.getDate()}日</span>
+                            </div>
+                            <div class="preview-body">
+                                <h3 class="p-title">{post.data.title}</h3>
+                                <p class="p-excerpt">{post.data.artist || '旋律回響'}</p>
+                            </div>
+                        </a>
+                    ))}
+                    <div class="see-more-wrapper">
+                        <a href="/music" class="see-more-btn">
+                            <span class="btn-text">查看更多 MORE</span>
+                            <div class="btn-line"></div>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
 </Layout>
 
-<script>
-	function updateTime() {
-		const clock = document.getElementById("live-time");
-		const now = new Date();
-		if (clock)
-			clock.textContent = now.toLocaleTimeString("zh-TW", {
-				hour12: false,
-				hour: "2-digit",
-				minute: "2-digit",
-				second: "2-digit",
-			});
-	}
-	setInterval(updateTime, 1000);
-	updateTime();
-</script>
 <script define:vars={{ slogans, randomSlogan }}>
-	// 找出初始標語在陣列中的位置，這樣切換才會順
-	let currentIndex = slogans.indexOf(randomSlogan);
-	const sloganElement = document.getElementById("slogan");
+    function setupPageLogic() {
+        // --- 時鐘邏輯 ---
+        const clockElement = document.getElementById("live-time");
+        if (window.clockInterval) clearInterval(window.clockInterval);
+        function updateTime() {
+            const now = new Date();
+            if (clockElement) clockElement.textContent = now.toLocaleTimeString("zh-TW", { hour12: false, hour: "2-digit", minute: "2-digit", second: "2-digit" });
+        }
+        if (clockElement) { updateTime(); window.clockInterval = setInterval(updateTime, 1000); }
 
-	function updateSlogan() {
-		if (!sloganElement) return;
-
-		// 1. 淡出效果
-		sloganElement.style.opacity = "0";
-
-		// 2. 等淡出完成後換字並淡入
-		setTimeout(() => {
-			currentIndex = (currentIndex + 1) % slogans.length;
-			sloganElement.textContent = slogans[currentIndex];
-			sloganElement.style.opacity = "1";
-		}, 500); // 這裡的 500ms 要對應 CSS 的 transition 時間
-	}
-
-	// 每 3 秒執行一次
-	setInterval(updateSlogan, 3000);
+        // --- 標語輪播 ---
+        const sloganElement = document.getElementById("slogan");
+        if (window.sloganInterval) clearInterval(window.sloganInterval);
+        let currentIndex = slogans.indexOf(randomSlogan);
+        function updateSlogan() {
+            if (!sloganElement) return;
+            sloganElement.style.opacity = "0";
+            setTimeout(() => {
+                currentIndex = (currentIndex + 1) % slogans.length;
+                sloganElement.textContent = slogans[currentIndex];
+                sloganElement.style.opacity = "1";
+            }, 500);
+        }
+        if (sloganElement) { window.sloganInterval = setInterval(updateSlogan, 3000); }
+    }
+    document.addEventListener("astro:page-load", setupPageLogic);
 </script>
 
 <style>
-	:root {
-		--ink: #2c2c2c;
-		--paper: #fdfaf6;
-		--accent: #8b4513;
-		--muted: #8e8e8e;
-		--border: #e0dcd5;
-	}
+    :root {
+        --ink: #2c2c2c;
+        --paper: #fdfaf6;
+        --accent: #8b4513;
+        --muted: #8e8e8e;
+        --border: #e0dcd5;
+    }
 
-	body {
-		background-color: var(--paper);
-		color: var(--ink);
-		font-family: "Noto Serif TC", serif;
-		margin: 0;
-	}
-	.paper-texture {
-		position: fixed;
-		inset: 0;
-		z-index: -1;
-		opacity: 0.03;
-		background-image: url("https://www.transparenttextures.com/patterns/paper-fibers.png");
-		pointer-events: none;
-	}
-	.container {
-		max-width: 1100px;
-		margin: 0 auto;
-		padding: 2rem;
-	}
+    body { background-color: var(--paper); color: var(--ink); font-family: "Noto Serif TC", serif; margin: 0; }
+    .paper-texture { position: fixed; inset: 0; z-index: -1; opacity: 0.03; background-image: url("https://www.transparenttextures.com/patterns/paper-fibers.png"); pointer-events: none; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 2rem; }
 
-	/* 導覽與橫幅樣式 (延用人文感) */
-	.top-nav {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		border-bottom: 1px solid var(--border);
-		padding-bottom: 1rem;
-		margin-bottom: 2rem;
-		font-size: 0.85rem;
-	}
-	.nav-links a {
-		text-decoration: none;
-		color: var(--muted);
-		margin-right: 1.2rem;
-		transition: 0.3s;
-	}
-	.nav-links a:hover {
-		color: var(--accent);
-	}
-	.current-time {
-		color: var(--accent);
-		font-family: monospace;
-	}
+    /* 導覽與橫幅 */
+    .top-nav { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 1rem; margin-bottom: 2rem; font-size: 0.85rem; }
+    .nav-links a { text-decoration: none; color: var(--muted); margin-right: 1.2rem; transition: 0.3s; }
+    .nav-links a:hover { color: var(--accent); }
+    .current-time { color: var(--accent); font-family: monospace; }
 
-	.banner-header {
-		position: relative;
-		width: 100%;
-		height: 300px; /* 這裡一定要有固定高度，否則會縮成一條線 */
-		margin-top: 2rem;
-		margin-bottom: 4rem;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		overflow: hidden;
-		z-index: 10; /* 確保它在背景紙紋之上 */
-	}
+    .banner-header { position: relative; width: 100%; height: 300px; margin-bottom: 4rem; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+    .banner-bg { position: absolute; inset: 0; z-index: -1; }
+    .banner-bg img { width: 100%; height: 100%; object-fit: cover; }
+    .banner-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(253, 250, 246, 0.3), var(--paper)); }
+    .banner-content h1 { font-size: 2.2rem; text-shadow: 0 1px 2px white; text-align: center; }
+    #slogan { display: block; font-size: 0.9rem; font-weight: 400; letter-spacing: 0.2rem; margin-top: 0.8rem; font-style: italic; transition: opacity 0.5s ease-in-out; }
 
-	.banner-bg {
-		position: absolute;
-		inset: 0;
-		z-index: -1; /* 相對於 banner-header 是底層，但在全站是頂層 */
-	}
+    /* 四宮格佈局 */
+    .quad-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; }
+    .home-section { margin-bottom: 4rem; }
 
-	.banner-bg img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover; /* 確保圖片填滿不變形 */
-		display: block; /* 消除圖片下方的幽靈間隙 */
-	}
+    /* 標題動畫 */
+    .section-title-link {
+        display: flex; justify-content: space-between; align-items: flex-end;
+        text-decoration: none; color: var(--ink); padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border); margin-bottom: 2rem;
+        transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .title-container { position: relative; display: flex; align-items: baseline; gap: 1.5rem; }
+    .section-title { font-size: 1.8rem; margin: 0; transition: 0.4s; }
+    .section-en { font-size: 0.75rem; color: var(--muted); letter-spacing: 2px; }
+    .hover-accent-line { position: absolute; bottom: -1px; left: 0; width: 0; height: 3px; background-color: var(--accent); transition: 0.4s; }
+    .enter-arrow { font-size: 1.2rem; color: var(--muted); opacity: 0; transform: translateX(-10px); transition: 0.4s; }
 
-	.banner-overlay {
-		position: absolute;
-		inset: 0;
-		background: linear-gradient(
-			to bottom,
-			rgba(253, 250, 246, 0.3),
-			var(--paper)
-		);
-	}
-	.banner-content {
-		text-align: center;
-		position: relative;
-		z-index: 2;
-	}
-	.banner-content h1 span {
-		display: block;
-		font-size: 0.9rem;
-		font-weight: 400; /* 如果要人文感，建議不要太粗 */
-		letter-spacing: 0.2rem;
-		margin-top: 0.8rem;
-		color: black; /* 使用柔和的灰色 */
-		font-weight: bold;
-		font-style: italic;  /* 增加書卷氣 */
-		transition: opacity 0.5s ease-in-out;
-	}
+    .section-title-link:hover .section-title { transform: translateX(10px); color: var(--accent); }
+    .section-title-link:hover .hover-accent-line { width: 80px; }
+    .section-title-link:hover .enter-arrow { opacity: 1; transform: translateX(0); color: var(--accent); }
 
-	h1 {
-		font-size: 2.2rem;
-		margin: 0;
-		font-weight: 700;
-		text-shadow: 0 1px 2px white;
-	}
+    /* 內容清單項目 */
+    .section-content { display: flex; flex-direction: column; gap: 1.5rem; }
+    .preview-item {
+        display: flex; gap: 1.5rem; text-decoration: none; color: inherit;
+        padding: 0.8rem; transition: 0.3s; border-radius: 4px;
+    }
+    .preview-item:hover { background: rgba(139, 69, 19, 0.03); transform: translateX(5px); }
+    .preview-date { min-width: 65px; text-align: right; border-right: 1px solid var(--border); padding-right: 1rem; }
+    .p-year { font-size: 0.7rem; color: var(--muted); display: block; }
+    .p-day { font-size: 1.1rem; font-weight: 700; }
+    .preview-body { flex: 1; }
+    .p-title { font-size: 1rem; margin: 0 0 4px 0; }
+    .p-excerpt { font-size: 0.8rem; color: var(--muted); margin: 0; }
 
-	.date-stamp {
-		font-size: 0.75rem;
-		color: var(--muted);
-		margin-bottom: 0.5rem;
-	}
+    /* 「查看更多」書籤按鈕 */
+    .see-more-wrapper { display: flex; justify-content: flex-end; margin-top: 1rem; }
+    .see-more-btn {
+        text-decoration: none; color: var(--muted); font-size: 0.7rem;
+        letter-spacing: 2px; position: relative; padding: 8px 0;
+        transition: 0.4s;
+    }
+    .btn-line { position: absolute; bottom: 0; right: 0; width: 30px; height: 2px; background-color: var(--border); transition: 0.4s; }
+    .see-more-btn:hover { color: var(--accent); transform: translateX(-5px); }
+    .see-more-btn:hover .btn-line { width: 100%; background-color: var(--accent); }
 
-	/* 核心修正：統一的四宮格與清單樣式 */
-	.quad-grid {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 4rem;
-	}
-	.module h2 {
-		font-size: 1.1rem;
-		border-bottom: 1px solid var(--ink);
-		padding-bottom: 0.5rem;
-		margin-bottom: 1.5rem;
-		display: flex;
-		justify-content: space-between;
-		align-items: baseline;
-	}
-	.module h2 small {
-		font-size: 0.7rem;
-		color: var(--accent);
-		font-family: sans-serif;
-		letter-spacing: 1px;
-	}
-
-	.list-container {
-		display: flex;
-		flex-direction: column;
-	}
-
-	/* 統一所有項目的外觀 */
-	.unified-item {
-		display: flex;
-		align-items: center;
-		padding: 1rem 0;
-		border-bottom: 1px dashed var(--border);
-		text-decoration: none;
-		color: var(--ink);
-		font-size: 0.95rem;
-		transition: all 0.3s ease;
-	}
-
-	.unified-item:hover {
-		background-color: rgba(139, 69, 19, 0.03);
-		padding-left: 8px;
-		color: var(--accent);
-		border-bottom-style: solid;
-	}
-
-	/* 統一的標籤樣式 */
-	.meta-tag {
-		font-size: 0.7rem;
-		padding: 2px 8px;
-		border: 1px solid var(--border);
-		margin-right: 15px;
-		min-width: 60px;
-		text-align: center;
-		color: var(--muted);
-		font-family: sans-serif;
-		text-transform: uppercase;
-	}
-	.meta-tag.academic {
-		color: #4a6741;
-		border-color: #4a6741;
-	} /* 墨綠 */
-	.meta-tag.book {
-		color: #8b4513;
-		border-color: #8b4513;
-	} /* 皮革棕 */
-	.meta-tag.music {
-		color: #4682b4;
-		border-color: #4682b4;
-	} /* 鋼琴藍 */
-
-	.title {
-		flex: 1;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-
-	.empty-hint {
-		font-size: 0.85rem;
-		color: var(--muted);
-		font-style: italic;
-	}
-
-	.list-container {
-		display: flex;
-		flex-direction: column;
-		/* 設定最大高度：一條項目約 60px，三條約 180px - 200px */
-		max-height: 200px;
-		overflow-y: auto;
-		padding-right: 10px; /* 給捲軸留一點空間 */
-
-		/* 讓捲軸在沒用到時隱藏，滑動時才出現（可選） */
-		scrollbar-width: thin;
-		scrollbar-color: var(--border) transparent;
-	}
-
-	/* 美化捲軸 (Chrome, Edge, Safari) */
-	.list-container::-webkit-scrollbar {
-		width: 4px; /* 極細捲軸，符合人文感 */
-	}
-
-	.list-container::-webkit-scrollbar-track {
-		background: transparent;
-	}
-
-	.list-container::-webkit-scrollbar-thumb {
-		background-color: var(--border);
-		border-radius: 10px;
-	}
-
-	/* 確保每個項目高度固定，方便計算 */
-	.unified-item {
-		display: flex;
-		align-items: center;
-		min-height: 60px; /* 固定高度，確保三條剛好填滿 max-height */
-		padding: 0.8rem 0;
-		border-bottom: 1px dashed var(--border);
-		text-decoration: none;
-		color: var(--ink);
-		font-size: 0.95rem;
-		transition: all 0.3s ease;
-	}
-
-	.unified-item:hover {
-		background-color: rgba(139, 69, 19, 0.03);
-		padding-left: 8px;
-	}
-
-	#slogan {
-		display: block;
-		transition: opacity 0.5s ease-in-out; /* 關鍵：讓透明度變化變平滑 */
-		opacity: 1;
-	}
-
-	@media (max-width: 768px) {
-		.quad-grid {
-			grid-template-columns: 1fr;
-			gap: 2rem;
-		}
-	}
+    @media (max-width: 768px) { .quad-grid { grid-template-columns: 1fr; } }
 </style>

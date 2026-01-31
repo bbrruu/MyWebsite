@@ -2,93 +2,133 @@
 import Layout from "../../layouts/Layout.astro";
 import { getCollection } from "astro:content";
 
-// 1. 抓取所有部落格文章並按日期排序
+// 1. 抓取文章並排序
 const allPosts = (await getCollection("blog")).sort(
     (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
 
-// 2. 邏輯：按年份/月份分組（增加檔案檢索的儀式感）
+// 2. 定義分類標籤
+const categories = ["EVERYDAY-LIFE", "GAME", "REFLECTION", "LEARNING"];
+
+// 3. 處理月份分組邏輯（核心修正：確保年份與月份完整顯示）
 const groupedPosts = allPosts.reduce((acc, post) => {
     const date = new Date(post.data.pubDate);
-    const yearMonth = `${date.getFullYear()}年 ${date.getMonth() + 1}月`;
-    if (!acc[yearMonth]) acc[yearMonth] = [];
-    acc[yearMonth].push(post);
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const monthKey = `${year}年 ${month}月`; // 這裡確保了年份顯示
+    if (!acc[monthKey]) acc[monthKey] = [];
+    acc[monthKey].push(post);
     return acc;
 }, {});
 
 const months = Object.keys(groupedPosts);
 ---
 
-<Layout title="生活隨筆 | 拾光日誌">
+<Layout title="生活隨筆 | 拾光目錄">
     <div class="paper-texture"></div>
 
     <main class="blog-archive">
         <header class="archive-header">
             <nav class="breadcrumb">
-                <a href="/">HOME</a> / <span class="current">JOURNAL</span>
+                <a href="/">HOME</a>
+                <span class="sep">/</span>
+                <span class="current">JOURNAL</span>
             </nav>
-            <h1>生活隨筆 <span>記錄瑣碎而真實的瞬間</span></h1>
-            <hr class="ink-line" />
+
+            <h1>生活隨筆</h1>
+
+            <nav class="category-filter">
+                <button class="cat-btn active" data-category="all">全部 ALL</button>
+                {categories.map((cat) => (
+                    <button class="cat-btn" data-category={cat}>{cat}</button>
+                ))}
+            </nav>
         </header>
 
-        <div class="archive-content">
-            {
-                months.map((month) => (
-                    <section class="month-group">
-                        <div class="month-indicator">
-                            <span class="dot" />
-                            <h2>{month}</h2>
-                        </div>
+        <div class="archive-content" id="master-list">
+            {months.map((month) => (
+                <section class="month-group" data-month={month}>
+                    <div class="month-indicator">
+                        <span class="dot" />
+                        <h2>{month}</h2>
+                    </div>
 
-                        <div class="post-links">
-                            {groupedPosts[month].map((post) => (
-                                <a
-                                    href={`/blog/${post.id}`}
-                                    class="journal-entry"
-                                >
+                    <div class="post-list">
+                        {groupedPosts[month].map((post) => (
+                            <div class="post-wrapper" data-cat={post.data.category}>
+                                <a href={`/blog/${post.id}`} class="journal-entry">
                                     <div class="entry-meta">
-                                        <span class="day">
-                                            {new Date(
-                                                post.data.pubDate,
-                                            ).getDate()}
-                                            日
-                                        </span>
-                                        <span class="location">
-                                            {post.data.location || "Taipei"}
-                                        </span>
+                                        <span class="day">{post.data.pubDate.getDate()}</span>
+                                        <span class="unit">日</span>
                                     </div>
-
                                     <div class="entry-body">
-                                        <h3 class="entry-title">
-                                            {post.data.title}
-                                        </h3>
+                                        <span class="cat-label-top">{post.data.category}</span>
+                                        <h3 class="entry-title">{post.data.title}</h3>
                                         <div class="entry-footer">
-                                            <span class="mood">
-                                                心情：{post.data.mood}
-                                            </span>
-                                            <span class="status">
-                                                [{post.data.status}]
-                                            </span>
+                                            <span class="location">{post.data.location || "Taipei"}</span>
+                                            <span class="dot-sep"></span>
+                                            <span class="mood">心情：{post.data.mood || "還行"}</span>
                                         </div>
                                     </div>
                                 </a>
-                            ))}
-                        </div>
-                    </section>
-                ))
-            }
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            ))}
         </div>
-
-        {
-            allPosts.length === 0 && (
-                <p class="empty-state">目前尚未有任何紀錄。</p>
-            )
-        }
     </main>
 </Layout>
 
+<script>
+    function initBlogFilters() {
+        const buttons = document.querySelectorAll(".cat-btn");
+        const posts = document.querySelectorAll(".post-wrapper");
+        const monthGroups = document.querySelectorAll(".month-group");
+
+        if (buttons.length === 0) return;
+
+        buttons.forEach((btn) => {
+            btn.addEventListener("click", () => {
+                const selectedCat = btn.getAttribute("data-category");
+
+                // 1. 切換按鈕狀態
+                buttons.forEach((b) => b.classList.remove("active"));
+                btn.classList.add("active");
+
+                // 2. 執行絲滑過濾邏輯
+                posts.forEach((post) => {
+                    const postCat = post.getAttribute("data-cat");
+                    const htmlPost = post as HTMLElement;
+                    
+                    if (selectedCat === "all" || postCat === selectedCat) {
+                        htmlPost.classList.remove("is-hidden");
+                    } else {
+                        htmlPost.classList.add("is-hidden");
+                    }
+                });
+
+                // 3. 檢查月份區塊是否該隱藏 (等文章縮小動畫中途檢查)
+                setTimeout(() => {
+                    monthGroups.forEach((group) => {
+                        const htmlGroup = group as HTMLElement;
+                        const visiblePosts = htmlGroup.querySelectorAll('.post-wrapper:not(.is-hidden)');
+                        if (visiblePosts.length === 0) {
+                            htmlGroup.classList.add("month-hidden");
+                        } else {
+                            htmlGroup.classList.remove("month-hidden");
+                        }
+                    });
+                }, 100);
+            });
+        });
+    }
+
+    // 解決分頁切換後腳本失效的問題
+    document.addEventListener('astro:page-load', initBlogFilters);
+</script>
+
 <style>
-    /* --- 人文感專屬 CSS --- */
     :root {
         --ink: #2c2c2c;
         --paper: #fdfaf6;
@@ -98,144 +138,103 @@ const months = Object.keys(groupedPosts);
     }
 
     .blog-archive {
-        max-width: 800px;
+        max-width: 900px;
         margin: 4rem auto;
         padding: 0 1.5rem;
         font-family: "Noto Serif TC", serif;
-        color: var(--ink);
     }
 
-    /* 導覽與標題 */
-    .breadcrumb {
-        font-size: 0.8rem;
-        color: var(--muted);
-        letter-spacing: 2px;
-        margin-bottom: 1rem;
+    /* 麵包屑優化 */
+    .breadcrumb { display: flex; align-items: center; gap: 0.8rem; font-family: sans-serif; font-size: 0.7rem; letter-spacing: 0.2rem; margin-bottom: 2rem; }
+    .breadcrumb a, .breadcrumb .sep, .breadcrumb .current { text-decoration: none; color: var(--muted) !important; }
+    .breadcrumb a:hover { color: var(--accent) !important; }
+    .breadcrumb .current { font-weight: 700; color: var(--ink) !important; text-transform: uppercase; }
+
+    .archive-header h1 { font-size: 3rem; margin: 0 0 4rem 0; font-weight: 700; }
+
+    /* 分類導覽：平均分配頁面線 */
+    .category-filter {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 6rem;
     }
-    .breadcrumb a {
-        text-decoration: none;
-        color: inherit;
+    .cat-btn {
+        flex: 1;
+        background: none; border: none; padding: 0 0 1.2rem 0;
+        font-size: 0.75rem; color: var(--muted); cursor: pointer;
+        transition: color 0.3s ease; font-family: sans-serif; letter-spacing: 1px;
+        position: relative; text-transform: uppercase; text-align: center;
     }
-    .breadcrumb a:hover {
-        color: var(--accent);
+    .cat-btn.active { color: var(--accent); font-weight: 700; }
+    .cat-btn.active::after {
+        content: ''; position: absolute; bottom: -1px; left: 0;
+        width: 100%; height: 3px; background: var(--accent);
     }
 
-    .archive-header h1 {
-        font-size: 2.2rem;
-        margin: 0;
-    }
-    .archive-header h1 span {
-        display: block;
-        font-size: 0.9rem;
-        font-weight: 400;
-        color: var(--muted);
-        margin-top: 10px;
-    }
-    .ink-line {
-        border: 0;
-        border-top: 1px solid var(--ink);
-        width: 60px;
-        margin: 2rem 0 4rem;
-    }
-
-    /* 月份分組樣式 */
+    /* 時間軸與月份顯示 */
     .month-group {
         position: relative;
-        /* 1. 增加左側間距，讓給月份標題和日期數字 */
-        padding-left: 3.5rem;
+        padding-left: 4.5rem;
         border-left: 1px solid var(--border);
-        margin-bottom: 5rem;
-        margin-left: 1rem; /* 讓整條線往右移一點，避免貼到螢幕邊緣 */
+        margin-bottom: 6rem;
+        margin-left: 1rem;
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        opacity: 1;
+        transform: translateX(0);
+    }
+    /* 月份隱藏：優雅縮減間距 */
+    .month-group.month-hidden {
+        opacity: 0;
+        height: 0;
+        margin-bottom: 0;
+        transform: translateX(-10px);
+        overflow: hidden;
+        pointer-events: none;
     }
 
     .month-indicator {
-        position: absolute;
-        /* 2. 讓月份標題精準對齊圓點 */
-        left: -7px; /* 圓點位置 */
-        top: -2.5rem; /* 往上提，不要跟第一篇文章擠在一起 */
-        display: flex;
-        align-items: center;
-        white-space: nowrap;
+        position: absolute; left: -7px; top: -3rem;
+        display: flex; align-items: center; background: var(--paper); padding: 5px 0;
     }
+    .month-indicator .dot { width: 13px; height: 13px; background: var(--accent); border-radius: 50%; margin-right: 1.5rem; box-shadow: 0 0 0 5px var(--paper); }
+    .month-indicator h2 { font-size: 1.25rem; color: var(--accent); margin: 0; }
 
-    .month-indicator .dot {
-        width: 13px;
-        height: 13px;
-        background: var(--accent);
-        border-radius: 50%;
-        margin-right: 1.5rem;
-        box-shadow: 0 0 0 4px var(--paper); /* 用背景色做遮罩，讓線條在圓點處斷開 */
+    /* 絲滑過濾動畫核心 */
+    .post-wrapper {
+        transition: 
+            transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+            opacity 0.4s ease,
+            margin 0.5s ease,
+            max-height 0.5s ease;
+        max-height: 500px; /* 給予一個夠大的值以支撐展開 */
+        opacity: 1;
+        overflow: hidden;
     }
-
-    .month-indicator h2 {
-        font-size: 1.2rem;
+    .post-wrapper.is-hidden {
+        opacity: 0;
+        max-height: 0;
         margin: 0;
-        color: var(--accent);
-        font-weight: 700;
+        transform: scaleY(0); /* 垂直縮放，比調整高度更絲滑 */
+        pointer-events: none;
     }
 
-    /* 日誌條目佈局修正 */
     .journal-entry {
-        display: flex;
-        gap: 2.5rem; /* 增加日期與標題之間的距離 */
-        text-decoration: none;
-        color: inherit;
-        padding: 2rem 0;
-        border-bottom: 1px dashed var(--border);
-        transition: 0.3s;
-        align-items: flex-start;
+        display: flex; gap: 3.5rem; text-decoration: none; color: inherit;
+        padding: 2.5rem 0; border-bottom: 1px dashed var(--border); transition: 0.3s;
     }
+    .journal-entry:hover { background: rgba(139, 69, 19, 0.02); padding-left: 1rem; }
+    .entry-meta { min-width: 60px; text-align: right; }
+    .entry-meta .day { font-size: 2.4rem; font-weight: 700; line-height: 1; display: block; color: var(--ink); }
+    .entry-meta .unit { font-size: 0.8rem; color: var(--muted); }
+    .cat-label-top { display: block; font-size: 0.65rem; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 0.5rem; font-weight: 700; }
+    .entry-title { font-size: 1.4rem; margin: 0 0 0.8rem 0; font-weight: 700; }
+    .entry-footer { font-size: 0.85rem; color: var(--muted); display: flex; align-items: center; gap: 1.2rem; }
+    .dot-sep { width: 4px; height: 4px; background: var(--border); border-radius: 50%; }
 
-    .entry-meta {
-        display: flex;
-        flex-direction: column;
-        min-width: 80px; /* 增加寬度，確保日期不會換行 */
-        text-align: right; /* 日期靠右對齊，標題靠左，形成對稱感 */
-    }
-
-    .entry-meta .day {
-        font-size: 1.8rem; /* 稍微放大日期數字 */
-        font-weight: 700;
-        line-height: 1;
-        color: var(--ink);
-    }
-
-    .entry-meta .location {
-        font-size: 0.75rem;
-        color: var(--muted);
-        margin-top: 8px;
-        white-space: nowrap;
-    }
-
-    .entry-body {
-        flex: 1;
-        padding-top: 4px; /* 微調標題高度，對齊日期數字頂部 */
-    }
-    .entry-title {
-        font-size: 1.2rem;
-        margin: 0 0 8px 0;
-    }
-
-    .entry-footer {
-        font-size: 0.8rem;
-        color: var(--muted);
-        display: flex;
-        gap: 1rem;
-    }
-
-    .empty-state {
-        text-align: center;
-        color: var(--muted);
-        font-style: italic;
-    }
-
-    @media (max-width: 600px) {
-        .journal-entry {
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-        .month-group {
-            padding-left: 1.5rem;
-        }
+    @media (max-width: 768px) {
+        .journal-entry { gap: 1.5rem; flex-direction: column; }
+        .entry-meta { text-align: left; }
     }
 </style>

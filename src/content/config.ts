@@ -7,10 +7,11 @@ const blogCollection = defineCollection({
     title: z.string(),
     pubDate: z.date(),
     // 增加以下炫砲欄位
-    mood: z.string().default('Neutral'), // 心情指標
+    mood: z.string().default('還行'), // 心情指標
     techStack: z.array(z.string()).default([]), // 當天研究的技術
     status: z.enum(['Stable', 'Deploying', 'Debugging']).default('Stable'), // 系統狀態感
     location: z.string().default('Taipei, Taiwan'),
+    category: z.enum(['EVERYDAY-LIFE', 'GAME', 'REFLECTION', 'LEARNING']).default('EVERYDAY-LIFE'),
   }),
 });
 

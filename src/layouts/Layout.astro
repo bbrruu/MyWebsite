@@ -6,6 +6,7 @@ const { title } = Astro.props;
 const baseTitle = "Bruce的個人網站";
 // 如果有傳 title 進來，就顯示 "頁面名 | 站名"；沒有的話就只顯示站名
 const finalTitle = title ? title : baseTitle;
+import { ClientRouter } from 'astro:transitions'; // 引入過渡組件
 ---
 <!doctype html>
 <html lang="zh-Hant">
@@ -16,7 +17,7 @@ const finalTitle = title ? title : baseTitle;
         <link rel="icon" href="/favicon.ico" />
         <meta name="generator" content={Astro.generator} />
         <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
-        
+        <ClientRouter />
         <title>{finalTitle}</title>
     </head>
     <body>
