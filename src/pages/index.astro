@@ -25,33 +25,41 @@ const slogans = [
 const randomSlogan = slogans[Math.floor(Math.random() * slogans.length)];
 ---
 
-<Layout title="學思手札 | 格物致知">
+<Layout title="Bruce 個人網站">
     <div class="paper-texture"></div>
 
     <main transition:animate="fade" class="container">
         <nav class="top-nav">
             <div class="nav-links">
-                <a href="/">首頁 / INDEX</a>
-                <a href="/blog">日誌</a>
-                <a href="/research">學術</a>
-                <a href="/reading">閱冊</a>
-                <a href="/music">拾音</a>
+                <a href="/" class="nav-index">首頁 / INDEX</a>
+                <a href="/about" class="nav-about">關於我 / ABOUT</a>
+                <a href="/blog">生活隨筆</a>
+                <a href="/research">讀讀文獻</a>
+                <a href="/reading">看看書籍</a>
+                <a href="/music">聽聽音樂</a>
             </div>
             <div class="current-time"><span id="live-time"></span></div>
         </nav>
 
         <header class="banner-header">
-            <div class="banner-bg">
-                <img src="/images/banner.jpg" alt="Academic Banner" />
-                <div class="banner-overlay"></div>
-            </div>
-            <div class="banner-content">
-                <h1>Bruce的個人網站 <span id="slogan">{randomSlogan}</span></h1>
-            </div>
+            <a href="/about" class="banner-link-wrapper">
+                <div class="banner-bg">
+                    <img src="/images/banner.jpg" alt="Academic Banner" />
+                    <div class="banner-overlay"></div>
+                </div>
+                <div class="banner-content">
+                    <h1 class="banner-title">Bruce的個人網站</h1>
+                    <div id="slogan" class="banner-slogan">{randomSlogan}</div>
+                    
+                    <div class="profile-cta">
+                        <span class="cta-text">關於我 / VIEW PROFILE</span>
+                        <div class="cta-line"></div>
+                    </div>
+                </div>
+            </a>
         </header>
 
         <div class="quad-grid">
-            
             <section class="home-section">
                 <a href="/blog" class="section-title-link">
                     <div class="title-container">
@@ -70,15 +78,12 @@ const randomSlogan = slogans[Math.floor(Math.random() * slogans.length)];
                             </div>
                             <div class="preview-body">
                                 <h3 class="p-title">{post.data.title}</h3>
-                                <p class="p-excerpt">{post.data.mood || '今日無事'}</p>
+                                <p class="p-excerpt">{post.data.mood || "今日無事"}</p>
                             </div>
                         </a>
                     ))}
                     <div class="see-more-wrapper">
-                        <a href="/blog" class="see-more-btn">
-                            <span class="btn-text">查看更多 MORE</span>
-                            <div class="btn-line"></div>
-                        </a>
+                        <a href="/blog" class="see-more-btn">查看更多 MORE<div class="btn-line"></div></a>
                     </div>
                 </div>
             </section>
@@ -86,7 +91,7 @@ const randomSlogan = slogans[Math.floor(Math.random() * slogans.length)];
             <section class="home-section">
                 <a href="/research" class="section-title-link">
                     <div class="title-container">
-                        <h2 class="section-title">文獻回顧</h2>
+                        <h2 class="section-title">讀讀文獻</h2>
                         <span class="section-en">LITERATURE</span>
                         <div class="hover-accent-line"></div>
                     </div>
@@ -101,15 +106,12 @@ const randomSlogan = slogans[Math.floor(Math.random() * slogans.length)];
                             </div>
                             <div class="preview-body">
                                 <h3 class="p-title">{post.data.title}</h3>
-                                <p class="p-excerpt">{post.data.category || '學術探究'}</p>
+                                <p class="p-excerpt">{post.data.category || "學術探究"}</p>
                             </div>
                         </a>
                     ))}
                     <div class="see-more-wrapper">
-                        <a href="/research" class="see-more-btn">
-                            <span class="btn-text">查看更多 MORE</span>
-                            <div class="btn-line"></div>
-                        </a>
+                        <a href="/research" class="see-more-btn">查看更多 MORE<div class="btn-line"></div></a>
                     </div>
                 </div>
             </section>
@@ -117,7 +119,7 @@ const randomSlogan = slogans[Math.floor(Math.random() * slogans.length)];
             <section class="home-section">
                 <a href="/reading" class="section-title-link">
                     <div class="title-container">
-                        <h2 class="section-title">閱測筆記</h2>
+                        <h2 class="section-title">看看書籍</h2>
                         <span class="section-en">READING</span>
                         <div class="hover-accent-line"></div>
                     </div>
@@ -132,15 +134,12 @@ const randomSlogan = slogans[Math.floor(Math.random() * slogans.length)];
                             </div>
                             <div class="preview-body">
                                 <h3 class="p-title">{post.data.title}</h3>
-                                <p class="p-excerpt">{post.data.author || '書海拾貝'}</p>
+                                <p class="p-excerpt">{post.data.author || "書海拾貝"}</p>
                             </div>
                         </a>
                     ))}
                     <div class="see-more-wrapper">
-                        <a href="/reading" class="see-more-btn">
-                            <span class="btn-text">查看更多 MORE</span>
-                            <div class="btn-line"></div>
-                        </a>
+                        <a href="/reading" class="see-more-btn">查看更多 MORE<div class="btn-line"></div></a>
                     </div>
                 </div>
             </section>
@@ -148,7 +147,7 @@ const randomSlogan = slogans[Math.floor(Math.random() * slogans.length)];
             <section class="home-section">
                 <a href="/music" class="section-title-link">
                     <div class="title-container">
-                        <h2 class="section-title">拾音集</h2>
+                        <h2 class="section-title">聽聽音樂</h2>
                         <span class="section-en">MUSIC</span>
                         <div class="hover-accent-line"></div>
                     </div>
@@ -163,26 +162,22 @@ const randomSlogan = slogans[Math.floor(Math.random() * slogans.length)];
                             </div>
                             <div class="preview-body">
                                 <h3 class="p-title">{post.data.title}</h3>
-                                <p class="p-excerpt">{post.data.artist || '旋律回響'}</p>
+                                <p class="p-excerpt">{post.data.artist || "旋律回響"}</p>
                             </div>
                         </a>
                     ))}
                     <div class="see-more-wrapper">
-                        <a href="/music" class="see-more-btn">
-                            <span class="btn-text">查看更多 MORE</span>
-                            <div class="btn-line"></div>
-                        </a>
+                        <a href="/music" class="see-more-btn">查看更多 MORE<div class="btn-line"></div></a>
                     </div>
                 </div>
             </section>
-
         </div>
     </main>
 </Layout>
 
 <script define:vars={{ slogans, randomSlogan }}>
     function setupPageLogic() {
-        // --- 時鐘邏輯 ---
+        // 時鐘
         const clockElement = document.getElementById("live-time");
         if (window.clockInterval) clearInterval(window.clockInterval);
         function updateTime() {
@@ -191,7 +186,7 @@ const randomSlogan = slogans[Math.floor(Math.random() * slogans.length)];
         }
         if (clockElement) { updateTime(); window.clockInterval = setInterval(updateTime, 1000); }
 
-        // --- 標語輪播 ---
+        // 標語輪播
         const sloganElement = document.getElementById("slogan");
         if (window.sloganInterval) clearInterval(window.sloganInterval);
         let currentIndex = slogans.indexOf(randomSlogan);
@@ -222,33 +217,39 @@ const randomSlogan = slogans[Math.floor(Math.random() * slogans.length)];
     .paper-texture { position: fixed; inset: 0; z-index: -1; opacity: 0.03; background-image: url("https://www.transparenttextures.com/patterns/paper-fibers.png"); pointer-events: none; }
     .container { max-width: 1100px; margin: 0 auto; padding: 2rem; }
 
-    /* 導覽與橫幅 */
-    .top-nav { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 1rem; margin-bottom: 2rem; font-size: 0.85rem; }
-    .nav-links a { text-decoration: none; color: var(--muted); margin-right: 1.2rem; transition: 0.3s; }
-    .nav-links a:hover { color: var(--accent); }
+    /* 導覽列 */
+    .top-nav { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 1rem; margin-bottom: 2rem; }
+    .nav-links { display: flex; gap: 1.5rem; }
+    .nav-links a { text-decoration: none; color: var(--muted); transition: 0.3s; font-size: 0.9rem; letter-spacing: 1px; }
+    .nav-links a:hover, .nav-about, .nav-index { color: var(--ink); font-weight: 700; }
     .current-time { color: var(--accent); font-family: monospace; }
 
-    .banner-header { position: relative; width: 100%; height: 300px; margin-bottom: 4rem; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+    /* Banner 區域優化：垂直排版 */
+    .banner-header { position: relative; width: 100%; height: 350px; margin-bottom: 5rem; overflow: hidden; }
+    .banner-link-wrapper { display: block; width: 100%; height: 100%; text-decoration: none; color: inherit; }
     .banner-bg { position: absolute; inset: 0; z-index: -1; }
-    .banner-bg img { width: 100%; height: 100%; object-fit: cover; }
-    .banner-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(253, 250, 246, 0.3), var(--paper)); }
-    .banner-content h1 { font-size: 2.2rem; text-shadow: 0 1px 2px white; text-align: center; }
-    #slogan { display: block; font-size: 0.9rem; font-weight: 400; letter-spacing: 0.2rem; margin-top: 0.8rem; font-style: italic; transition: opacity 0.5s ease-in-out; }
+    .banner-bg img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1); }
+    .banner-link-wrapper:hover .banner-bg img { transform: scale(1.03); }
 
-    /* 四宮格佈局 */
-    .quad-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; }
-    .home-section { margin-bottom: 4rem; }
+    .banner-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(253, 250, 246, 0.1), var(--paper)); }
+    
+    .banner-content { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 2; text-align: center; }
+    .banner-title { font-size: 2.8rem; margin: 0; font-weight: 700; letter-spacing: -1px; }
+    .banner-slogan { font-size: 1rem; margin-top: 1rem; color: black; font-style: italic; letter-spacing: 0.1rem; transition: opacity 0.5s; }
 
-    /* 標題動畫 */
-    .section-title-link {
-        display: flex; justify-content: space-between; align-items: flex-end;
-        text-decoration: none; color: var(--ink); padding-bottom: 1rem;
-        border-bottom: 1px solid var(--border); margin-bottom: 2rem;
-        transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    }
+    /* 和諧的 View Profile 引導 */
+    .profile-cta { margin-top: 2.5rem; position: relative; padding-bottom: 6px; }
+    .cta-text { font-size: 0.75rem; font-family: sans-serif; color: black; letter-spacing: 2px; transition: 0.4s; }
+    .cta-line { position: absolute; bottom: 0; left: 50%; width: 30px; height: 1px; background-color: var(--border); transform: translateX(-50%); transition: 0.4s; }
+
+    .banner-link-wrapper:hover .cta-text { color: var(--accent); }
+    .banner-link-wrapper:hover .cta-line { width: 120px; background-color: var(--accent); }
+
+    /* 四宮格與標題動畫 */
+    .quad-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; }
+    .section-title-link { display: flex; justify-content: space-between; align-items: flex-end; text-decoration: none; color: var(--ink); padding-bottom: 1rem; border-bottom: 1px solid var(--border); margin-bottom: 2.5rem; }
     .title-container { position: relative; display: flex; align-items: baseline; gap: 1.5rem; }
     .section-title { font-size: 1.8rem; margin: 0; transition: 0.4s; }
-    .section-en { font-size: 0.75rem; color: var(--muted); letter-spacing: 2px; }
     .hover-accent-line { position: absolute; bottom: -1px; left: 0; width: 0; height: 3px; background-color: var(--accent); transition: 0.4s; }
     .enter-arrow { font-size: 1.2rem; color: var(--muted); opacity: 0; transform: translateX(-10px); transition: 0.4s; }
 
@@ -256,29 +257,16 @@ const randomSlogan = slogans[Math.floor(Math.random() * slogans.length)];
     .section-title-link:hover .hover-accent-line { width: 80px; }
     .section-title-link:hover .enter-arrow { opacity: 1; transform: translateX(0); color: var(--accent); }
 
-    /* 內容清單項目 */
-    .section-content { display: flex; flex-direction: column; gap: 1.5rem; }
-    .preview-item {
-        display: flex; gap: 1.5rem; text-decoration: none; color: inherit;
-        padding: 0.8rem; transition: 0.3s; border-radius: 4px;
-    }
-    .preview-item:hover { background: rgba(139, 69, 19, 0.03); transform: translateX(5px); }
-    .preview-date { min-width: 65px; text-align: right; border-right: 1px solid var(--border); padding-right: 1rem; }
-    .p-year { font-size: 0.7rem; color: var(--muted); display: block; }
-    .p-day { font-size: 1.1rem; font-weight: 700; }
-    .preview-body { flex: 1; }
-    .p-title { font-size: 1rem; margin: 0 0 4px 0; }
-    .p-excerpt { font-size: 0.8rem; color: var(--muted); margin: 0; }
-
-    /* 「查看更多」書籤按鈕 */
-    .see-more-wrapper { display: flex; justify-content: flex-end; margin-top: 1rem; }
-    .see-more-btn {
-        text-decoration: none; color: var(--muted); font-size: 0.7rem;
-        letter-spacing: 2px; position: relative; padding: 8px 0;
-        transition: 0.4s;
-    }
+    .preview-item { display: flex; gap: 1.5rem; text-decoration: none; color: inherit; padding: 0.8rem; border-bottom: 1px dashed var(--border); transition: 0.3s; }
+    .preview-item:hover { background: rgba(139, 69, 19, 0.03); transform: translateX(8px); }
+    .preview-date { min-width: 60px; text-align: right; border-right: 1px solid var(--border); padding-right: 1rem; }
+    .p-year { font-size: 0.65rem; color: var(--muted); display: block; }
+    .p-day { font-size: 1rem; font-weight: 700; }
+    
+    .see-more-wrapper { display: flex; justify-content: flex-end; margin-top: 1.5rem; }
+    .see-more-btn { text-decoration: none; color: var(--muted); font-size: 0.7rem; letter-spacing: 2px; position: relative; padding: 8px 0; transition: 0.3s; }
     .btn-line { position: absolute; bottom: 0; right: 0; width: 30px; height: 2px; background-color: var(--border); transition: 0.4s; }
-    .see-more-btn:hover { color: var(--accent); transform: translateX(-5px); }
+    .see-more-btn:hover { color: var(--accent); }
     .see-more-btn:hover .btn-line { width: 100%; background-color: var(--accent); }
 
     @media (max-width: 768px) { .quad-grid { grid-template-columns: 1fr; } }

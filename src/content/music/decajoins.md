@@ -1,5 +1,5 @@
 ---
-title: "哈囉你好嗎"
+title: "遺忘好不容易"
 songName: "浴室"
 artist: "Deca Joins"
 pubDate: 2026-01-30

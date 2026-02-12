@@ -1,5 +1,5 @@
 ---
-title: "深夜研究時的迷幻陪伴"
+title: "聽說斑馬無法獨自睡去"
 songName: "斑馬斑馬"
 artist: "宋冬野"
 pubDate: 2026-01-30

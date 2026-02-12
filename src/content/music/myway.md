@@ -1,5 +1,5 @@
 ---
-title: "最近聽到好聽的"
+title: "就是go your way"
 songName: "My Way"
 artist: "Frank Sinatra"
 pubDate: 2026-01-29

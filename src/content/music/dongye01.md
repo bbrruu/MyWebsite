@@ -1,5 +1,5 @@
 ---
-title: "嗨"
+title: "鎖死在我的腦海中"
 songName: "鴿子"
 artist: "宋冬野"
 pubDate: 2026-01-29
