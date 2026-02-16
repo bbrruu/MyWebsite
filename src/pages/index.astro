@@ -17,10 +17,10 @@ const allMusicPosts = (await getCollection("music")).sort(
 );
 
 const slogans = [
-    "Learn, Read, Music, and Life",
-    "Do you want to build a snowman",
-    "Lives can find their way out",
-    "Call me maybe",
+    "想買一桶冰淇淋暴挖起來吃",
+    "有一隻貓咪叫做高麗菜",
+    "中文字體要什麼才會好看呢",
+    "蛋餅蛋餅九層塔蛋餅",
 ];
 const randomSlogan = slogans[Math.floor(Math.random() * slogans.length)];
 ---
@@ -29,26 +29,15 @@ const randomSlogan = slogans[Math.floor(Math.random() * slogans.length)];
     <div class="paper-texture"></div>
 
     <main transition:animate="fade" class="container">
-        <nav class="top-nav">
-            <div class="nav-links">
-                <a href="/" class="nav-index">首頁 / INDEX</a>
-                <a href="/about" class="nav-about">關於我 / ABOUT</a>
-                <a href="/blog">生活隨筆</a>
-                <a href="/research">讀讀文獻</a>
-                <a href="/reading">看看書籍</a>
-                <a href="/music">聽聽音樂</a>
-            </div>
-            <div class="current-time"><span id="live-time"></span></div>
-        </nav>
 
         <header class="banner-header">
             <a href="/about" class="banner-link-wrapper">
                 <div class="banner-bg">
-                    <img src="/images/banner.jpg" alt="Academic Banner" />
+                    <img src="/images/banner.webp" alt="Academic Banner" />
                     <div class="banner-overlay"></div>
                 </div>
                 <div class="banner-content">
-                    <h1 class="banner-title">Bruce的個人網站</h1>
+                    <h1 class="banner-title">Bruce 的個人網站</h1>
                     <div id="slogan" class="banner-slogan">{randomSlogan}</div>
                     
                     <div class="profile-cta">
@@ -218,7 +207,6 @@ const randomSlogan = slogans[Math.floor(Math.random() * slogans.length)];
     .container { max-width: 1100px; margin: 0 auto; padding: 2rem; }
 
     /* 導覽列 */
-    .top-nav { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 1rem; margin-bottom: 2rem; }
     .nav-links { display: flex; gap: 1.5rem; }
     .nav-links a { text-decoration: none; color: var(--muted); transition: 0.3s; font-size: 0.9rem; letter-spacing: 1px; }
     .nav-links a:hover, .nav-about, .nav-index { color: var(--ink); font-weight: 700; }
@@ -231,14 +219,14 @@ const randomSlogan = slogans[Math.floor(Math.random() * slogans.length)];
     .banner-bg img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1); }
     .banner-link-wrapper:hover .banner-bg img { transform: scale(1.03); }
 
-    .banner-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(253, 250, 246, 0.1), var(--paper)); }
+    .banner-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(253, 250, 246, 0.3), var(--paper)); }
     
     .banner-content { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 2; text-align: center; }
     .banner-title { font-size: 2.8rem; margin: 0; font-weight: 700; letter-spacing: -1px; }
     .banner-slogan { font-size: 1rem; margin-top: 1rem; color: black; font-style: italic; letter-spacing: 0.1rem; transition: opacity 0.5s; }
 
     /* 和諧的 View Profile 引導 */
-    .profile-cta { margin-top: 2.5rem; position: relative; padding-bottom: 6px; }
+    .profile-cta { margin-top: 2.5rem; position: relative; padding-bottom: 6px; font-weight: bold;}
     .cta-text { font-size: 0.75rem; font-family: sans-serif; color: black; letter-spacing: 2px; transition: 0.4s; }
     .cta-line { position: absolute; bottom: 0; left: 50%; width: 30px; height: 1px; background-color: var(--border); transform: translateX(-50%); transition: 0.4s; }
 

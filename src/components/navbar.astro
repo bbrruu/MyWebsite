@@ -1,0 +1,56 @@
+---
+// src/components/Navbar.astro
+const { currentPath } = Astro.props;
+---
+
+<nav class="top-nav">
+  <div class="nav-links">
+    <a href="/" class={currentPath === "" ? "active" : ""}>首頁 / INDEX</a>
+    <a href="/about" class={currentPath === "about" ? "active" : ""}>關於我 / ABOUT</a>
+    <a href="/blog" class={currentPath === "blog" ? "active" : ""}>生活隨筆</a>
+    <a href="/research" class={currentPath === "research" ? "active" : ""}>讀讀文獻</a>
+    <a href="/reading" class={currentPath === "reading" ? "active" : ""}>看看書籍</a>
+    <a href="/music" class={currentPath === "music" ? "active" : ""}>聽聽音樂</a>
+  </div>
+  
+  <div class="current-time">
+    <span id="live-time"></span>
+  </div>
+</nav>
+
+<style>
+  /* 使用你最喜歡的原版 CSS */
+  .top-nav { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    border-bottom: 1px solid var(--border); 
+    padding-bottom: 1rem; 
+    margin-bottom: 2rem; 
+  }
+
+  .nav-links { 
+    display: flex; 
+    gap: 1.5rem; 
+  }
+
+  .nav-links a {
+    text-decoration: none;
+    color: var(--muted);
+    transition: 0.3s;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    font-family: "Noto Serif TC", serif;
+  }
+
+  .nav-links a:hover, .nav-links a.active {
+    color: var(--ink);
+    font-weight: 700; /* 選中或懸停時加粗 */
+  }
+
+  .current-time {
+    color: var(--accent);
+    font-family: monospace;
+    font-size: 0.9rem;
+  }
+</style>

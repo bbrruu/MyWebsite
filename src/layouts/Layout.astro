@@ -1,35 +1,118 @@
 ---
-// 1. 取得從各分頁傳過來的 title
+// 引入導覽列組件
+import Navbar from "../components/navbar.astro";
+
+interface Props {
+	title: string;
+}
+
 const { title } = Astro.props;
 
-// 2. 設定一個基礎站名
-const baseTitle = "Bruce的個人網站";
-// 如果有傳 title 進來，就顯示 "頁面名 | 站名"；沒有的話就只顯示站名
-const finalTitle = title ? title : baseTitle;
-import { ClientRouter } from 'astro:transitions'; // 引入過渡組件
+// 自動偵測當前路徑，用來高亮導覽列選單
+// 例如在 /about 頁面時，currentPath 會是 "about"
+const pathname = new URL(Astro.request.url).pathname;
+const currentPath = pathname.slice(1).split('/')[0];
 ---
+
 <!doctype html>
-<html lang="zh-Hant">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width" />
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-        <link rel="icon" href="/favicon.ico" />
-        <meta name="generator" content={Astro.generator} />
-        <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
-        <ClientRouter />
-        <title>{finalTitle}</title>
-    </head>
-    <body>
-        <slot />
-    </body>
+<html lang="zh-TW">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content="曾冠瑜 Bruce 的個人網站 - 數位人文與語義分析研究者" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
+		<meta name="generator" content={Astro.generator} />
+		<title>{title}</title>
+	</head>
+	<body>
+		<div class="paper-texture"></div>
+
+		<div class="container">
+			<Navbar currentPath={currentPath} />
+			
+			<slot />
+		</div>
+
+		<script is:inline>
+			function updateClock() {
+				const el = document.getElementById("live-time");
+				if (el) {
+					const now = new Date();
+					el.textContent = now.toLocaleTimeString("zh-TW", {
+						hour12: false,
+						hour: "2-digit",
+						minute: "2-digit",
+						second: "2-digit"
+					});
+				}
+			}
+			// 每秒更新一次
+			setInterval(updateClock, 1000);
+			updateClock();
+		</script>
+	</body>
 </html>
 
 <style is:global>
-    /* 建議加上 is:global 確保樣式能影響到所有分頁 */
-    html, body {
-        margin: 0;
-        padding: 0;
-        background-color: #fdfaf6; /* 確保人文感底色一致 */
-    }
+	/* --- 全域變數定義 --- */
+	:root {
+		--ink: #2c2c2c;       /* 墨水黑 */
+		--paper: #fdfaf6;     /* 紙張底色 */
+		--accent: #8b4513;    /* 焦糖褐色（強調色） */
+		--muted: #8e8e8e;     /* 輔助灰色 */
+		--border: #e0dcd5;    /* 邊框色 */
+	}
+
+	/* --- 基礎樣式重置 --- */
+	* {
+		box-sizing: border-box;
+	}
+
+	html, body {
+		margin: 0;
+		padding: 0;
+		width: 100%;
+		min-height: 100vh;
+		background-color: var(--paper);
+		color: var(--ink);
+		font-family: "Noto Serif TC", serif;
+		line-height: 1.6;
+	}
+
+	/* 紙張紋理效果 */
+	.paper-texture {
+		position: fixed;
+		inset: 0;
+		z-index: -1;
+		opacity: 0.03;
+		background-image: url("https://www.transparenttextures.com/patterns/paper-fibers.png");
+		pointer-events: none;
+	}
+
+	/* --- 核心容器：決定全站導覽列與內容的寬度 --- */
+	.container {
+		max-width: 1100px; /* 還原你最喜歡的寬度 */
+		margin: 0 auto;
+		padding: 2rem;
+	}
+
+	/* 標題與連結的基本樣式 */
+	h1, h2, h3 {
+		font-weight: 700;
+		letter-spacing: -0.5px;
+	}
+
+	a {
+		color: inherit;
+		text-decoration: none;
+		transition: 0.3s;
+	}
+
+	/* 響應式調整：在手機上減少邊距 */
+	@media (max-width: 768px) {
+		.container {
+			padding: 1rem;
+		}
+	}
 </style>

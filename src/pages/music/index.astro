@@ -2,10 +2,12 @@
 import Layout from "../../layouts/Layout.astro";
 import { getCollection } from "astro:content";
 
+// 1. 抓取所有音樂評論並排序
 const allMusic = (await getCollection("music")).sort(
     (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
 
+// 2. 依照演出者 (Artist) 進行分組
 const groupedByArtist = allMusic.reduce((acc, post) => {
     const artist = post.data.artist || "佚名";
     if (!acc[artist]) acc[artist] = [];
@@ -16,17 +18,12 @@ const groupedByArtist = allMusic.reduce((acc, post) => {
 const artists = Object.keys(groupedByArtist);
 ---
 
-<Layout title="拾音集 | 樂評編目">
+<Layout title="拾音集 | 樂評編目 - Bruce">
     <div class="paper-texture"></div>
 
     <main class="music-archive">
         <header class="archive-header">
-            <nav class="breadcrumb">
-                <a href="/">HOME</a>
-                <span class="sep">/</span>
-                <span class="current">MUSIC</span>
-            </nav>
-            <h1>拾音集</h1>
+            <h1>拾音集 <small>SOUND & TRACKS</small></h1>
             <div class="header-line"></div>
         </header>
 
@@ -34,26 +31,31 @@ const artists = Object.keys(groupedByArtist);
             {artists.map((artist) => (
                 <section class="artist-section">
                     <div class="artist-header">
-                        <div class="artist-name-group">
-                            <span class="prefix">Artist</span>
+                        <div class="author-name-group">
+                            <span class="prefix">Musician / Artist</span>
                             <h2 class="artist-title">{artist}</h2>
                         </div>
-                        <div class="track-count">{groupedByArtist[artist].length} Posts</div>
+                        <div class="note-count">{groupedByArtist[artist].length} RECORDS</div>
                     </div>
 
-                    <div class="song-list">
+                    <div class="note-list">
                         {groupedByArtist[artist].map((post) => (
-                            <div class="song-wrapper">
+                            <div class="note-wrapper">
                                 <a href={`/music/${post.id}`} class="music-entry">
                                     <div class="title-swap-container">
                                         <div class="title-default">
-                                            {post.data.title} <span class="song-mark">《{post.data.songName}》</span>
+                                            {post.data.title} <span class="song-mark">《{post.data.songName || 'Untitled'}》</span>
                                         </div>
                                         <div class="title-hover">
-                                            <span class="focus-artist">{post.data.artist}</span> <span class="song-mark">《{post.data.songName}》</span>
+                                            <span class="focus-artist">{post.data.artist}</span> 
+                                            <span class="song-mark">《{post.data.songName || 'Untitled'}》</span>
+                                            {post.data.genre && <span class="cat-tag">#{post.data.genre}</span>}
                                         </div>
                                     </div>
-                                    <div class="entry-arrow">VIEW →</div>
+                                    <div class="entry-arrow">
+                                        <span class="view-text">LISTEN</span>
+                                        <span class="arrow">→</span>
+                                    </div>
                                 </a>
                             </div>
                         ))}
@@ -65,92 +67,140 @@ const artists = Object.keys(groupedByArtist);
 </Layout>
 
 <style>
-    :root {
-        --ink: #2c2c2c;
-        --paper: #fdfaf6;
-        --accent: #8b4513;
-        --muted: #8e8e8e;
-        --border: #e0dcd5;
-    }
-
+    /* 核心佈局：與 Navbar (1100px) 完美對齊 */
     .music-archive { 
-        max-width: 800px; /* 稍微縮小容器寬度，讓視覺更聚焦 */
+        max-width: 1100px; 
         margin: 4rem auto; 
         padding: 0 1.5rem; 
         font-family: "Noto Serif TC", serif; 
     }
 
-    /* 麵包屑 */
+    /* 麵包屑：維持簡潔灰色調 */
     .breadcrumb { 
-        display: flex; align-items: center; gap: 0.6rem; 
-        font-family: sans-serif; font-size: 0.65rem; 
-        letter-spacing: 0.15rem; margin-bottom: 1.5rem; 
+        display: flex; 
+        align-items: center; 
+        gap: 0.8rem; 
+        font-family: sans-serif; 
+        font-size: 0.7rem; 
+        letter-spacing: 0.2rem; 
+        margin-bottom: 2rem; 
     }
-    .breadcrumb a, .breadcrumb .sep, .breadcrumb .current { text-decoration: none; color: var(--muted) !important; }
-    .breadcrumb .current { font-weight: 700; color: var(--ink) !important; text-transform: uppercase; }
+    .breadcrumb a { text-decoration: none; color: var(--muted); transition: 0.3s; }
+    .breadcrumb a:hover { color: var(--accent); }
+    .breadcrumb .sep { color: var(--border); }
+    .breadcrumb .current { font-weight: 700; color: var(--ink); text-transform: uppercase; }
 
-    /* 大標題縮小 */
-    .archive-header h1 { font-size: 2.2rem; margin: 0; font-weight: 700; letter-spacing: -0.5px; }
-    
-    .header-line { width: 100%; height: 1px; background: var(--border); margin: 1.5rem 0 4rem; position: relative; }
-    .header-line::after { content: ''; position: absolute; left: 0; top: -1px; width: 60px; height: 3px; background: var(--accent); }
+    /* 大標題樣式：與 Research 頁面同步 */
+    .archive-header h1 { 
+        font-size: 2.3rem; 
+        margin: 0; 
+        font-weight: 700; 
+        letter-spacing: -1.5px; 
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+    }
+    .archive-header h1 small { 
+        font-size: 0.9rem; 
+        font-family: sans-serif; 
+        letter-spacing: 4px; 
+        color: var(--muted); 
+        font-weight: 400;
+    }
 
-    /* --- 歌手區隔：整體縮小 --- */
-    .artist-section { margin-bottom: 5rem; }
-    
+    .header-line { width: 100%; height: 1px; background: var(--border); margin: 2rem 0 5rem; position: relative; }
+    .header-line::after { content: ''; position: absolute; left: 0; top: -1px; width: 80px; height: 3px; background: var(--accent); }
+
+    /* 歌手分組區隔 */
+    .artist-section { margin-bottom: 6rem; }
     .artist-header {
-        display: flex; justify-content: space-between; align-items: flex-end;
-        padding-bottom: 0.8rem; border-bottom: 1.5px solid var(--ink);
-        margin-bottom: 1.5rem;
+        display: flex; 
+        justify-content: space-between; 
+        align-items: flex-end;
+        padding-bottom: 1.2rem; 
+        border-bottom: 2px solid var(--ink);
+        margin-bottom: 2rem;
     }
-
-    .artist-name-group { display: flex; flex-direction: column; gap: 0.1rem; }
-    .artist-name-group .prefix { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); font-family: sans-serif; }
-    .artist-title { font-size: 1.6rem; margin: 0; color: var(--ink); font-weight: 700; } /* 從 2.2 縮小到 1.6 */
-    
-    .track-count { font-size: 0.7rem; font-family: sans-serif; color: var(--muted); padding-bottom: 0.3rem; }
-
-    /* --- 音樂項目：精簡間距與字級 --- */
-    .music-entry {
-        display: flex; align-items: center; justify-content: space-between;
-        text-decoration: none; color: inherit;
-        padding: 1.2rem 0; border-bottom: 1px dashed var(--border);
-        transition: 0.3s;
+    .author-name-group .prefix { 
+        font-size: 0.65rem; 
+        text-transform: uppercase; 
+        letter-spacing: 3px; 
+        color: var(--muted); 
+        font-family: sans-serif; 
+        display: block;
+        margin-bottom: 0.5rem;
     }
-    
-    .title-swap-container {
-        flex: 1; position: relative;
-        height: 2rem; /* 高度隨之縮小 */
-        overflow: hidden;
-        display: flex; align-items: center;
-    }
-
-    .title-default, .title-hover {
-        font-size: 1.1rem; /* 從 1.4 縮小到 1.1 */
+    .artist-title { font-size: 2rem; margin: 0; color: var(--ink); font-weight: 700; }
+    .note-count { 
+        font-size: 0.8rem; 
+        color: var(--accent); 
         font-weight: 700;
-        transition: all 0.45s cubic-bezier(0.23, 1, 0.32, 1);
-        white-space: nowrap;
-        line-height: 2rem;
+        font-family: sans-serif;
+        letter-spacing: 1px;
     }
 
+    /* 音樂條目互動動畫 */
+    .music-entry {
+        display: flex; 
+        align-items: center; 
+        justify-content: space-between;
+        text-decoration: none; 
+        color: inherit; 
+        padding: 2rem 0;
+        border-bottom: 1px dashed var(--border); 
+        transition: 0.4s ease;
+    }
+    .music-entry:hover { background: rgba(139, 69, 19, 0.02); padding-left: 1.5rem; }
+
+    .title-swap-container {
+        flex: 1; 
+        position: relative; 
+        height: 1.8rem; 
+        overflow: hidden; 
+        display: flex; 
+        align-items: center;
+    }
+    .title-default, .title-hover {
+        font-size: 1.25rem; 
+        font-weight: 700;
+        transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        white-space: nowrap; 
+        line-height: 1.8rem;
+    }
     .title-hover {
-        position: absolute; top: 0; left: 0; opacity: 0;
-        transform: translateY(10px);
+        position: absolute; top: 0; left: 0; 
+        opacity: 0; 
+        transform: translateY(15px); 
         color: var(--accent);
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
     }
+    
+    .song-mark { font-weight: 400; font-size: 1rem; color: var(--muted); margin-left: 0.5rem; }
+    .cat-tag { font-size: 0.75rem; color: var(--muted); font-family: sans-serif; opacity: 0.6; }
 
-    .song-mark { font-weight: 400; font-size: 0.95rem; color: var(--muted); margin-left: 0.4rem; }
-    .focus-artist { color: var(--accent); }
-
-    /* Hover 動畫 */
-    .music-entry:hover .title-default { opacity: 0; transform: translateY(-10px); }
+    .music-entry:hover .title-default { opacity: 0; transform: translateY(-15px); }
     .music-entry:hover .title-hover { opacity: 1; transform: translateY(0); }
 
-    .entry-arrow { font-size: 0.65rem; letter-spacing: 1px; color: var(--muted); opacity: 0; transition: 0.4s; }
-    .music-entry:hover .entry-arrow { opacity: 1; color: var(--accent); }
+    .entry-arrow { 
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        font-size: 0.75rem; 
+        letter-spacing: 2px; 
+        color: var(--muted); 
+        opacity: 0.4; 
+        transition: 0.4s; 
+        font-family: sans-serif;
+    }
+    .music-entry:hover .entry-arrow { opacity: 1; color: var(--accent); transform: translateX(5px); }
+    .view-text { font-weight: 700; }
 
-    @media (max-width: 600px) {
-        .artist-title { font-size: 1.4rem; }
-        .title-default, .title-hover { font-size: 1rem; }
+    @media (max-width: 850px) {
+        .archive-header h1 { font-size: 2.5rem; flex-direction: column; gap: 0.5rem; }
+        .artist-title { font-size: 1.6rem; }
+        .title-default, .title-hover { font-size: 1.1rem; }
+        .view-text { display: none; }
     }
 </style>
