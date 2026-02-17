@@ -1,6 +1,7 @@
 ---
 // 引入導覽列組件
 import Navbar from "../components/navbar.astro";
+import { ClientRouter } from 'astro:transitions';
 
 interface Props {
 	title: string;
@@ -24,6 +25,7 @@ const currentPath = pathname.slice(1).split('/')[0];
 		<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
+		<ClientRouter />
 	</head>
 	<body>
 		<div class="paper-texture"></div>
