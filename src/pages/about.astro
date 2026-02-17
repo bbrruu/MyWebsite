@@ -6,36 +6,41 @@ import Layout from "../layouts/Layout.astro";
   <div class="paper-texture"></div>
 
   <main transition:animate="fade" class="about-container">
-    <nav class="inner-nav">
-      <a href="/" class="back-link">
-        <span class="arrow">←</span>
-        <span class="text">回到首頁 INDEX</span>
-      </a>
-    </nav>
-
     <header class="about-header">
       <div class="header-left">
         <div class="profile-title">
-          <h1 class="main-name">曾冠瑜 Bruce</h1>
-          <p class="sub-identity">研究生 / 數位人文與語義分析研究者</p>
-          
+          <h1 class="main-name">曾冠瑜 ｜ Bruce Tseng</h1>
+          <p class="sub-identity">研究生 / 計算語言學、AI研究者</p>
+
           <div class="header-motto">
             "Exploring the nuances of language through the lens of data."
           </div>
-          
+
           <div class="header-decoration"></div>
-          
+
           <div class="header-meta-tags">
             <span class="meta-tag">📍 Taipei, Taiwan</span>
             <span class="meta-tag">🎓 NTU Linguistics</span>
             <span class="meta-tag">🎸 Music & Code</span>
           </div>
+          
+          <div class="header-secondary-image">
+            <div class="secondary-img-wrapper">
+                <img src="/images/your-secondary-photo.jpg" alt="Work Space" class="secondary-img" />
+                <div class="img-edge-hint"></div>
+            </div>
+          </div>
+
         </div>
       </div>
 
       <div class="header-right">
         <div class="profile-image-wrapper">
-          <img src="/images/profile.jpg" alt="Bruce's Portrait" class="profile-img" />
+          <img
+            src="/images/profile.jpg"
+            alt="Bruce's Portrait"
+            class="profile-img"
+          />
           <div class="img-edge-hint"></div>
         </div>
       </div>
@@ -62,6 +67,13 @@ import Layout from "../layouts/Layout.astro";
                 <span class="edu-degree">學士班</span>
               </div>
             </div>
+            <div class="edu-item">
+              <span class="edu-date">2017/09 - 2020/06</span>
+              <div class="edu-detail">
+                <span class="edu-school">國立臺灣師範大學附屬高級中學</span>
+                <span class="edu-dept">1472、1475</span>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -79,20 +91,34 @@ import Layout from "../layouts/Layout.astro";
         <section class="info-section profile-card">
           <h2 class="section-label">生活手札 <small>LIFE</small></h2>
           <div class="bio-text">
-            <p>目前在台大實驗室中探索數據與文字的交集。除了在伺服器終端機前與代碼搏鬥，我更喜歡透過不同的媒介去感受世界的溫度。</p>
+            <p>
+              目前在台大實驗室中探索數據與文字的交集。除了在伺服器終端機前與代碼搏鬥，我更喜歡透過不同的媒介去感受世界的溫度。
+            </p>
           </div>
           <ul class="interest-items">
-            <li><span class="icon">🎸</span><div><strong>弦外之音</strong><p>指尖上的音樂實驗。</p></div></li>
-            <li><span class="icon">🍰</span><div><strong>甜點語義學</strong><p>對甜點的層次感感興趣。</p></div></li>
+            <li>
+              <span class="icon">🎸</span><div>
+                <strong>弦外之音</strong><p>指尖上的音樂實驗。</p>
+              </div>
+            </li>
+            <li>
+              <span class="icon">🍰</span><div>
+                <strong>甜點語義學</strong><p>對甜點的層次感感興趣。</p>
+              </div>
+            </li>
           </ul>
         </section>
 
         <section class="info-section">
           <h2 class="section-label">聯繫我 <small>CONTACT</small></h2>
           <div class="contact-links">
-            <a href="mailto:your-email@example.com" class="contact-item">Email</a>
+            <a href="r14142007@ntu.edu.tw" class="contact-item"
+              >Email</a
+            >
             <span class="dot">•</span>
-            <a href="https://github.com/your-github" class="contact-item">GitHub</a>
+            <a href="https://github.com/bbrruu" class="contact-item"
+              >GitHub</a
+            >
           </div>
         </section>
       </div>
@@ -108,85 +134,330 @@ import Layout from "../layouts/Layout.astro";
     --muted: #8e8e8e;
     --border: #e0dcd5;
   }
+  .about-container {
+    max-width: 1100px; /* 建議統一為 1100px，與你的 Navbar 對齊 */
+    margin: 2rem 0; /* 移除 auto，改為 0 代表靠左；2rem 讓頂部保留一點呼吸空間 */
+    padding: 0 2rem;
+    font-family: "Noto Serif TC", serif;
+    color: var(--ink);
+  }
 
-  .about-container { max-width: 1050px; margin: 5rem auto; padding: 0 2rem; font-family: "Noto Serif TC", serif; color: var(--ink); }
-
-  .inner-nav { margin-bottom: 4rem; }
-  .back-link { display: inline-flex; align-items: center; text-decoration: none; color: var(--muted); font-size: 0.8rem; letter-spacing: 2px; transition: 0.4s; position: relative; padding-bottom: 5px; }
-  .back-link:hover { color: var(--accent); }
-  .back-link .arrow { margin-right: 10px; transition: 0.4s ease; }
-  .back-link:hover .arrow { transform: translateX(-8px); }
-  .back-link::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 1px; background: var(--accent); transition: 0.4s ease; }
-  .back-link:hover::after { width: 100%; }
+  .inner-nav {
+    margin-bottom: 4rem;
+  }
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    color: var(--muted);
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    transition: 0.4s;
+    position: relative;
+    padding-bottom: 5px;
+  }
+  .back-link:hover {
+    color: var(--accent);
+  }
+  .back-link .arrow {
+    margin-right: 10px;
+    transition: 0.4s ease;
+  }
+  .back-link:hover .arrow {
+    transform: translateX(-8px);
+  }
+  .back-link::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: var(--accent);
+    transition: 0.4s ease;
+  }
+  .back-link:hover::after {
+    width: 100%;
+  }
 
   /* --- 標頭佈局修正：垂直居中，縮小間距 --- */
   .about-header {
     display: flex;
     justify-content: space-between;
-    align-items: center; /* 改為置中對齊，讓大照片看起來更穩 */
-    margin-bottom: 6rem;
-    gap: 3rem; /* 縮小間距，讓照片與文字更緊密 */
+    align-items: flex-start; /* 從 center 改為 flex-start */
+    margin-bottom: 3rem;
+    gap: 3rem;
   }
-  .header-left { flex: 1; }
-  .main-name { font-size: 3.5rem; margin: 0; font-weight: 700; letter-spacing: -1px; }
-  .sub-identity { font-size: 1.1rem; color: var(--muted); margin-top: 0.5rem; letter-spacing: 2px; margin-bottom: 1.5rem; }
-  .header-motto { font-size: 0.9rem; font-style: italic; color: var(--muted); margin-bottom: 1rem; font-family: sans-serif; opacity: 0.7; }
-  .header-decoration { width: 60px; height: 4px; background: var(--accent); margin-bottom: 2rem; }
-  .header-meta-tags { display: flex; gap: 1.5rem; margin-top: 1rem; }
-  .meta-tag { font-size: 0.75rem; color: var(--muted); font-family: sans-serif; letter-spacing: 1px; display: flex; align-items: center; gap: 0.5rem; }
+  
+  .header-left {
+    flex: 1;
+  }
+  .main-name {
+    font-size: 2rem;
+    margin: 0;
+    font-weight: 700;
+    letter-spacing: -1px;
+  }
+  .sub-identity {
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin-top: 0.5rem;
+    letter-spacing: 2px;
+    margin-bottom: 1.5rem;
+  }
+  .header-motto {
+    font-size: 0.9rem;
+    font-style: italic;
+    color: var(--muted);
+    margin-bottom: 1rem;
+    font-family: sans-serif;
+    opacity: 0.7;
+  }
+  .header-decoration {
+    width: 400px;
+    height: 4px;
+    background: var(--accent);
+    margin-bottom: 2rem;
+  }
+  .header-meta-tags {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 1rem;
+  }
+  .meta-tag {
+    font-size: 0.75rem;
+    color: var(--muted);
+    font-family: sans-serif;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
 
   /* --- 照片樣式調整：大幅放大 --- */
-  .header-right { flex-shrink: 0; }
+  .header-right {
+    flex-shrink: 0;
+  }
   .profile-image-wrapper {
     position: relative;
     width: 400px; /* 放大至 400px */
     z-index: 1;
   }
-  .profile-img { 
-    width: 100%; height: auto; aspect-ratio: 4/5; object-fit: cover; border-radius: 4px;
-    border: 4px solid var(--paper); outline: 1px solid var(--border);
-    box-shadow: 0 12px 36px rgba(139, 69, 19, 0.12); transition: 0.5s;
+  .profile-img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4/5;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 4px solid var(--paper);
+    outline: 1px solid var(--border);
+    box-shadow: 0 12px 36px rgba(139, 69, 19, 0.12);
+    transition: 0.5s;
+    margin-top: 2.7rem;
   }
-  .profile-image-wrapper:hover .profile-img { transform: scale(1.02); box-shadow: 0 16px 48px rgba(139, 69, 19, 0.18); }
-  /* 極細的裝飾線，增加精緻感 */
-  .img-edge-hint {
-      position: absolute; inset: -2px; border: 1px solid var(--accent); opacity: 0.1; z-index: -1; border-radius: 5px; transition: 0.5s;
+  .profile-image-wrapper:hover .profile-img {
+    transform: scale(1.02);
+    box-shadow: 0 16px 48px rgba(139, 69, 19, 0.18);
   }
-  .profile-image-wrapper:hover .img-edge-hint { inset: -4px; opacity: 0.2; }
+
+  /* 主照片懸停時觸發裝飾線 */
+  .profile-image-wrapper:hover .img-edge-hint {
+    inset: -4px;
+    opacity: 0.2;
+  }
 
 
   /* --- 雙欄排版 --- */
-  .about-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 6rem; align-items: start; }
-  .section-label { font-size: 0.75rem; color: var(--muted); letter-spacing: 3px; text-transform: uppercase; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: baseline; }
-  .section-label small { font-size: 0.65rem; font-family: sans-serif; opacity: 0.6; }
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 6rem;
+    align-items: start;
+  }
+  .section-label {
+    font-size: 0.75rem;
+    color: var(--muted);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .section-label small {
+    font-size: 0.65rem;
+    font-family: sans-serif;
+    opacity: 0.6;
+  }
 
-  .edu-item { margin-bottom: 2.5rem; }
-  .edu-date { font-family: sans-serif; font-size: 0.8rem; color: var(--accent); display: block; margin-bottom: 0.5rem; }
-  .edu-school { font-size: 1.2rem; font-weight: 700; color: var(--ink); display: block; margin-bottom: 0.2rem; }
-  .edu-dept { font-size: 1rem; color: var(--ink); margin-right: 0.8rem; }
-  .edu-degree { font-size: 0.9rem; color: var(--muted); position: relative; padding-left: 0.8rem; }
-  .edu-degree::before { content: '|'; position: absolute; left: 0; color: var(--border); }
+  .edu-item {
+    margin-bottom: 2.5rem;
+  }
+  .edu-date {
+    font-family: sans-serif;
+    font-size: 0.8rem;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+  .edu-school {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--ink);
+    display: block;
+    margin-bottom: 0.2rem;
+  }
+  .edu-dept {
+    font-size: 1rem;
+    color: var(--ink);
+    margin-right: 0.8rem;
+  }
+  .edu-degree {
+    font-size: 0.9rem;
+    color: var(--muted);
+    position: relative;
+    padding-left: 0.8rem;
+  }
+  .edu-degree::before {
+    content: "|";
+    position: absolute;
+    left: 0;
+    color: var(--border);
+  }
 
-  .skill-tags { display: flex; flex-wrap: wrap; gap: 0.8rem; }
-  .skill-tags span { font-size: 0.8rem; font-family: sans-serif; padding: 0.4rem 1rem; background: rgba(139, 69, 19, 0.05); color: var(--accent); border-radius: 20px; border: 1px solid rgba(139, 69, 19, 0.1); }
+  .skill-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+  }
+  .skill-tags span {
+    font-size: 0.8rem;
+    font-family: sans-serif;
+    padding: 0.4rem 1rem;
+    background: rgba(139, 69, 19, 0.05);
+    color: var(--accent);
+    border-radius: 20px;
+    border: 1px solid rgba(139, 69, 19, 0.1);
+  }
 
-  .bio-text p { line-height: 2; font-size: 1.05rem; margin-bottom: 2rem; }
-  .interest-items { list-style: none; padding: 0; }
-  .interest-items li { display: flex; gap: 1.5rem; margin-bottom: 2rem; }
-  .interest-items .icon { font-size: 1.5rem; margin-top: 2px; }
-  .interest-items strong { font-size: 1.1rem; display: block; margin-bottom: 0.3rem; }
-  .interest-items p { font-size: 0.9rem; color: var(--muted); line-height: 1.6; margin: 0; }
+  .bio-text p {
+    line-height: 2;
+    font-size: 1.05rem;
+    margin-bottom: 2rem;
+  }
+  .interest-items {
+    list-style: none;
+    padding: 0;
+  }
+  .interest-items li {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .interest-items .icon {
+    font-size: 1.5rem;
+    margin-top: 2px;
+  }
+  .interest-items strong {
+    font-size: 1.1rem;
+    display: block;
+    margin-bottom: 0.3rem;
+  }
+  .interest-items p {
+    font-size: 0.9rem;
+    color: var(--muted);
+    line-height: 1.6;
+    margin: 0;
+  }
 
-  .contact-links { display: flex; align-items: center; gap: 1rem; }
-  .contact-item { text-decoration: none; color: var(--ink); font-weight: 600; font-size: 0.9rem; transition: 0.3s; }
-  .contact-item:hover { color: var(--accent); text-decoration: underline; }
-  .dot { color: var(--border); }
+  .contact-links {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .contact-item {
+    text-decoration: none;
+    color: var(--ink);
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: 0.3s;
+  }
+  .contact-item:hover {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+  .dot {
+    color: var(--border);
+  }
+
+  /* 【CSS 修改處】副圖片樣式調整，加入特效但不影響排版 */
+  .header-secondary-image {
+    margin-top: 2.5rem; /* 維持原本的間距 */
+    max-width: 450px;   /* 維持原本的寬度限制 */
+    /* position: relative;  <-- 移除這裡的 relative，改到 wrapper 上 */
+  }
+
+  /* 新增：副圖片包裹層，用於定位和觸發特效 */
+  .secondary-img-wrapper {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* 修改：針對新的 class 設定圖片樣式 */
+  .secondary-img {
+    width: 100%;
+    height: auto;
+    display: block; /* 消除圖片底部可能的細微空隙 */
+    border-radius: 2px;
+    border: 4px solid var(--paper);
+    outline: 1px solid var(--border);
+    /* 為了視覺統一，這裡建議使用與主照片相同的基礎陰影 */
+    box-shadow: 0 12px 36px rgba(139, 69, 19, 0.12); 
+    filter: sepia(10%);
+    transition: 0.5s; /* 加入過渡效果 */
+  }
+
+  /* 新增：副圖片懸停特效 (與主照片相同) */
+  .secondary-img-wrapper:hover .secondary-img {
+    transform: scale(1.02);
+    box-shadow: 0 16px 48px rgba(139, 69, 19, 0.18);
+  }
+  
+  /* 新增：副圖片懸停時觸發裝飾線 (與主照片相同) */
+  .secondary-img-wrapper:hover .img-edge-hint {
+    inset: -4px;
+    opacity: 0.2;
+  }
+
+  .img-caption {
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-top: 0.8rem;
+    letter-spacing: 1px;
+    font-family: sans-serif;
+    text-transform: uppercase;
+  
 
   @media (max-width: 850px) {
-    .about-header { flex-direction: column; align-items: center; text-align: center; gap: 2rem; }
-    .about-grid { grid-template-columns: 1fr; gap: 4rem; }
+    .about-header {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 2rem;
+    }
+    .about-grid {
+      grid-template-columns: 1fr;
+      gap: 4rem;
+    }
     /* 手機版照片也同步放大 */
-    .profile-image-wrapper { width: 260px; margin-top: 1rem; }
-    .header-meta-tags { justify-content: center; }
+    .profile-image-wrapper {
+      width: 260px;
+      margin-top: 1rem;
+    }
+    .header-meta-tags {
+      justify-content: center;
+    }
   }
 </style>

@@ -24,6 +24,8 @@ const researchCollection = defineCollection({
     abstract: z.string().optional(), // 摘要改為選填
     pdfUrl: z.string().url().optional(),
     pubDate: z.date(),
+    category: z.string().default('General Research'), // 預設研究類別
+    author: z.string().default('TBC'), // 預設作者名稱
   }),
 });
 
