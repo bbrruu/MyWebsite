@@ -12,9 +12,18 @@ const { currentPath } = Astro.props;
     <a href="/reading" class={currentPath === "reading" ? "active" : ""}>看看書籍</a>
     <a href="/music" class={currentPath === "music" ? "active" : ""}>聽聽音樂</a>
   </div>
-  
-  <div class="current-time">
-    <span id="live-time"></span>
+
+  <div class="nav-right">
+    {currentPath === "about" && (
+      <button id="lang-toggle" class="lang-toggle-btn">
+        <span class="lang-option active" data-lang="zh">中文</span>
+        <span class="lang-divider">/</span>
+        <span class="lang-option" data-lang="en">EN</span>
+      </button>
+    )}
+    <div class="current-time">
+      <span id="live-time"></span>
+    </div>
   </div>
 </nav>
 
@@ -48,9 +57,58 @@ const { currentPath } = Astro.props;
     font-weight: 700; /* 選中或懸停時加粗 */
   }
 
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
   .current-time {
     color: var(--accent);
     font-family: monospace;
     font-size: 0.9rem;
+  }
+
+  /* 語言切換按鈕樣式 */
+  .lang-toggle-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: sans-serif;
+    font-size: 0.8rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 30px;
+    background: rgba(253, 250, 246, 0.8);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+  }
+
+  .lang-toggle-btn:hover {
+    border-color: var(--accent);
+    background: rgba(139, 69, 19, 0.05);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(139, 69, 19, 0.1);
+  }
+
+  .lang-option {
+    color: var(--muted);
+    transition: all 0.3s ease;
+    font-weight: 400;
+    letter-spacing: 1px;
+    cursor: pointer;
+  }
+
+  .lang-option.active {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .lang-divider {
+    color: var(--border);
+    font-weight: 300;
   }
 </style>

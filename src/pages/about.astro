@@ -10,7 +10,8 @@ import Layout from "../layouts/Layout.astro";
       <div class="header-left">
         <div class="profile-title">
           <h1 class="main-name">曾冠瑜 ｜ Bruce Tseng</h1>
-          <p class="sub-identity">研究生 / 計算語言學、AI研究者</p>
+          <p class="sub-identity" data-lang="zh">研究生 / 計算語言學、AI研究者</p>
+          <p class="sub-identity" data-lang="en" style="display: none;">Graduate Student / Computational Linguistics & AI Researcher</p>
 
           <div class="header-motto">
             "Exploring the nuances of language through the lens of data."
@@ -49,28 +50,35 @@ import Layout from "../layouts/Layout.astro";
     <div class="about-grid">
       <div class="grid-column left-col">
         <section class="info-section">
-          <h2 class="section-label">學歷清單 <small>Education</small></h2>
+          <h2 class="section-label"><span data-lang="zh">學歷清單</span><span data-lang="en" style="display: none;">Education</span> <small data-lang="zh">Education</small><small data-lang="en" style="display: none;">學歷清單</small></h2>
           <div class="education-list">
             <div class="edu-item">
               <span class="edu-date">2025/09 - Present</span>
               <div class="edu-detail">
-                <span class="edu-school">國立臺灣大學</span>
-                <span class="edu-dept">語言學研究所</span>
-                <span class="edu-degree">碩士班</span>
+                <span class="edu-school" data-lang="zh">國立臺灣大學</span>
+                <span class="edu-school" data-lang="en" style="display: none;">National Taiwan University</span>
+                <span class="edu-dept" data-lang="zh">語言學研究所</span>
+                <span class="edu-dept" data-lang="en" style="display: none;">Graduate Institute of Linguistics</span>
+                <span class="edu-degree" data-lang="zh">碩士班</span>
+                <span class="edu-degree" data-lang="en" style="display: none;">Master's Program</span>
               </div>
             </div>
             <div class="edu-item">
               <span class="edu-date">2020/09 - 2025/06</span>
               <div class="edu-detail">
-                <span class="edu-school">國立臺灣大學</span>
-                <span class="edu-dept">外國語文學系</span>
-                <span class="edu-degree">學士班</span>
+                <span class="edu-school" data-lang="zh">國立臺灣大學</span>
+                <span class="edu-school" data-lang="en" style="display: none;">National Taiwan University</span>
+                <span class="edu-dept" data-lang="zh">外國語文學系</span>
+                <span class="edu-dept" data-lang="en" style="display: none;">Department of Foreign Languages and Literatures</span>
+                <span class="edu-degree" data-lang="zh">學士班</span>
+                <span class="edu-degree" data-lang="en" style="display: none;">Bachelor's Program</span>
               </div>
             </div>
             <div class="edu-item">
               <span class="edu-date">2017/09 - 2020/06</span>
               <div class="edu-detail">
-                <span class="edu-school">國立臺灣師範大學附屬高級中學</span>
+                <span class="edu-school" data-lang="zh">國立臺灣師範大學附屬高級中學</span>
+                <span class="edu-school" data-lang="en" style="display: none;">Affiliated Senior High School of NTNU</span>
                 <span class="edu-dept">1472、1475</span>
               </div>
             </div>
@@ -78,7 +86,7 @@ import Layout from "../layouts/Layout.astro";
         </section>
 
         <section class="info-section">
-          <h2 class="section-label">技術棧 <small>TECHNICAL SKILLS</small></h2>
+          <h2 class="section-label"><span data-lang="zh">技術棧</span><span data-lang="en" style="display: none;">Technical Skills</span> <small data-lang="zh">TECHNICAL SKILLS</small><small data-lang="en" style="display: none;">技術棧</small></h2>
           <div class="skill-tags">
             <span>Linguistics</span>
             <span>Vibe Coding</span>
@@ -89,28 +97,37 @@ import Layout from "../layouts/Layout.astro";
 
       <div class="grid-column right-col">
         <section class="info-section profile-card">
-          <h2 class="section-label">生活手札 <small>LIFE</small></h2>
+          <h2 class="section-label"><span data-lang="zh">生活手札</span><span data-lang="en" style="display: none;">Life</span> <small data-lang="zh">LIFE</small><small data-lang="en" style="display: none;">生活手札</small></h2>
           <div class="bio-text">
-            <p>
+            <p data-lang="zh">
               目前在台大實驗室中探索數據與文字的交集。除了在伺服器終端機前與代碼搏鬥，我更喜歡透過不同的媒介去感受世界的溫度。
+            </p>
+            <p data-lang="en" style="display: none;">
+              Currently exploring the intersection of data and text in NTU's lab. Beyond battling with code at the server terminal, I prefer to experience the warmth of the world through different mediums.
             </p>
           </div>
           <ul class="interest-items">
             <li>
               <span class="icon">🎸</span><div>
-                <strong>弦外之音</strong><p>指尖上的音樂實驗。</p>
+                <strong data-lang="zh">弦外之音</strong>
+                <strong data-lang="en" style="display: none;">Beyond the Strings</strong>
+                <p data-lang="zh">指尖上的音樂實驗。</p>
+                <p data-lang="en" style="display: none;">Musical experiments at my fingertips.</p>
               </div>
             </li>
             <li>
               <span class="icon">🍰</span><div>
-                <strong>甜點語義學</strong><p>對甜點的層次感感興趣。</p>
+                <strong data-lang="zh">甜點語義學</strong>
+                <strong data-lang="en" style="display: none;">Dessert Semantics</strong>
+                <p data-lang="zh">對甜點的層次感感興趣。</p>
+                <p data-lang="en" style="display: none;">Fascinated by the layered complexity of desserts.</p>
               </div>
             </li>
           </ul>
         </section>
 
         <section class="info-section">
-          <h2 class="section-label">聯繫我 <small>CONTACT</small></h2>
+          <h2 class="section-label"><span data-lang="zh">聯繫我</span><span data-lang="en" style="display: none;">Contact</span> <small data-lang="zh">CONTACT</small><small data-lang="en" style="display: none;">聯繫我</small></h2>
           <div class="contact-links">
             <a href="r14142007@ntu.edu.tw" class="contact-item"
               >Email</a
@@ -126,6 +143,84 @@ import Layout from "../layouts/Layout.astro";
   </main>
 </Layout>
 
+<script is:inline>
+  (function() {
+    let currentLang = 'zh';
+
+    function applyLanguage(lang) {
+      currentLang = lang;
+
+      // 切換所有內容元素（但排除語言切換按鈕內的元素）
+      const allElements = document.querySelectorAll('[data-lang]');
+      allElements.forEach((el) => {
+        // 跳過語言切換按鈕內的選項元素
+        if (el.classList.contains('lang-option')) {
+          return;
+        }
+
+        const elLang = el.getAttribute('data-lang');
+        if (elLang === lang) {
+          el.style.display = '';
+        } else {
+          el.style.display = 'none';
+        }
+      });
+
+      // 更新按鈕樣式
+      const options = document.querySelectorAll('#lang-toggle .lang-option');
+      options.forEach((opt) => {
+        const optLang = opt.getAttribute('data-lang');
+        if (optLang === lang) {
+          opt.classList.add('active');
+        } else {
+          opt.classList.remove('active');
+        }
+        // 確保按鈕選項永遠可見
+        opt.style.display = '';
+      });
+    }
+
+    function handleClick(e) {
+      // 不管點擊按鈕的哪個位置，都切換到另一個語言
+      const newLang = currentLang === 'zh' ? 'en' : 'zh';
+      applyLanguage(newLang);
+    }
+
+    function init() {
+      const btn = document.getElementById('lang-toggle');
+      if (!btn) return;
+
+      // 檢查是否已經初始化過
+      if (btn.hasAttribute('data-lang-setup')) return;
+
+      // 標記為已設置
+      btn.setAttribute('data-lang-setup', 'true');
+
+      // 綁定點擊事件
+      btn.removeEventListener('click', handleClick);
+      btn.addEventListener('click', handleClick);
+
+      // 初始化時強制應用中文
+      applyLanguage('zh');
+    }
+
+    // 初始化
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(init, 50);
+      });
+    } else {
+      setTimeout(init, 50);
+    }
+
+    // Astro 轉場支援
+    document.addEventListener('astro:page-load', function() {
+      currentLang = 'zh';
+      setTimeout(init, 50);
+    });
+  })();
+</script>
+
 <style>
   :root {
     --ink: #2c2c2c;
@@ -135,9 +230,9 @@ import Layout from "../layouts/Layout.astro";
     --border: #e0dcd5;
   }
   .about-container {
-    max-width: 1100px; /* 建議統一為 1100px，與你的 Navbar 對齊 */
+    max-width: 1400px; /* 增加寬度讓版面更寬敞 */
     margin: 2rem 0; /* 移除 auto，改為 0 代表靠左；2rem 讓頂部保留一點呼吸空間 */
-    padding: 0 2rem;
+    padding: 0 4rem;
     font-family: "Noto Serif TC", serif;
     color: var(--ink);
   }
