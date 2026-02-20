@@ -1,17 +1,18 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import { getCollection } from "astro:content";
+import type { CollectionEntry } from "astro:content";
 
 // 1. 抓取文章並排序
 const allPosts = (await getCollection("blog")).sort(
     (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
 
-// 2. 定義分類標籤（確保這些字串與你 Markdown 裡的 category 一致）
+// 2. 定義分類標籤
 const categories = ["EVERYDAY-LIFE", "GAME", "REFLECTION", "LEARNING"];
 
 // 3. 處理月份分組邏輯
-const groupedPosts = allPosts.reduce((acc, post) => {
+const groupedPosts: Record<string, CollectionEntry<"blog">[]> = allPosts.reduce((acc: Record<string, CollectionEntry<"blog">[]>, post) => {
     const date = new Date(post.data.pubDate);
     const year = date.getFullYear();
     const month = date.getMonth() + 1;
@@ -34,64 +35,47 @@ const months = Object.keys(groupedPosts);
 
             <nav class="category-filter">
                 <button class="cat-btn active" data-category="all">全部 ALL</button>
-                {
-                    categories.map((cat) => (
-                        <button class="cat-btn" data-category={cat}>
-                            {cat}
-                        </button>
-                    ))
-                }
+                {categories.map((cat) => (
+                    <button class="cat-btn" data-category={cat}>{cat}</button>
+                ))}
             </nav>
         </header>
 
         <div class="archive-content" id="master-list">
-            {
-                months.map((month) => (
-                    <section class="month-group" data-month={month}>
-                        <div class="month-indicator">
-                            <span class="dot" />
-                            <h2>{month}</h2>
+            {months.map((month) => (
+                <section class="month-section" data-month={month}>
+                    <div class="month-header">
+                        <div class="month-name-group">
+                            <span class="prefix">Daily Journal / Diary</span>
+                            <h2 class="month-title">{month}</h2>
                         </div>
+                        <div class="note-count">{groupedPosts[month].length} ENTRIES</div>
+                    </div>
 
-                        <div class="post-list">
-                            {groupedPosts[month].map((post) => (
-                                <div
-                                    class="post-wrapper"
-                                    data-cat={post.data.category}
-                                >
-                                    <a
-                                        href={`/blog/${post.id}`}
-                                        class="journal-entry"
-                                    >
-                                        <div class="entry-meta">
-                                            <span class="day">{post.data.pubDate.getDate()}</span>
-                                            <span class="unit">日</span>
+                    <div class="note-list">
+                        {groupedPosts[month].map((post) => (
+                            <div class="note-wrapper" data-cat={post.data.category}>
+                                <a href={`/blog/${post.id}`} class="blog-entry">
+                                    <div class="title-swap-container">
+                                        <div class="title-default">
+                                            {post.data.title}
                                         </div>
-                                        <div class="entry-body">
-                                            <span class="cat-label-top">
-                                                {post.data.category}
-                                            </span>
-                                            <h3 class="entry-title">
-                                                {post.data.title}
-                                            </h3>
-                                            <div class="entry-footer">
-                                                <span class="location">
-                                                    📍 {post.data.location || "Taipei"}
-                                                </span>
-                                                <span class="dot-sep" />
-                                                <span class="mood">
-                                                    心情：{post.data.mood || "還行"}
-                                                </span>
-                                            </div>
+                                        <div class="title-hover">
+                                            <span class="cat-tag">#{post.data.category}</span>
+                                            <span class="sub-tag">📍 {post.data.location || "Taipei"}</span>
+                                            <span class="sub-tag">心情：{post.data.mood || "還行"}</span>
                                         </div>
-                                        <div class="entry-arrow">VIEW →</div>
-                                    </a>
-                                </div>
-                            ))}
-                        </div>
-                    </section>
-                ))
-            }
+                                    </div>
+                                    <div class="entry-arrow">
+                                        <span class="view-text">READ ENTRY</span>
+                                        <span class="arrow">→</span>
+                                    </div>
+                                </a>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            ))}
         </div>
     </main>
 </Layout>
@@ -99,27 +83,21 @@ const months = Object.keys(groupedPosts);
 <script>
     const setupFilters = () => {
         const buttons = document.querySelectorAll(".cat-btn");
-        const posts = document.querySelectorAll(".post-wrapper");
-        const monthGroups = document.querySelectorAll(".month-group");
-
-        console.log("Blog filters initialized. Buttons found:", buttons.length);
+        const posts = document.querySelectorAll(".note-wrapper");
+        const monthSections = document.querySelectorAll(".month-section");
 
         if (buttons.length === 0) return;
 
         buttons.forEach((btn) => {
             btn.addEventListener("click", () => {
                 const selectedCat = btn.getAttribute("data-category")?.trim().toUpperCase();
-                console.log("Selected category:", selectedCat);
 
-                // 1. 切換按鈕樣式
                 buttons.forEach((b) => b.classList.remove("active"));
                 btn.classList.add("active");
 
-                // 2. 過濾文章
                 posts.forEach((post) => {
                     const postCat = post.getAttribute("data-cat")?.trim().toUpperCase();
                     const htmlPost = post as HTMLElement;
-
                     if (selectedCat === "ALL" || postCat === selectedCat) {
                         htmlPost.classList.remove("is-hidden");
                     } else {
@@ -127,51 +105,48 @@ const months = Object.keys(groupedPosts);
                     }
                 });
 
-                // 3. 處理月份顯示
                 setTimeout(() => {
-                    monthGroups.forEach((group) => {
-                        const htmlGroup = group as HTMLElement;
-                        const visiblePosts = htmlGroup.querySelectorAll(".post-wrapper:not(.is-hidden)");
-                        if (visiblePosts.length === 0) {
-                            htmlGroup.classList.add("month-hidden");
-                        } else {
-                            htmlGroup.classList.remove("month-hidden");
-                        }
+                    monthSections.forEach((section) => {
+                        const htmlSection = section as HTMLElement;
+                        const visible = htmlSection.querySelectorAll(".note-wrapper:not(.is-hidden)");
+                        htmlSection.classList.toggle("month-hidden", visible.length === 0);
                     });
                 }, 100);
             });
         });
     };
 
-    // 同時支援傳統載入與 Astro 的轉場載入
     document.addEventListener("DOMContentLoaded", setupFilters);
     document.addEventListener("astro:page-load", setupFilters);
 </script>
 
 <style>
-    /* --- 核心佈局 --- */
     .blog-archive {
-        max-width: 1400px; /* 增加寬度讓版面更寬敞 */
+        max-width: 1400px;
         margin: 4rem auto;
         padding: 0 4rem;
         font-family: "Noto Serif TC", serif;
     }
 
-    .breadcrumb {
-        display: flex; gap: 0.8rem; font-family: sans-serif;
-        font-size: 0.7rem; letter-spacing: 0.2rem; margin-bottom: 2rem;
-    }
-    .breadcrumb a { text-decoration: none; color: var(--muted); }
-    .breadcrumb a:hover { color: var(--accent); }
-
     .archive-header h1 {
-        font-size: 2.3rem; margin-top: -35px; font-weight: 700; letter-spacing: -1.5px;
-        display: flex; justify-content: space-between; align-items: baseline;
+        font-size: 2.3rem;
+        margin: 0;
+        font-weight: 700;
+        letter-spacing: -1.5px;
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
     }
-    .archive-header h1 small { font-size: 0.9rem; font-family: sans-serif; letter-spacing: 4px; color: var(--muted); font-weight: 400; }
+    .archive-header h1 small {
+        font-size: 0.9rem;
+        font-family: sans-serif;
+        letter-spacing: 4px;
+        color: var(--muted);
+        font-weight: 400;
+    }
 
     .header-line { width: 100%; height: 1px; background: var(--border); margin: 2rem 0 3rem; position: relative; }
-    .header-line::after { content: ""; position: absolute; left: 0; top: -1px; width: 80px; height: 3px; background: var(--accent); }
+    .header-line::after { content: ''; position: absolute; left: 0; top: -1px; width: 80px; height: 3px; background: var(--accent); }
 
     /* 分類導覽 */
     .category-filter { display: flex; justify-content: space-between; width: 100%; border-bottom: 1px solid var(--border); margin-bottom: 5rem; }
@@ -184,47 +159,117 @@ const months = Object.keys(groupedPosts);
     .cat-btn.active { color: var(--accent); font-weight: 700; }
     .cat-btn.active::after { content: ""; position: absolute; bottom: -1px; left: 0; width: 100%; height: 3px; background: var(--accent); }
 
-    /* 時間軸與月份顯示 */
-    .month-group {
-        position: relative; padding-left: 5rem; border-left: 1px solid var(--border);
-        margin-bottom: 5rem; margin-left: 1rem; transition: all 0.5s ease;
+    /* 月份分組 */
+    .month-section { margin-bottom: 6rem; transition: opacity 0.4s ease, transform 0.4s ease; }
+    .month-section.month-hidden { opacity: 0; height: 0; margin-bottom: 0; overflow: hidden; pointer-events: none; }
+
+    .month-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        padding-bottom: 1.2rem;
+        border-bottom: 2px solid var(--ink);
+        margin-bottom: 2rem;
     }
-    .month-group.month-hidden { opacity: 0; height: 0; margin-bottom: 0; transform: translateX(-10px); overflow: hidden; pointer-events: none; }
-
-    .month-indicator { position: absolute; left: -8px; top: -3.5rem; display: flex; align-items: center; background: var(--paper); padding: 5px 0; }
-    .month-indicator .dot { width: 15px; height: 15px; background: var(--accent); border-radius: 50%; margin-right: 2rem; box-shadow: 0 0 0 6px var(--paper); }
-    .month-indicator h2 { font-size: 1.4rem; color: var(--accent); margin: 0; }
-
-    /* 文章條目互動與絲滑動畫 */
-    .post-wrapper { transition: transform 0.5s ease, opacity 0.4s ease, max-height 0.5s ease; max-height: 800px; opacity: 1; overflow: hidden; }
-    .post-wrapper.is-hidden { opacity: 0; max-height: 0; transform: scaleY(0); pointer-events: none; }
-
-    .journal-entry {
-        display: flex; gap: 3rem; text-decoration: none; color: inherit;
-        padding: 2rem 0; border-bottom: 1px dashed var(--border); transition: 0.4s;
+    .month-name-group .prefix {
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        color: var(--muted);
+        font-family: sans-serif;
+        display: block;
+        margin-bottom: 0.5rem;
     }
-    .journal-entry:hover { background: rgba(139, 69, 19, 0.02); padding-left: 1.5rem; }
-
-    /* 日期水平並排排版 */
-    .entry-meta {
-        min-width: 70px; display: flex; align-items: baseline; gap: 4px; padding-top: 0.4rem;
+    .month-title { font-size: 2rem; margin: 0; color: var(--ink); font-weight: 700; }
+    .note-count {
+        font-size: 0.8rem;
+        color: var(--accent);
+        font-weight: 700;
+        font-family: sans-serif;
+        letter-spacing: 1px;
     }
-    .entry-meta .day { font-size: 1.8rem; font-weight: 700; line-height: 1; color: var(--ink); }
-    .entry-meta .unit { font-size: 0.8rem; color: var(--muted); font-weight: 400; }
 
-    .cat-label-top { display: block; font-size: 0.7rem; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 0.6rem; font-weight: 700; }
-    .entry-title { font-size: 1.4rem; margin: 0 0 0.8rem 0; font-weight: 700; transition: color 0.3s; }
-    .journal-entry:hover .entry-title { color: var(--accent); }
+    /* 條目 */
+    .note-wrapper { transition: opacity 0.4s ease, max-height 0.4s ease; max-height: 200px; overflow: hidden; }
+    .note-wrapper.is-hidden { opacity: 0; max-height: 0; pointer-events: none; }
 
-    .entry-footer { font-size: 0.85rem; color: var(--muted); display: flex; align-items: center; gap: 1.2rem; }
-    .dot-sep { width: 4px; height: 4px; background: var(--border); border-radius: 50%; }
+    .blog-entry {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        text-decoration: none;
+        color: inherit;
+        padding: 2rem 0;
+        border-bottom: 1px dashed var(--border);
+        transition: 0.4s ease;
+    }
+    .blog-entry:hover { background: rgba(139, 69, 19, 0.02); padding-left: 1.5rem; }
 
-    .entry-arrow { margin-left: auto; font-size: 0.75rem; letter-spacing: 2px; color: var(--muted); opacity: 0.3; transition: 0.4s; font-family: sans-serif; }
-    .journal-entry:hover .entry-arrow { opacity: 1; color: var(--accent); transform: translateX(5px); }
+    .title-swap-container {
+        flex: 1;
+        position: relative;
+        height: 1.8rem;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+    }
+    .title-default, .title-hover {
+        font-size: 1.25rem;
+        font-weight: 700;
+        transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        white-space: nowrap;
+        line-height: 1.8rem;
+    }
+    .title-hover {
+        position: absolute;
+        top: 0;
+        left: 0;
+        opacity: 0;
+        transform: translateY(15px);
+        color: var(--accent);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .cat-tag {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--accent);
+        background: rgba(139, 69, 19, 0.1);
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-family: sans-serif;
+    }
+    .sub-tag {
+        font-size: 0.75rem;
+        color: var(--muted);
+        font-weight: 400;
+        font-family: sans-serif;
+    }
+
+    .blog-entry:hover .title-default { opacity: 0; transform: translateY(-15px); }
+    .blog-entry:hover .title-hover { opacity: 1; transform: translateY(0); }
+
+    .entry-arrow {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        font-size: 0.75rem;
+        letter-spacing: 2px;
+        color: var(--muted);
+        opacity: 0.4;
+        transition: 0.4s;
+        font-family: sans-serif;
+    }
+    .blog-entry:hover .entry-arrow { opacity: 1; color: var(--accent); transform: translateX(5px); }
+    .view-text { font-weight: 700; }
 
     @media (max-width: 850px) {
-        .journal-entry { gap: 1.5rem; flex-direction: column; }
-        .archive-header h1 { font-size: 2.5rem; flex-direction: column; }
-        .month-group { padding-left: 3rem; }
+        .blog-archive { margin: 2rem auto; }
+        .archive-header h1 { font-size: 2.5rem; flex-direction: column; gap: 0.5rem; }
+        .month-title { font-size: 1.6rem; }
+        .title-default, .title-hover { font-size: 1.1rem; }
+        .entry-arrow .view-text { display: none; }
     }
 </style>
