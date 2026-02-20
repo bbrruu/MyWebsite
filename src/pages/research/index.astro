@@ -69,104 +69,86 @@ const authors = Object.keys(groupedByAuthor);
 </Layout>
 
 <style>
-    /* 核心佈局：增加寬度讓版面更寬敞 */
     .research-archive {
         max-width: 1400px;
-        margin: 4rem auto;
+        margin: 2rem auto;
         padding: 0 4rem;
         font-family: "Noto Serif TC", serif;
     }
 
-    /* 麵包屑優化 */
-    .breadcrumb { 
-        display: flex; 
-        align-items: center; 
-        gap: 0.8rem; 
-        font-family: sans-serif; 
-        font-size: 0.7rem; 
-        letter-spacing: 0.2rem; 
-        margin-bottom: 2rem; 
-    }
-    .breadcrumb a { text-decoration: none; color: var(--muted); transition: 0.3s; }
-    .breadcrumb a:hover { color: var(--accent); }
-    .breadcrumb .sep { color: var(--border); }
-    .breadcrumb .current { font-weight: 700; color: var(--ink); text-transform: uppercase; }
-
-    .archive-header h1 { 
-        font-size: 2.3rem; 
-        margin: 0; 
-        font-weight: 700; 
-        letter-spacing: -1.5px; 
+    .archive-header h1 {
+        font-size: 1.6rem;
+        margin: 0;
+        font-weight: 700;
+        letter-spacing: -1.5px;
         display: flex;
         justify-content: space-between;
         align-items: baseline;
     }
-    .archive-header h1 small { 
-        font-size: 0.9rem; 
-        font-family: sans-serif; 
-        letter-spacing: 4px; 
-        color: var(--muted); 
+    .archive-header h1 small {
+        font-size: 0.75rem;
+        font-family: sans-serif;
+        letter-spacing: 4px;
+        color: var(--muted);
         font-weight: 400;
     }
-    
-    .header-line { width: 100%; height: 1px; background: var(--border); margin: 2rem 0 5rem; position: relative; }
+
+    .header-line { width: 100%; height: 1px; background: var(--border); margin: 1rem 0 2.5rem; position: relative; }
     .header-line::after { content: ''; position: absolute; left: 0; top: -1px; width: 80px; height: 3px; background: var(--accent); }
 
-    /* 研究者分組樣式 */
-    .author-section { margin-bottom: 6rem; }
+    .author-section { margin-bottom: 3rem; }
     .author-header {
-        display: flex; 
-        justify-content: space-between; 
+        display: flex;
+        justify-content: space-between;
         align-items: flex-end;
-        padding-bottom: 1.2rem; 
+        padding-bottom: 0.7rem;
         border-bottom: 2px solid var(--ink);
-        margin-bottom: 2rem;
+        margin-bottom: 0.8rem;
     }
-    .author-name-group .prefix { 
-        font-size: 0.65rem; 
-        text-transform: uppercase; 
-        letter-spacing: 3px; 
-        color: var(--muted); 
-        font-family: sans-serif; 
+    .author-name-group .prefix {
+        font-size: 0.6rem;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        color: var(--muted);
+        font-family: sans-serif;
         display: block;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.3rem;
     }
-    .author-title { font-size: 2rem; margin: 0; color: var(--ink); font-weight: 700; }
-    .note-count { 
-        font-size: 0.8rem; 
-        color: var(--accent); 
+    .author-title { font-size: 1.2rem; margin: 0; color: var(--ink); font-weight: 700; }
+    .note-count {
+        font-size: 0.72rem;
+        color: var(--accent);
         font-weight: 700;
         font-family: sans-serif;
         letter-spacing: 1px;
     }
 
-    /* 條目互動動畫 */
     .research-entry {
-        display: flex; 
-        align-items: center; 
+        display: flex;
+        align-items: center;
         justify-content: space-between;
-        text-decoration: none; 
-        color: inherit; 
-        padding: 2rem 0;
-        border-bottom: 1px dashed var(--border); 
+        text-decoration: none;
+        color: inherit;
+        padding: 0.8rem 0;
+        border-bottom: 1px dashed var(--border);
         transition: 0.4s ease;
     }
     .research-entry:hover { background: rgba(139, 69, 19, 0.02); padding-left: 1.5rem; }
 
     .title-swap-container {
-        flex: 1; 
-        position: relative; 
-        height: 1.8rem; 
-        overflow: hidden; 
-        display: flex; 
+        flex: 1;
+        position: relative;
+        height: 1.5rem;
+        overflow: hidden;
+        display: flex;
         align-items: center;
     }
     .title-default, .title-hover {
-        font-size: 1.25rem; 
+        font-size: 0.95rem;
         font-weight: 700;
         transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-        white-space: nowrap; 
-        line-height: 1.8rem;
+        white-space: nowrap;
+        line-height: 1.5rem;
     }
     .title-hover {
         position: absolute; top: 0; left: 0; 

@@ -37,6 +37,7 @@ const readingCollection = defineCollection({
     author: z.string(), // 作者
     pubDate: z.date(),
     rating: z.number().min(1).max(5).default(5), // 評分
+    coverImage: z.string().optional(), // 書封圖片路徑（選填）
   }),
 });
 

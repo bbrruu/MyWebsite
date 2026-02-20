@@ -26,26 +26,23 @@ const { Content } = await render(post);
     </nav>
 
     <header class="post-header">
-      <div class="header-main-row">
-        <div class="title-wrapper">
-          <h1 class="post-title">〈{post.data.title}〉</h1>
-          <div class="dynamic-accent-line"></div>
-        </div>
-        
-        <div class="post-meta-card">
-          <div class="meta-grid">
-            <span class="meta-label">AUTHOR</span>
-            <span class="meta-value author-name">{post.data.author || '曾冠瑜 Bruce'}</span>
+      <div class="post-meta-card">
+        <div class="meta-grid">
+          <span class="meta-label">AUTHOR</span>
+          <span class="meta-value author-name">{post.data.author || '曾冠瑜 Bruce'}</span>
 
-            <span class="meta-label">CATEGORY</span>
-            <span class="meta-value">{post.data.category || 'General Research'}</span>
+          <span class="meta-label">CATEGORY</span>
+          <span class="meta-value">{post.data.category || 'General Research'}</span>
 
-            <span class="meta-label">REVIEWED</span>
-            <span class="meta-value date">{post.data.pubDate.toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' })}</span>
-          </div>
+          <span class="meta-label">REVIEWED</span>
+          <span class="meta-value date">{post.data.pubDate.toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' })}</span>
         </div>
       </div>
 
+      <div class="title-wrapper">
+        <h1 class="post-title">〈{post.data.title}〉</h1>
+      </div>
+      <div class="dynamic-accent-line"></div>
     </header>
 
     <section class="post-content">
@@ -63,134 +60,29 @@ const { Content } = await render(post);
 </Layout>
 
 <style>
-  /* --- 佈局調整：將頂部空白減至最少 --- */
-  .research-article { 
-    max-width: 1150px; 
-    padding: 0 2rem; 
-    font-family: "Noto Serif TC", serif; 
-    color: var(--ink); 
-  }
-
-  /* 返回連結：縮減下方間距讓標題更靠上 */
-  .inner-nav { margin-bottom: 0rem; } /* 從 2.5rem 縮減 */
-  .back-link {
-    display: inline-flex; align-items: center; text-decoration: none;
-    color: var(--muted); font-size: 0.7rem; letter-spacing: 2px;
-    font-family: sans-serif;
-  }
+  .research-article { width: 100%; padding: 0; font-family: "Noto Serif TC", serif; color: var(--ink); }
+  .inner-nav { margin-bottom: 1.5rem; }
+  .back-link { display: inline-flex; align-items: center; text-decoration: none; color: var(--muted); font-size: 0.7rem; letter-spacing: 2px; font-family: sans-serif; }
   .back-link:hover { color: var(--accent); }
   .back-link .arrow { margin-right: 8px; transition: 0.4s ease; }
 
-  /* --- 標頭佈局：底部對齊關鍵 --- */
-  .header-main-row { 
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end; /* 資訊卡片底部與標題棕色線對齊 */
-    gap: 4rem;
-    margin-top: -25px;
-    flex-wrap: wrap; 
-  }
+  .post-header { position: relative; margin-top: 0; }
+  .title-wrapper { padding-right: 380px; }
+  .post-title { font-size: 2rem; margin: 0; font-weight: 700; letter-spacing: -1.5px; line-height: 1.4; color: var(--ink); padding-bottom: 1rem; }
+  .dynamic-accent-line { width: 100%; height: 4px; background-color: var(--accent); border-radius: 2px; }
 
-  .title-wrapper {
-    flex: 1;
-    min-width: 300px;
-    display: inline-block; /* 容器寬度精準等於標題長度 */
-  }
+  .post-meta-card { position: absolute; bottom: 1rem; right: 0; background: rgba(139, 69, 19, 0.03); border: 1px solid var(--border); padding: 0.6rem 0.9rem; border-radius: 4px; width: max-content; min-width: 200px; max-width: 360px; }
+  .meta-grid { display: grid; grid-template-columns: auto max-content; align-items: baseline; column-gap: 0.7rem; row-gap: 0.35rem; }
+  .meta-label { font-size: 0.55rem; font-family: sans-serif; color: var(--muted); letter-spacing: 1.5px; font-weight: 700; text-transform: uppercase; }
+  .meta-value { font-size: 0.72rem; font-family: sans-serif; color: var(--muted); font-weight: 600; }
+  .author-name { color: var(--accent); font-size: 0.78rem; font-weight: 700; font-family: "Noto Serif TC", serif; }
 
-  .post-title { 
-    font-size: 2rem; 
-    margin: 0; 
-    font-weight: 700; 
-    letter-spacing: -1.5px; 
-    line-height: 1.4;
-    color: var(--ink);
-    padding-bottom: 1rem; /* 為線條留空間 */
-  }
+  .post-content { width: 100%; line-height: 2.2; font-size: 1.15rem; text-align: justify; margin-top: 1.8rem; }
+  .post-footer { margin-top: 10rem; padding-top: 2rem; border-top: 1px dashed var(--border); }
+  .footer-info { display: flex; align-items: center; gap: 1rem; font-size: 0.75rem; color: var(--muted); font-family: sans-serif; }
 
-  .dynamic-accent-line {
-    width: 100%; /* 線條長度跟隨標題 */
-    height: 4px;
-    background-color: var(--accent);
-    border-radius: 2px;
-    position: relative;
-    z-index: 2;
-  }
-
-  /* --- 資訊卡片：格柵對齊邏輯 --- */
-  .post-meta-card {
-    flex-shrink: 0;
-    background: rgba(139, 69, 19, 0.03);
-    border: 1px solid var(--border);
-    padding: 1.2rem 2rem;
-    border-radius: 4px;
-    margin-bottom: -1px; /* 微調讓它壓在灰色線上 */
-  }
-
-  .meta-grid {
-    display: grid;
-    grid-template-columns: auto 1fr; /* 左側標籤寬度自動，右側內容佔滿 */
-    align-items: baseline; 
-    column-gap: 2rem; 
-    row-gap: 0.6rem; 
-  }
-
-  .meta-label { 
-    font-size: 0.65rem; 
-    font-family: sans-serif; 
-    color: var(--muted); 
-    letter-spacing: 2px; 
-    font-weight: 700;
-    text-transform: uppercase;
-  }
-
-  .meta-value { 
-    font-size: 0.9rem; 
-    font-family: sans-serif; 
-    color: var(--muted); 
-    font-weight: 600;
-  }
-
-  /* 作者名字特別強調 */
-  .author-name { 
-    color: var(--accent); 
-    font-size: 1rem; 
-    font-weight: 700;
-    font-family: "Noto Serif TC", serif; 
-  }
-
-  .base-gray-line {
-    width: 100%;
-    height: 1px;
-    background-color: var(--border);
-    margin-top: 0px; 
-  }
-
-  /* 內文排版維持學術手札質感 */
-  .post-content { 
-    max-width: 850px; 
-    line-height: 2.2; 
-    font-size: 1.15rem; 
-    text-align: justify; 
-    margin-top: 1.8rem; 
-  }
-  
-  .post-footer { 
-    margin-top: 10rem; 
-    padding-top: 2rem; 
-    border-top: 1px dashed var(--border); 
-  }
-  .footer-info { 
-    display: flex; 
-    align-items: center; 
-    gap: 1rem; 
-    font-size: 0.75rem; 
-    color: var(--muted); 
-    font-family: sans-serif; 
-  }
-
-  @media (max-width: 950px) {
-    .header-main-row { flex-direction: column; align-items: flex-start; gap: 2rem; }
-    .post-meta-card { width: 100%; }
-    .title-wrapper { width: 100%; }
+  @media (max-width: 768px) {
+    .post-header { padding-right: 0; }
+    .post-meta-card { position: static; width: 100%; margin-top: 1rem; }
   }
 </style>

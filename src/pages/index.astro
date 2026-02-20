@@ -212,46 +212,46 @@ const randomSlogan = slogans[Math.floor(Math.random() * slogans.length)];
     .nav-links a:hover, .nav-about, .nav-index { color: var(--ink); font-weight: 700; }
     .current-time { color: var(--accent); font-family: monospace; }
 
-    /* Banner 區域優化：垂直排版 */
-    .banner-header { position: relative; width: 100%; height: 350px; margin-bottom: 5rem; overflow: hidden; }
+    /* Banner */
+    .banner-header { position: relative; width: 100%; height: 260px; margin-bottom: 2.5rem; overflow: hidden; }
     .banner-link-wrapper { display: block; width: 100%; height: 100%; text-decoration: none; color: inherit; }
     .banner-bg { position: absolute; inset: 0; z-index: -1; }
     .banner-bg img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1); }
     .banner-link-wrapper:hover .banner-bg img { transform: scale(1.03); }
 
     .banner-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(253, 250, 246, 0.3), var(--paper)); }
-    
-    .banner-content { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 2; text-align: center; }
-    .banner-title { font-size: 2.8rem; margin: 0; font-weight: 700; letter-spacing: -1px; }
-    .banner-slogan { font-size: 1rem; margin-top: 1rem; color: black; font-style: italic; letter-spacing: 0.1rem; transition: opacity 0.5s; }
 
-    /* 和諧的 View Profile 引導 */
-    .profile-cta { margin-top: 2.5rem; position: relative; padding-bottom: 6px; font-weight: bold;}
-    .cta-text { font-size: 0.75rem; font-family: sans-serif; color: black; letter-spacing: 2px; transition: 0.4s; }
+    .banner-content { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 2; text-align: center; }
+    .banner-title { font-size: 2.2rem; margin: 0; font-weight: 700; letter-spacing: -1px; }
+    .banner-slogan { font-size: 0.9rem; margin-top: 0.7rem; color: black; font-style: italic; letter-spacing: 0.1rem; transition: opacity 0.5s; }
+
+    /* View Profile */
+    .profile-cta { margin-top: 1.5rem; position: relative; padding-bottom: 6px; font-weight: bold; }
+    .cta-text { font-size: 0.7rem; font-family: sans-serif; color: black; letter-spacing: 2px; transition: 0.4s; }
     .cta-line { position: absolute; bottom: 0; left: 50%; width: 30px; height: 1px; background-color: var(--border); transform: translateX(-50%); transition: 0.4s; }
 
     .banner-link-wrapper:hover .cta-text { color: var(--accent); }
     .banner-link-wrapper:hover .cta-line { width: 120px; background-color: var(--accent); }
 
-    /* 四宮格與標題動畫 */
-    .quad-grid { display: grid; grid-template-columns: 1fr; gap: 4rem; }
-    .section-title-link { display: flex; justify-content: space-between; align-items: flex-end; text-decoration: none; color: var(--ink); padding-bottom: 1rem; border-bottom: 1px solid var(--border); margin-bottom: 2.5rem; }
-    .title-container { position: relative; display: flex; align-items: baseline; gap: 1.5rem; }
-    .section-title { font-size: 1.8rem; margin: 0; transition: 0.4s; }
+    /* 四宮格 */
+    .quad-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; }
+    .section-title-link { display: flex; justify-content: space-between; align-items: flex-end; text-decoration: none; color: var(--ink); padding-bottom: 0.7rem; border-bottom: 1px solid var(--border); margin-bottom: 1.2rem; }
+    .title-container { position: relative; display: flex; align-items: baseline; gap: 1.2rem; }
+    .section-title { font-size: 1.7rem; margin: 0; transition: 0.4s; }
     .hover-accent-line { position: absolute; bottom: -1px; left: 0; width: 0; height: 3px; background-color: var(--accent); transition: 0.4s; }
-    .enter-arrow { font-size: 1.2rem; color: var(--muted); opacity: 0; transform: translateX(-10px); transition: 0.4s; }
+    .enter-arrow { font-size: 1rem; color: var(--muted); opacity: 0; transform: translateX(-10px); transition: 0.4s; }
 
     .section-title-link:hover .section-title { transform: translateX(10px); color: var(--accent); }
     .section-title-link:hover .hover-accent-line { width: 80px; }
     .section-title-link:hover .enter-arrow { opacity: 1; transform: translateX(0); color: var(--accent); }
 
-    .preview-item { display: flex; gap: 1.5rem; text-decoration: none; color: inherit; padding: 0.8rem; border-bottom: 1px dashed var(--border); transition: 0.3s; }
+    .preview-item { display: flex; gap: 1.2rem; text-decoration: none; color: inherit; padding: 0.55rem 0.6rem; border-bottom: 1px dashed var(--border); transition: 0.3s; }
     .preview-item:hover { background: rgba(139, 69, 19, 0.03); transform: translateX(8px); }
-    .preview-date { min-width: 60px; text-align: right; border-right: 1px solid var(--border); padding-right: 1rem; }
-    .p-year { font-size: 0.65rem; color: var(--muted); display: block; }
-    .p-day { font-size: 1rem; font-weight: 700; }
-    
-    .see-more-wrapper { display: flex; justify-content: flex-end; margin-top: 1.5rem; }
+    .preview-date { min-width: 52px; text-align: right; border-right: 1px solid var(--border); padding-right: 0.8rem; }
+    .p-year { font-size: 0.6rem; color: var(--muted); display: block; }
+    .p-day { font-size: 0.9rem; font-weight: 700; }
+
+    .see-more-wrapper { display: flex; justify-content: flex-end; margin-top: 0.8rem; }
     .see-more-btn { text-decoration: none; color: var(--muted); font-size: 0.7rem; letter-spacing: 2px; position: relative; padding: 8px 0; transition: 0.3s; }
     .btn-line { position: absolute; bottom: 0; right: 0; width: 30px; height: 2px; background-color: var(--border); transition: 0.4s; }
     .see-more-btn:hover { color: var(--accent); }

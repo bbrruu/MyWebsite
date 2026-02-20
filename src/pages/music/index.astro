@@ -25,11 +25,23 @@ const artists = Object.keys(groupedByArtist);
         <header class="archive-header">
             <h1>拾音集 <small>SOUND & TRACKS</small></h1>
             <div class="header-line"></div>
+            <div class="artist-filter">
+                <label for="artist-select" class="filter-label">FILTER BY ARTIST</label>
+                <div class="select-wrapper">
+                    <select id="artist-select" class="artist-select">
+                        <option value="all">全部 ALL</option>
+                        {artists.map((artist) => (
+                            <option value={artist}>{artist}</option>
+                        ))}
+                    </select>
+                    <span class="select-arrow">↓</span>
+                </div>
+            </div>
         </header>
 
-        <div class="archive-content">
+        <div class="archive-content" id="music-list">
             {artists.map((artist) => (
-                <section class="artist-section">
+                <section class="artist-section" data-artist={artist}>
                     <div class="artist-header">
                         <div class="author-name-group">
                             <span class="prefix">Musician / Artist</span>
@@ -39,15 +51,15 @@ const artists = Object.keys(groupedByArtist);
                     </div>
 
                     <div class="note-list">
-                        {groupedByArtist[artist].map((post) => (
-                            <div class="note-wrapper">
+                        {groupedByArtist[artist].map((post, idx) => (
+                            <div class={`note-wrapper${idx >= 5 ? ' extra-entry' : ''}`}>
                                 <a href={`/music/${post.id}`} class="music-entry">
                                     <div class="title-swap-container">
                                         <div class="title-default">
                                             {post.data.title} <span class="song-mark">《{post.data.songName || 'Untitled'}》</span>
                                         </div>
                                         <div class="title-hover">
-                                            <span class="focus-artist">{post.data.artist}</span> 
+                                            <span class="focus-artist">{post.data.artist}</span>
                                             <span class="song-mark">《{post.data.songName || 'Untitled'}》</span>
                                             {post.data.genre && <span class="cat-tag">#{post.data.genre}</span>}
                                         </div>
@@ -60,112 +72,160 @@ const artists = Object.keys(groupedByArtist);
                             </div>
                         ))}
                     </div>
+                    {groupedByArtist[artist].length > 5 && (
+                        <div class="see-more-wrapper">
+                            <button class="show-more-btn" data-artist={artist}>
+                                顯示更多 MORE<div class="btn-line"></div>
+                            </button>
+                        </div>
+                    )}
                 </section>
             ))}
         </div>
     </main>
 </Layout>
 
+<script>
+    const setup = () => {
+        // 歌手篩選下拉
+        const select = document.getElementById('artist-select') as HTMLSelectElement;
+        const sections = document.querySelectorAll<HTMLElement>('.artist-section');
+        if (!select) return;
+
+        select.addEventListener('change', () => {
+            const val = select.value;
+            sections.forEach((section) => {
+                if (val === 'all' || section.dataset.artist === val) {
+                    section.style.display = '';
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+        });
+
+        // 顯示更多按鈕
+        document.querySelectorAll<HTMLButtonElement>('.show-more-btn').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const artist = btn.dataset.artist;
+                const section = document.querySelector<HTMLElement>(`.artist-section[data-artist="${artist}"]`);
+                section?.querySelectorAll<HTMLElement>('.extra-entry').forEach((entry) => {
+                    entry.classList.add('visible');
+                });
+                btn.closest<HTMLElement>('.see-more-wrapper')!.style.display = 'none';
+            });
+        });
+    };
+
+    document.addEventListener('DOMContentLoaded', setup);
+    document.addEventListener('astro:page-load', setup);
+</script>
+
 <style>
-    /* 核心佈局：增加寬度讓版面更寬敞 */
     .music-archive {
         max-width: 1400px;
-        margin: 4rem auto;
+        margin: 2rem auto;
         padding: 0 4rem;
         font-family: "Noto Serif TC", serif;
     }
 
-    /* 麵包屑：維持簡潔灰色調 */
-    .breadcrumb { 
-        display: flex; 
-        align-items: center; 
-        gap: 0.8rem; 
-        font-family: sans-serif; 
-        font-size: 0.7rem; 
-        letter-spacing: 0.2rem; 
-        margin-bottom: 2rem; 
-    }
-    .breadcrumb a { text-decoration: none; color: var(--muted); transition: 0.3s; }
-    .breadcrumb a:hover { color: var(--accent); }
-    .breadcrumb .sep { color: var(--border); }
-    .breadcrumb .current { font-weight: 700; color: var(--ink); text-transform: uppercase; }
-
-    /* 大標題樣式：與 Research 頁面同步 */
-    .archive-header h1 { 
-        font-size: 2.3rem; 
-        margin: 0; 
-        font-weight: 700; 
-        letter-spacing: -1.5px; 
+    .archive-header h1 {
+        font-size: 1.6rem;
+        margin: 0;
+        font-weight: 700;
+        letter-spacing: -1.5px;
         display: flex;
         justify-content: space-between;
         align-items: baseline;
     }
-    .archive-header h1 small { 
-        font-size: 0.9rem; 
-        font-family: sans-serif; 
-        letter-spacing: 4px; 
-        color: var(--muted); 
+    .archive-header h1 small {
+        font-size: 0.75rem;
+        font-family: sans-serif;
+        letter-spacing: 4px;
+        color: var(--muted);
         font-weight: 400;
     }
 
-    .header-line { width: 100%; height: 1px; background: var(--border); margin: 2rem 0 5rem; position: relative; }
+    .header-line { width: 100%; height: 1px; background: var(--border); margin: 1rem 0 1.2rem; position: relative; }
     .header-line::after { content: ''; position: absolute; left: 0; top: -1px; width: 80px; height: 3px; background: var(--accent); }
 
-    /* 歌手分組區隔 */
-    .artist-section { margin-bottom: 6rem; }
+    .artist-filter { display: flex; align-items: center; gap: 1rem; margin-bottom: 2.5rem; }
+    .filter-label { font-size: 0.6rem; font-family: sans-serif; letter-spacing: 2px; color: var(--muted); font-weight: 700; text-transform: uppercase; white-space: nowrap; }
+    .select-wrapper { position: relative; display: inline-flex; align-items: center; }
+    .artist-select {
+        appearance: none; -webkit-appearance: none;
+        background: transparent;
+        border: 1px solid var(--border);
+        border-radius: 3px;
+        padding: 0.35rem 2rem 0.35rem 0.8rem;
+        font-size: 0.8rem;
+        font-family: "Noto Serif TC", serif;
+        color: var(--ink);
+        cursor: pointer;
+        transition: border-color 0.3s, color 0.3s;
+        min-width: 160px;
+    }
+    .artist-select:focus { outline: none; border-color: var(--accent); }
+    .artist-select:hover { border-color: var(--accent); color: var(--accent); }
+    .select-arrow {
+        position: absolute; right: 0.6rem;
+        font-size: 0.6rem; color: var(--muted);
+        pointer-events: none; transition: color 0.3s;
+    }
+    .select-wrapper:hover .select-arrow { color: var(--accent); }
+
+    .artist-section { margin-bottom: 3rem; }
     .artist-header {
-        display: flex; 
-        justify-content: space-between; 
+        display: flex;
+        justify-content: space-between;
         align-items: flex-end;
-        padding-bottom: 1.2rem; 
+        padding-bottom: 0.7rem;
         border-bottom: 2px solid var(--ink);
-        margin-bottom: 2rem;
+        margin-bottom: 0.8rem;
     }
-    .author-name-group .prefix { 
-        font-size: 0.65rem; 
-        text-transform: uppercase; 
-        letter-spacing: 3px; 
-        color: var(--muted); 
-        font-family: sans-serif; 
+    .author-name-group .prefix {
+        font-size: 0.6rem;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        color: var(--muted);
+        font-family: sans-serif;
         display: block;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.3rem;
     }
-    .artist-title { font-size: 2rem; margin: 0; color: var(--ink); font-weight: 700; }
-    .note-count { 
-        font-size: 0.8rem; 
-        color: var(--accent); 
+    .artist-title { font-size: 1.2rem; margin: 0; color: var(--ink); font-weight: 700; }
+    .note-count {
+        font-size: 0.72rem;
+        color: var(--accent);
         font-weight: 700;
         font-family: sans-serif;
         letter-spacing: 1px;
     }
 
-    /* 音樂條目互動動畫 */
     .music-entry {
-        display: flex; 
-        align-items: center; 
+        display: flex;
+        align-items: center;
         justify-content: space-between;
-        text-decoration: none; 
-        color: inherit; 
-        padding: 2rem 0;
-        border-bottom: 1px dashed var(--border); 
+        text-decoration: none;
+        color: inherit;
+        padding: 0.8rem 0;
+        border-bottom: 1px dashed var(--border);
         transition: 0.4s ease;
     }
     .music-entry:hover { background: rgba(139, 69, 19, 0.02); padding-left: 1.5rem; }
 
     .title-swap-container {
-        flex: 1; 
-        position: relative; 
-        height: 1.8rem; 
-        overflow: hidden; 
-        display: flex; 
+        flex: 1;
+        position: relative;
+        height: 1.5rem;
+        overflow: hidden;
+        display: flex;
         align-items: center;
     }
     .title-default, .title-hover {
-        font-size: 1.25rem; 
+        font-size: 0.95rem;
         font-weight: 700;
         transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-        white-space: nowrap; 
-        line-height: 1.8rem;
+        white-space: nowrap;
+        line-height: 1.5rem;
     }
     .title-hover {
         position: absolute; top: 0; left: 0; 
@@ -196,6 +256,20 @@ const artists = Object.keys(groupedByArtist);
     }
     .music-entry:hover .entry-arrow { opacity: 1; color: var(--accent); transform: translateX(5px); }
     .view-text { font-weight: 700; }
+
+    .extra-entry { display: none; }
+    .extra-entry.visible { display: block; }
+
+    .see-more-wrapper { display: flex; justify-content: flex-end; margin-top: 0.8rem; }
+    .show-more-btn {
+        background: none; border: none; cursor: pointer;
+        color: var(--muted); font-size: 0.7rem; letter-spacing: 2px;
+        font-family: sans-serif; position: relative; padding: 8px 0;
+        transition: 0.3s;
+    }
+    .show-more-btn .btn-line { position: absolute; bottom: 0; right: 0; width: 30px; height: 2px; background-color: var(--border); transition: 0.4s; }
+    .show-more-btn:hover { color: var(--accent); }
+    .show-more-btn:hover .btn-line { width: 100%; background-color: var(--accent); }
 
     @media (max-width: 850px) {
         .archive-header h1 { font-size: 2.5rem; flex-direction: column; gap: 0.5rem; }

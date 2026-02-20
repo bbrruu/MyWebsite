@@ -123,13 +123,13 @@ const months = Object.keys(groupedPosts);
 <style>
     .blog-archive {
         max-width: 1400px;
-        margin: 4rem auto;
+        margin: 2rem auto;
         padding: 0 4rem;
         font-family: "Noto Serif TC", serif;
     }
 
     .archive-header h1 {
-        font-size: 2.3rem;
+        font-size: 1.8rem;
         margin: 0;
         font-weight: 700;
         letter-spacing: -1.5px;
@@ -138,21 +138,21 @@ const months = Object.keys(groupedPosts);
         align-items: baseline;
     }
     .archive-header h1 small {
-        font-size: 0.9rem;
+        font-size: 0.8rem;
         font-family: sans-serif;
         letter-spacing: 4px;
         color: var(--muted);
         font-weight: 400;
     }
 
-    .header-line { width: 100%; height: 1px; background: var(--border); margin: 2rem 0 3rem; position: relative; }
+    .header-line { width: 100%; height: 1px; background: var(--border); margin: 1.2rem 0 1.5rem; position: relative; }
     .header-line::after { content: ''; position: absolute; left: 0; top: -1px; width: 80px; height: 3px; background: var(--accent); }
 
     /* 分類導覽 */
-    .category-filter { display: flex; justify-content: space-between; width: 100%; border-bottom: 1px solid var(--border); margin-bottom: 5rem; }
+    .category-filter { display: flex; justify-content: space-between; width: 100%; border-bottom: 1px solid var(--border); margin-bottom: 3rem; }
     .cat-btn {
-        flex: 1; background: none; border: none; padding: 0 0 1.2rem 0;
-        font-size: 0.8rem; color: var(--muted); cursor: pointer;
+        flex: 1; background: none; border: none; padding: 0 0 0.8rem 0;
+        font-size: 0.75rem; color: var(--muted); cursor: pointer;
         transition: color 0.3s ease; font-family: sans-serif; letter-spacing: 2px;
         position: relative; text-transform: uppercase;
     }
@@ -160,29 +160,29 @@ const months = Object.keys(groupedPosts);
     .cat-btn.active::after { content: ""; position: absolute; bottom: -1px; left: 0; width: 100%; height: 3px; background: var(--accent); }
 
     /* 月份分組 */
-    .month-section { margin-bottom: 6rem; transition: opacity 0.4s ease, transform 0.4s ease; }
+    .month-section { margin-bottom: 3.5rem; transition: opacity 0.4s ease, transform 0.4s ease; }
     .month-section.month-hidden { opacity: 0; height: 0; margin-bottom: 0; overflow: hidden; pointer-events: none; }
 
     .month-header {
         display: flex;
         justify-content: space-between;
         align-items: flex-end;
-        padding-bottom: 1.2rem;
+        padding-bottom: 0.8rem;
         border-bottom: 2px solid var(--ink);
-        margin-bottom: 2rem;
+        margin-bottom: 0.8rem;
     }
     .month-name-group .prefix {
-        font-size: 0.65rem;
+        font-size: 0.6rem;
         text-transform: uppercase;
         letter-spacing: 3px;
         color: var(--muted);
         font-family: sans-serif;
         display: block;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.3rem;
     }
-    .month-title { font-size: 2rem; margin: 0; color: var(--ink); font-weight: 700; }
+    .month-title { font-size: 1.4rem; margin: 0; color: var(--ink); font-weight: 700; }
     .note-count {
-        font-size: 0.8rem;
+        font-size: 0.72rem;
         color: var(--accent);
         font-weight: 700;
         font-family: sans-serif;
@@ -199,7 +199,7 @@ const months = Object.keys(groupedPosts);
         justify-content: space-between;
         text-decoration: none;
         color: inherit;
-        padding: 2rem 0;
+        padding: 0.9rem 0;
         border-bottom: 1px dashed var(--border);
         transition: 0.4s ease;
     }
@@ -208,17 +208,17 @@ const months = Object.keys(groupedPosts);
     .title-swap-container {
         flex: 1;
         position: relative;
-        height: 1.8rem;
+        height: 1.5rem;
         overflow: hidden;
         display: flex;
         align-items: center;
     }
     .title-default, .title-hover {
-        font-size: 1.25rem;
+        font-size: 1rem;
         font-weight: 700;
         transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
         white-space: nowrap;
-        line-height: 1.8rem;
+        line-height: 1.5rem;
     }
     .title-hover {
         position: absolute;
