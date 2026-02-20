@@ -18,6 +18,13 @@ const { Content } = await render(post);
   <div class="paper-texture"></div>
 
   <article class="music-page">
+    <nav class="inner-nav">
+      <a href="/music" class="back-link">
+        <span class="arrow">←</span>
+        <span class="text">INDEX / MUSIC</span>
+      </a>
+    </nav>
+
     <header class="music-header">
       <p class="meta">拾音集 / {post.data.pubDate?.toLocaleDateString()}</p>
       <h1>{post.data.artist} — 《{post.data.songName}》</h1>
@@ -61,11 +68,16 @@ const { Content } = await render(post);
   /* --- 音樂內頁人文感樣式 --- */
   .music-page {
     max-width: 800px;
-    margin: 3rem auto;
+    margin: 0 auto;
     padding: 0 1.5rem;
     font-family: "Noto Serif TC", serif;
     color: var(--ink);
   }
+
+  .inner-nav { margin-bottom: 1.5rem; }
+  .back-link { display: inline-flex; align-items: center; text-decoration: none; color: var(--muted); font-size: 0.7rem; letter-spacing: 2px; font-family: sans-serif; }
+  .back-link:hover { color: var(--accent); }
+  .back-link .arrow { margin-right: 8px; transition: 0.4s ease; }
 
   .music-header { text-align: center; margin-bottom: 3rem; }
   .music-header h1 { font-size: 1.8rem; margin-top: 0.5rem; }

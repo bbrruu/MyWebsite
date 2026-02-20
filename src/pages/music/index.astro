@@ -103,15 +103,13 @@ const artists = Object.keys(groupedByArtist);
             });
         });
 
-        // 顯示更多按鈕
+        // 顯示更多按鈕：切換下拉選單至該歌手
         document.querySelectorAll<HTMLButtonElement>('.show-more-btn').forEach((btn) => {
             btn.addEventListener('click', () => {
                 const artist = btn.dataset.artist;
-                const section = document.querySelector<HTMLElement>(`.artist-section[data-artist="${artist}"]`);
-                section?.querySelectorAll<HTMLElement>('.extra-entry').forEach((entry) => {
-                    entry.classList.add('visible');
-                });
-                btn.closest<HTMLElement>('.see-more-wrapper')!.style.display = 'none';
+                if (!artist) return;
+                select.value = artist;
+                select.dispatchEvent(new Event('change'));
             });
         });
     };
@@ -258,9 +256,8 @@ const artists = Object.keys(groupedByArtist);
     .view-text { font-weight: 700; }
 
     .extra-entry { display: none; }
-    .extra-entry.visible { display: block; }
 
-    .see-more-wrapper { display: flex; justify-content: flex-end; margin-top: 0.8rem; }
+.see-more-wrapper { display: flex; justify-content: flex-end; margin-top: 0.8rem; }
     .show-more-btn {
         background: none; border: none; cursor: pointer;
         color: var(--muted); font-size: 0.7rem; letter-spacing: 2px;

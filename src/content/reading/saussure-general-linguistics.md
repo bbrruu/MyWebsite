@@ -1,6 +1,6 @@
 ---
 title: "重新審視能指與所指的二元對立"
-bookTitle: "普通語言學教程"
+bookTitle: "Course in General Linguistics"
 author: "Ferdinand de Saussure"
 rating: 4
 pubDate: 2026-01-28
