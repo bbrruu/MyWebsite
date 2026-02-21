@@ -27,12 +27,17 @@ const currentPath = pathname.slice(1).split('/')[0];
 		<title>{title}</title>
 		<ClientRouter />
 	</head>
-	<body>
+	<body transition:animate="fade">
+		<canvas id="click-canvas"></canvas>
 		<div class="paper-texture"></div>
 
+		<div class="sticky-nav">
+			<div class="nav-inner">
+				<Navbar currentPath={currentPath} />
+			</div>
+		</div>
+
 		<div class="container">
-			<Navbar currentPath={currentPath} />
-			
 			<slot />
 		</div>
 
@@ -49,9 +54,85 @@ const currentPath = pathname.slice(1).split('/')[0];
 					});
 				}
 			}
-			// 每秒更新一次
 			setInterval(updateClock, 1000);
 			updateClock();
+		</script>
+
+		<!-- 點擊粒子特效 -->
+		<script is:inline>
+			var _clickCanvas, _clickCtx, _clickParticles = [], _rafId;
+
+			function resizeClickCanvas() {
+				_clickCanvas.width  = window.innerWidth;
+				_clickCanvas.height = window.innerHeight;
+			}
+
+			function ClickParticle(x, y) {
+				var angle = Math.random() * Math.PI * 2;
+				var speed = Math.random() * 3.5 + 1;
+				this.x = x; this.y = y;
+				this.vx = Math.cos(angle) * speed;
+				this.vy = Math.sin(angle) * speed;
+				this.alpha  = 1;
+				this.radius = Math.random() * 2.5 + 1;
+				this.decay  = Math.random() * 0.025 + 0.018;
+				this.gravity = 0.07;
+			}
+			ClickParticle.prototype.update = function() {
+				this.vy += this.gravity;
+				this.x  += this.vx; this.y += this.vy;
+				this.vx *= 0.97;
+				this.alpha -= this.decay;
+			};
+			ClickParticle.prototype.draw = function() {
+				_clickCtx.save();
+				_clickCtx.globalAlpha = Math.max(0, this.alpha);
+				_clickCtx.fillStyle = "#8b4513";
+				_clickCtx.beginPath();
+				_clickCtx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+				_clickCtx.fill();
+				_clickCtx.restore();
+			};
+
+			function spawnBurst(x, y, count) {
+				for (var i = 0; i < (count || 10); i++) {
+					_clickParticles.push(new ClickParticle(x, y));
+				}
+			}
+
+			function clickLoop() {
+				_clickCtx.clearRect(0, 0, _clickCanvas.width, _clickCanvas.height);
+				_clickParticles = _clickParticles.filter(function(p) { return p.alpha > 0; });
+				_clickParticles.forEach(function(p) { p.update(); p.draw(); });
+				_rafId = requestAnimationFrame(clickLoop);
+			}
+
+			function initClickEffect() {
+				if (_rafId) cancelAnimationFrame(_rafId);
+				_clickParticles = [];
+				_clickCanvas = document.getElementById("click-canvas");
+				if (!_clickCanvas) return;
+				_clickCtx = _clickCanvas.getContext("2d");
+				resizeClickCanvas();
+				window.addEventListener("resize", resizeClickCanvas);
+
+				document.addEventListener("click", function(e) {
+					spawnBurst(e.clientX, e.clientY, 6);
+				});
+
+				// 延遲 Astro 的頁面載入，讓粒子先跑完
+				document.addEventListener("astro:before-preparation", function(e) {
+					var orig = e.loader;
+					e.loader = async function() {
+						await new Promise(function(r) { setTimeout(r, 25); });
+						return orig();
+					};
+				});
+
+				clickLoop();
+			}
+
+			document.addEventListener("astro:page-load", initClickEffect);
 		</script>
 	</body>
 </html>
@@ -82,6 +163,20 @@ const currentPath = pathname.slice(1).split('/')[0];
 		line-height: 1.6;
 	}
 
+	/* 自訂游標 */
+	* { cursor: url('/images/cursor_1.png') 0 0, auto; }
+	a, button, [role="button"], select, label[for], input[type="submit"] {
+		cursor: url('/images/cursor_2.png') 0 0, pointer;
+	}
+
+	/* 點擊粒子畫布 */
+	#click-canvas {
+		position: fixed;
+		inset: 0;
+		z-index: 9999;
+		pointer-events: none;
+	}
+
 	/* 紙張紋理效果 */
 	.paper-texture {
 		position: fixed;
@@ -92,11 +187,26 @@ const currentPath = pathname.slice(1).split('/')[0];
 		pointer-events: none;
 	}
 
-	/* --- 核心容器：決定全站導覽列與內容的寬度 --- */
-	.container {
-		max-width: 1400px; /* 增加寬度讓版面更寬敞 */
+	/* --- Sticky 導覽列 --- */
+	.sticky-nav {
+		position: sticky;
+		top: 0;
+		z-index: 100;
+		background: rgba(253, 250, 246, 0.75);
+		backdrop-filter: blur(12px);
+		-webkit-backdrop-filter: blur(12px);
+	}
+	.nav-inner {
+		max-width: 1400px;
 		margin: 0 auto;
-		padding: 3rem 4rem;
+		padding: 0 4rem;
+	}
+
+	/* --- 核心容器：決定內容的寬度 --- */
+	.container {
+		max-width: 1400px;
+		margin: 0 auto;
+		padding: 2.5rem 4rem 3rem;
 	}
 
 	/* 標題與連結的基本樣式 */
@@ -113,8 +223,7 @@ const currentPath = pathname.slice(1).split('/')[0];
 
 	/* 響應式調整：在手機上減少邊距 */
 	@media (max-width: 768px) {
-		.container {
-			padding: 1rem;
-		}
+		.nav-inner { padding: 0 1rem; }
+		.container { padding: 1.5rem 1rem; }
 	}
 </style>

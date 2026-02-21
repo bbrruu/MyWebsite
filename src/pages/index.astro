@@ -28,7 +28,7 @@ const randomSlogan = slogans[Math.floor(Math.random() * slogans.length)];
 <Layout title="Bruce 個人網站">
     <div class="paper-texture"></div>
 
-    <main transition:animate="fade" class="container">
+    <main class="container">
 
         <header class="banner-header">
             <a href="/about" class="banner-link-wrapper">
@@ -52,9 +52,8 @@ const randomSlogan = slogans[Math.floor(Math.random() * slogans.length)];
             <section class="home-section">
                 <a href="/blog" class="section-title-link">
                     <div class="title-container">
-                        <h2 class="section-title">生活隨筆</h2>
+                        <h2 class="section-title">生活隨筆<div class="hover-accent-line"></div></h2>
                         <span class="section-en">JOURNAL</span>
-                        <div class="hover-accent-line"></div>
                     </div>
                     <span class="enter-arrow">→</span>
                 </a>
@@ -80,9 +79,8 @@ const randomSlogan = slogans[Math.floor(Math.random() * slogans.length)];
             <section class="home-section">
                 <a href="/research" class="section-title-link">
                     <div class="title-container">
-                        <h2 class="section-title">讀讀文獻</h2>
+                        <h2 class="section-title">讀讀文獻<div class="hover-accent-line"></div></h2>
                         <span class="section-en">LITERATURE</span>
-                        <div class="hover-accent-line"></div>
                     </div>
                     <span class="enter-arrow">→</span>
                 </a>
@@ -108,9 +106,8 @@ const randomSlogan = slogans[Math.floor(Math.random() * slogans.length)];
             <section class="home-section">
                 <a href="/reading" class="section-title-link">
                     <div class="title-container">
-                        <h2 class="section-title">看看書籍</h2>
+                        <h2 class="section-title">看看書籍<div class="hover-accent-line"></div></h2>
                         <span class="section-en">READING</span>
-                        <div class="hover-accent-line"></div>
                     </div>
                     <span class="enter-arrow">→</span>
                 </a>
@@ -136,9 +133,8 @@ const randomSlogan = slogans[Math.floor(Math.random() * slogans.length)];
             <section class="home-section">
                 <a href="/music" class="section-title-link">
                     <div class="title-container">
-                        <h2 class="section-title">聽聽音樂</h2>
+                        <h2 class="section-title">聽聽音樂<div class="hover-accent-line"></div></h2>
                         <span class="section-en">MUSIC</span>
-                        <div class="hover-accent-line"></div>
                     </div>
                     <span class="enter-arrow">→</span>
                 </a>
@@ -237,12 +233,13 @@ const randomSlogan = slogans[Math.floor(Math.random() * slogans.length)];
     .quad-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; }
     .section-title-link { display: flex; justify-content: space-between; align-items: flex-end; text-decoration: none; color: var(--ink); padding-bottom: 0.7rem; border-bottom: 1px solid var(--border); margin-bottom: 1.2rem; }
     .title-container { position: relative; display: flex; align-items: baseline; gap: 1.2rem; }
-    .section-title { font-size: 1.7rem; margin: 0; transition: 0.4s; }
-    .hover-accent-line { position: absolute; bottom: -1px; left: 0; width: 0; height: 3px; background-color: var(--accent); transition: 0.4s; }
+    .section-en { margin-left: 0.5rem; }
+    .section-title { font-size: 1.7rem; margin: 0; transition: transform 0.4s, color 0.4s; position: relative; }
+    .hover-accent-line { position: absolute; bottom: -6px; left: 0; width: 0; height: 3px; background-color: var(--accent); transition: width 0.35s ease; transition-delay: 0s; }
     .enter-arrow { font-size: 1rem; color: var(--muted); opacity: 0; transform: translateX(-10px); transition: 0.4s; }
 
     .section-title-link:hover .section-title { transform: translateX(10px); color: var(--accent); }
-    .section-title-link:hover .hover-accent-line { width: 80px; }
+    .section-title-link:hover .hover-accent-line { width: 100%; transition-delay: 0.25s; }
     .section-title-link:hover .enter-arrow { opacity: 1; transform: translateX(0); color: var(--accent); }
 
     .preview-item { display: flex; gap: 1.2rem; text-decoration: none; color: inherit; padding: 0.55rem 0.6rem; border-bottom: 1px dashed var(--border); transition: 0.3s; }

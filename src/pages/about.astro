@@ -5,45 +5,46 @@ import Layout from "../layouts/Layout.astro";
 <Layout title="關於我 / ABOUT - Bruce">
   <div class="paper-texture"></div>
 
-  <main transition:animate="fade" class="about-container">
+  <main class="about-container">
     <header class="about-header">
-      <div class="header-left">
+      <!-- 左：照片 + 名字 -->
+      <div class="header-photo-col">
+        <div class="profile-image-wrapper">
+          <img src="/images/profile.jpg" alt="Bruce's Portrait" class="profile-img" />
+          <div class="img-edge-hint"></div>
+        </div>
         <div class="profile-title">
           <h1 class="main-name">曾冠瑜 ｜ Bruce Tseng</h1>
           <p class="sub-identity" data-lang="zh">研究生 / 計算語言學、AI研究者</p>
           <p class="sub-identity" data-lang="en" style="display: none;">Graduate Student / Computational Linguistics & AI Researcher</p>
-
-          <div class="header-motto">
-            "Exploring the nuances of language through the lens of data."
-          </div>
-
-          <div class="header-decoration"></div>
-
           <div class="header-meta-tags">
             <span class="meta-tag">📍 Taipei, Taiwan</span>
             <span class="meta-tag">🎓 NTU Linguistics</span>
             <span class="meta-tag">🎸 Music & Code</span>
           </div>
-          
-          <div class="header-secondary-image">
-            <div class="secondary-img-wrapper">
-                <img src="/images/your-secondary-photo.jpg" alt="Work Space" class="secondary-img" />
-                <div class="img-edge-hint"></div>
-            </div>
-          </div>
-
         </div>
       </div>
 
-      <div class="header-right">
-        <div class="profile-image-wrapper">
-          <img
-            src="/images/profile.jpg"
-            alt="Bruce's Portrait"
-            class="profile-img"
-          />
-          <div class="img-edge-hint"></div>
+      <!-- 右：對話框自我介紹 -->
+      <div class="bio-bubble">
+        <div class="bubble-label" data-lang="zh">自我介紹</div>
+        <div class="bubble-label" data-lang="en" style="display: none;">About Me</div>
+        <div class="bubble-content">
+          <p data-lang="zh">
+            在這裡填上你的自我介紹文字。在這裡填上你的自我介紹文字。在這裡填上你的自我介紹文字。
+            在這裡填上你的自我介紹文字。在這裡填上你的自我介紹文字。在這裡填上你的自我介紹文字。
+            在這裡填上你的自我介紹文字。在這裡填上你的自我介紹文字。在這裡填上你的自我介紹文字。
+            在這裡填上你的自我介紹文字。在這裡填上你的自我介紹文字。在這裡填上你的自我介紹文字。
+            在這裡填上你的自我介紹文字。在這裡填上你的自我介紹文字。在這裡填上你的自我介紹文字。
+            在這裡填上你的自我介紹文字。在這裡填上你的自我介紹文字。在這裡填上你的自我介紹文字。<br>
+            在這裡填上你的自我介紹文字。在這裡填上你的自我介紹文字。在這裡填上你的自我介紹文字。
+            
+          </p>
+          <p data-lang="en" style="display: none;">
+            Write your self-introduction here.
+          </p>
         </div>
+        <div class="bubble-motto">"Exploring the nuances of language through the lens of data."</div>
       </div>
     </header>
 
@@ -85,57 +86,32 @@ import Layout from "../layouts/Layout.astro";
           </div>
         </section>
 
-        <section class="info-section">
-          <h2 class="section-label"><span data-lang="zh">技術棧</span><span data-lang="en" style="display: none;">Technical Skills</span> <small data-lang="zh">TECHNICAL SKILLS</small><small data-lang="en" style="display: none;">技術棧</small></h2>
-          <div class="skill-tags">
-            <span>Linguistics</span>
-            <span>Vibe Coding</span>
-            <span>NLP / Corpus Analysis</span>
-          </div>
-        </section>
       </div>
 
       <div class="grid-column right-col">
-        <section class="info-section profile-card">
-          <h2 class="section-label"><span data-lang="zh">生活手札</span><span data-lang="en" style="display: none;">Life</span> <small data-lang="zh">LIFE</small><small data-lang="en" style="display: none;">生活手札</small></h2>
-          <div class="bio-text">
-            <p data-lang="zh">
-              目前在台大實驗室中探索數據與文字的交集。除了在伺服器終端機前與代碼搏鬥，我更喜歡透過不同的媒介去感受世界的溫度。
-            </p>
-            <p data-lang="en" style="display: none;">
-              Currently exploring the intersection of data and text in NTU's lab. Beyond battling with code at the server terminal, I prefer to experience the warmth of the world through different mediums.
-            </p>
-          </div>
-          <ul class="interest-items">
-            <li>
-              <span class="icon">🎸</span><div>
-                <strong data-lang="zh">弦外之音</strong>
-                <strong data-lang="en" style="display: none;">Beyond the Strings</strong>
-                <p data-lang="zh">指尖上的音樂實驗。</p>
-                <p data-lang="en" style="display: none;">Musical experiments at my fingertips.</p>
-              </div>
-            </li>
-            <li>
-              <span class="icon">🍰</span><div>
-                <strong data-lang="zh">甜點語義學</strong>
-                <strong data-lang="en" style="display: none;">Dessert Semantics</strong>
-                <p data-lang="zh">對甜點的層次感感興趣。</p>
-                <p data-lang="en" style="display: none;">Fascinated by the layered complexity of desserts.</p>
-              </div>
-            </li>
-          </ul>
-        </section>
-
         <section class="info-section">
           <h2 class="section-label"><span data-lang="zh">聯繫我</span><span data-lang="en" style="display: none;">Contact</span> <small data-lang="zh">CONTACT</small><small data-lang="en" style="display: none;">聯繫我</small></h2>
           <div class="contact-links">
-            <a href="r14142007@ntu.edu.tw" class="contact-item"
-              >Email</a
-            >
-            <span class="dot">•</span>
-            <a href="https://github.com/bbrruu" class="contact-item"
-              >GitHub</a
-            >
+            <a href="mailto:r14142007@ntu.edu.tw" class="contact-item">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
+              Email
+            </a>
+            <a href="https://github.com/bbrruu" class="contact-item">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+              GitHub
+            </a>
+            <a href="https://www.instagram.com/bbrruubruce/" class="contact-item">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+              Instagram
+            </a>
+            <a href="https://www.facebook.com/bruce.bbrruu" class="contact-item">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+              Facebook
+            </a>
+            <a href="https://line.me/ti/p/a970094" class="contact-item">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.105.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
+              LINE
+            </a>
           </div>
         </section>
       </div>
@@ -275,67 +251,22 @@ import Layout from "../layouts/Layout.astro";
     width: 100%;
   }
 
-  /* --- 標頭佈局修正：垂直居中，縮小間距 --- */
+  /* --- 標頭：照片靠左 + 對話框靠右 --- */
   .about-header {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start; /* 從 center 改為 flex-start */
-    margin-bottom: 3rem;
-    gap: 3rem;
-  }
-  
-  .header-left {
-    flex: 1;
-  }
-  .main-name {
-    font-size: 2rem;
-    margin: 0;
-    font-weight: 700;
-    letter-spacing: -1px;
-  }
-  .sub-identity {
-    font-size: 0.9rem;
-    color: var(--muted);
-    margin-top: 0.5rem;
-    letter-spacing: 2px;
-    margin-bottom: 1.5rem;
-  }
-  .header-motto {
-    font-size: 0.9rem;
-    font-style: italic;
-    color: var(--muted);
-    margin-bottom: 1rem;
-    font-family: sans-serif;
-    opacity: 0.7;
-  }
-  .header-decoration {
-    width: 400px;
-    height: 4px;
-    background: var(--accent);
-    margin-bottom: 2rem;
-  }
-  .header-meta-tags {
-    display: flex;
-    gap: 1.5rem;
-    margin-top: 1rem;
-  }
-  .meta-tag {
-    font-size: 0.75rem;
-    color: var(--muted);
-    font-family: sans-serif;
-    letter-spacing: 1px;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    align-items: flex-start;
+    gap: 3.5rem;
+    margin-bottom: 3.5rem;
   }
 
-  /* --- 照片樣式調整：大幅放大 --- */
-  .header-right {
+  /* 左欄：照片 + 名字 */
+  .header-photo-col {
     flex-shrink: 0;
+    width: 350px;
   }
   .profile-image-wrapper {
     position: relative;
-    width: 400px; /* 放大至 400px */
+    width: 100%;
     z-index: 1;
   }
   .profile-img {
@@ -348,25 +279,111 @@ import Layout from "../layouts/Layout.astro";
     outline: 1px solid var(--border);
     box-shadow: 0 12px 36px rgba(139, 69, 19, 0.12);
     transition: 0.5s;
-    margin-top: 2.7rem;
   }
   .profile-image-wrapper:hover .profile-img {
     transform: scale(1.02);
     box-shadow: 0 16px 48px rgba(139, 69, 19, 0.18);
   }
-
-  /* 主照片懸停時觸發裝飾線 */
   .profile-image-wrapper:hover .img-edge-hint {
     inset: -4px;
     opacity: 0.2;
   }
+  .profile-title {
+    margin-top: 1.2rem;
+  }
+  .main-name {
+    font-size: 1.1rem;
+    margin: 0 0 0.3rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+  .sub-identity {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin: 0 0 0.8rem;
+    letter-spacing: 1px;
+  }
+  .header-meta-tags {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+  }
+  .meta-tag {
+    font-size: 0.72rem;
+    color: var(--muted);
+    font-family: sans-serif;
+    letter-spacing: 0.5px;
+  }
+
+  /* 右欄：對話框 */
+  .bio-bubble {
+    flex: 1;
+    position: relative;
+    margin-top: 0.5rem;
+    background: var(--paper);
+    border: 2px solid var(--accent);
+    border-radius: 6px;
+    padding: 2rem 2.2rem;
+    box-shadow: 4px 4px 0 rgba(139, 69, 19, 0.12);
+  }
+  /* 左側三角形指針（指向照片） */
+  .bio-bubble::before {
+    content: '';
+    position: absolute;
+    left: -16px;
+    top: 36px;
+    border: 8px solid transparent;
+    border-right-color: var(--accent);
+  }
+  .bio-bubble::after {
+    content: '';
+    position: absolute;
+    left: -12px;
+    top: 38px;
+    border: 6px solid transparent;
+    border-right-color: var(--paper);
+  }
+  /* 四個角的裝飾點 */
+  .bio-bubble .bubble-corner {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+  }
+  .bubble-label {
+    font-size: 0.65rem;
+    font-family: sans-serif;
+    letter-spacing: 3px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 1.2rem;
+    font-weight: 700;
+  }
+  .bubble-content p {
+    font-size: 1rem;
+    line-height: 2;
+    margin: 0 0 1rem;
+    color: var(--ink);
+  }
+  .bubble-motto {
+    font-size: 0.82rem;
+    font-style: italic;
+    color: var(--muted);
+    font-family: sans-serif;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px dashed var(--border);
+    opacity: 0.8;
+  }
 
 
-  /* --- 雙欄排版 --- */
+  /* --- 單欄排版 --- */
   .about-grid {
     display: grid;
-    grid-template-columns: 1.2fr 1fr;
-    gap: 6rem;
+    grid-template-columns: 1fr;
+    gap: 3rem;
     align-items: start;
   }
   .section-label {
@@ -422,137 +439,50 @@ import Layout from "../layouts/Layout.astro";
     color: var(--border);
   }
 
-  .skill-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.8rem;
-  }
-  .skill-tags span {
-    font-size: 0.8rem;
-    font-family: sans-serif;
-    padding: 0.4rem 1rem;
-    background: rgba(139, 69, 19, 0.05);
-    color: var(--accent);
-    border-radius: 20px;
-    border: 1px solid rgba(139, 69, 19, 0.1);
-  }
-
-  .bio-text p {
-    line-height: 2;
-    font-size: 1.05rem;
-    margin-bottom: 2rem;
-  }
-  .interest-items {
-    list-style: none;
-    padding: 0;
-  }
-  .interest-items li {
-    display: flex;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-  }
-  .interest-items .icon {
-    font-size: 1.5rem;
-    margin-top: 2px;
-  }
-  .interest-items strong {
-    font-size: 1.1rem;
-    display: block;
-    margin-bottom: 0.3rem;
-  }
-  .interest-items p {
-    font-size: 0.9rem;
-    color: var(--muted);
-    line-height: 1.6;
-    margin: 0;
-  }
-
   .contact-links {
     display: flex;
-    align-items: center;
-    gap: 1rem;
+    flex-wrap: wrap;
+    gap: 0.8rem 1.5rem;
   }
   .contact-item {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
     text-decoration: none;
-    color: var(--ink);
-    font-weight: 600;
-    font-size: 0.9rem;
-    transition: 0.3s;
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-family: sans-serif;
+    letter-spacing: 1px;
+    transition: color 0.3s;
+  }
+  .contact-item svg {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
   }
   .contact-item:hover {
     color: var(--accent);
-    text-decoration: underline;
-  }
-  .dot {
-    color: var(--border);
   }
 
-  /* 【CSS 修改處】副圖片樣式調整，加入特效但不影響排版 */
-  .header-secondary-image {
-    margin-top: 2.5rem; /* 維持原本的間距 */
-    max-width: 450px;   /* 維持原本的寬度限制 */
-    /* position: relative;  <-- 移除這裡的 relative，改到 wrapper 上 */
-  }
 
-  /* 新增：副圖片包裹層，用於定位和觸發特效 */
-  .secondary-img-wrapper {
-    position: relative;
-    z-index: 1;
-  }
-
-  /* 修改：針對新的 class 設定圖片樣式 */
-  .secondary-img {
-    width: 100%;
-    height: auto;
-    display: block; /* 消除圖片底部可能的細微空隙 */
-    border-radius: 2px;
-    border: 4px solid var(--paper);
-    outline: 1px solid var(--border);
-    /* 為了視覺統一，這裡建議使用與主照片相同的基礎陰影 */
-    box-shadow: 0 12px 36px rgba(139, 69, 19, 0.12); 
-    filter: sepia(10%);
-    transition: 0.5s; /* 加入過渡效果 */
-  }
-
-  /* 新增：副圖片懸停特效 (與主照片相同) */
-  .secondary-img-wrapper:hover .secondary-img {
-    transform: scale(1.02);
-    box-shadow: 0 16px 48px rgba(139, 69, 19, 0.18);
-  }
-  
-  /* 新增：副圖片懸停時觸發裝飾線 (與主照片相同) */
-  .secondary-img-wrapper:hover .img-edge-hint {
-    inset: -4px;
-    opacity: 0.2;
-  }
-
-  .img-caption {
-    font-size: 0.7rem;
-    color: var(--muted);
-    margin-top: 0.8rem;
-    letter-spacing: 1px;
-    font-family: sans-serif;
-    text-transform: uppercase;
-  
-
-  @media (max-width: 850px) {
+  @media (max-width: 768px) {
     .about-header {
       flex-direction: column;
-      align-items: center;
-      text-align: center;
       gap: 2rem;
     }
-    .about-grid {
-      grid-template-columns: 1fr;
-      gap: 4rem;
+    .header-photo-col {
+      width: 100%;
+      display: flex;
+      gap: 1.5rem;
+      align-items: flex-start;
     }
-    /* 手機版照片也同步放大 */
     .profile-image-wrapper {
-      width: 260px;
-      margin-top: 1rem;
+      width: 140px;
+      flex-shrink: 0;
     }
-    .header-meta-tags {
-      justify-content: center;
+    .bio-bubble::before,
+    .bio-bubble::after {
+      display: none;
     }
   }
 </style>

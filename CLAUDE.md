@@ -18,6 +18,7 @@ This is an **Astro 5 static site** — a personal portfolio for Bruce Tseng (曾
 
 File-based routing under `src/pages/`. Four main content sections, each with a list index and dynamic `[id].astro` detail page:
 
+
 - `/` → `src/pages/index.astro` — homepage grid showing latest from all collections
 - `/about` → bilingual (CN/EN) profile page with a language toggle button
 - `/blog/[id]`, `/research/[id]`, `/reading/[id]`, `/music/[id]` — dynamic routes using `getStaticPaths()`
