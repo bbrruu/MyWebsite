@@ -1,0 +1,85 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="404 – 頁面不見了 | Bruce">
+  <div class="not-found">
+    <div class="error-number">404</div>
+    <div class="error-subtitle">
+      <span>頁面不見了</span>
+      <span class="divider">/</span>
+      <span>PAGE NOT FOUND</span>
+    </div>
+    <p class="error-desc">
+      你來到了一片空白之地，這頁已飄散至未知角落。<br />
+      <small>The page you're looking for has wandered off somewhere.</small>
+    </p>
+    <a href="/" class="back-home">← 返回首頁 / BACK TO HOME</a>
+  </div>
+</Layout>
+
+<style>
+  .not-found {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    text-align: center;
+    padding: 3rem 1rem;
+  }
+
+  .error-number {
+    font-size: 8rem;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+    letter-spacing: -4px;
+    margin-bottom: 1rem;
+    font-family: "Noto Serif TC", serif;
+  }
+
+  .error-subtitle {
+    font-size: 0.9rem;
+    letter-spacing: 4px;
+    font-family: sans-serif;
+    color: var(--muted);
+    display: flex;
+    gap: 0.8rem;
+    align-items: center;
+    margin-bottom: 2rem;
+    text-transform: uppercase;
+  }
+
+  .divider { color: var(--border); }
+
+  .error-desc {
+    font-size: 0.9rem;
+    color: var(--muted);
+    line-height: 2;
+    margin-bottom: 2.5rem;
+  }
+
+  .error-desc small {
+    font-family: sans-serif;
+    letter-spacing: 0.5px;
+  }
+
+  .back-home {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-family: sans-serif;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-decoration: none;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--border);
+    transition: 0.3s;
+    text-transform: uppercase;
+  }
+
+  .back-home:hover {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+</style>

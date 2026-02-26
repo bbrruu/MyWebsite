@@ -53,22 +53,34 @@ const artists = Object.keys(groupedByArtist);
                     <div class="note-list">
                         {groupedByArtist[artist].map((post, idx) => (
                             <div class={`note-wrapper${idx >= 5 ? ' extra-entry' : ''}`}>
-                                <a href={`/music/${post.id}`} class="music-entry">
-                                    <div class="title-swap-container">
+                                <div class="music-entry">
+                                    <a href={`/music/${post.id}`} class="title-swap-container">
                                         <div class="title-default">
                                             {post.data.title} <span class="song-mark">《{post.data.songName || 'Untitled'}》</span>
                                         </div>
                                         <div class="title-hover">
                                             <span class="focus-artist">{post.data.artist}</span>
                                             <span class="song-mark">《{post.data.songName || 'Untitled'}》</span>
-                                            {post.data.genre && <span class="cat-tag">#{post.data.genre}</span>}
+                                            {(post.data as any).genre && <span class="cat-tag">#{(post.data as any).genre}</span>}
+                                        </div>
+                                    </a>
+                                    <div class="entry-actions">
+                                        {post.data.youtubeId && (
+                                            <button class="preview-btn" data-youtube-id={post.data.youtubeId}>▶ PREVIEW</button>
+                                        )}
+                                        <a href={`/music/${post.id}`} class="entry-arrow">
+                                            <span class="view-text">LISTEN</span>
+                                            <span class="arrow">→</span>
+                                        </a>
+                                    </div>
+                                </div>
+                                {post.data.youtubeId && (
+                                    <div class="inline-player" data-youtube-id={post.data.youtubeId}>
+                                        <div class="player-ratio-box">
+                                            <iframe allowfullscreen allow="autoplay; encrypted-media; picture-in-picture"></iframe>
                                         </div>
                                     </div>
-                                    <div class="entry-arrow">
-                                        <span class="view-text">LISTEN</span>
-                                        <span class="arrow">→</span>
-                                    </div>
-                                </a>
+                                )}
                             </div>
                         ))}
                     </div>
@@ -85,16 +97,16 @@ const artists = Object.keys(groupedByArtist);
     </main>
 </Layout>
 
-<script>
-    const setup = () => {
+<script is:inline>
+    function musicSetup() {
         // 歌手篩選下拉
-        const select = document.getElementById('artist-select') as HTMLSelectElement;
-        const sections = document.querySelectorAll<HTMLElement>('.artist-section');
+        var select = document.getElementById('artist-select');
+        var sections = document.querySelectorAll('.artist-section');
         if (!select) return;
 
-        select.addEventListener('change', () => {
-            const val = select.value;
-            sections.forEach((section) => {
+        select.addEventListener('change', function() {
+            var val = select.value;
+            sections.forEach(function(section) {
                 if (val === 'all' || section.dataset.artist === val) {
                     section.style.display = '';
                 } else {
@@ -104,18 +116,53 @@ const artists = Object.keys(groupedByArtist);
         });
 
         // 顯示更多按鈕：切換下拉選單至該歌手
-        document.querySelectorAll<HTMLButtonElement>('.show-more-btn').forEach((btn) => {
-            btn.addEventListener('click', () => {
-                const artist = btn.dataset.artist;
+        document.querySelectorAll('.show-more-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var artist = btn.dataset.artist;
                 if (!artist) return;
                 select.value = artist;
                 select.dispatchEvent(new Event('change'));
             });
         });
-    };
 
-    document.addEventListener('DOMContentLoaded', setup);
-    document.addEventListener('astro:page-load', setup);
+        // 音樂快速預覽播放器
+        document.querySelectorAll('.preview-btn').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                var youtubeId = btn.dataset.youtubeId;
+                var wrapper = btn.closest('.note-wrapper');
+                var player = wrapper && wrapper.querySelector('.inline-player');
+                var iframe = player && player.querySelector('iframe');
+                if (!player || !iframe || !youtubeId) return;
+
+                var isOpen = player.classList.contains('open');
+
+                // 關閉所有其他播放器
+                document.querySelectorAll('.inline-player.open').forEach(function(p) {
+                    if (p !== player) {
+                        p.classList.remove('open');
+                        var f = p.querySelector('iframe');
+                        if (f) f.src = '';
+                        var otherWrapper = p.closest('.note-wrapper');
+                        var otherBtn = otherWrapper && otherWrapper.querySelector('.preview-btn');
+                        if (otherBtn) otherBtn.classList.remove('active');
+                    }
+                });
+
+                if (isOpen) {
+                    player.classList.remove('open');
+                    iframe.src = '';
+                    btn.classList.remove('active');
+                } else {
+                    iframe.src = 'https://www.youtube.com/embed/' + youtubeId + '?autoplay=1';
+                    player.classList.add('open');
+                    btn.classList.add('active');
+                }
+            });
+        });
+    }
+
+    document.addEventListener('astro:page-load', musicSetup);
 </script>
 
 <style>
@@ -202,13 +249,55 @@ const artists = Object.keys(groupedByArtist);
         display: flex;
         align-items: center;
         justify-content: space-between;
-        text-decoration: none;
         color: inherit;
         padding: 0.8rem 0;
         border-bottom: 1px dashed var(--border);
         transition: 0.4s ease;
     }
     .music-entry:hover { background: rgba(139, 69, 19, 0.02); padding-left: 1.5rem; }
+
+    .entry-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        flex-shrink: 0;
+    }
+
+    .preview-btn {
+        background: none;
+        border: 1px solid var(--border);
+        border-radius: 2px;
+        padding: 0.25rem 0.55rem;
+        font-size: 0.6rem;
+        font-family: sans-serif;
+        letter-spacing: 1.5px;
+        color: var(--muted);
+        transition: 0.3s;
+        white-space: nowrap;
+        line-height: 1.4;
+    }
+    .preview-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .preview-btn.active { background: var(--accent); color: var(--paper); border-color: var(--accent); }
+
+    .inline-player {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.5s ease;
+    }
+    .inline-player.open { max-height: 100vw; }
+    .player-ratio-box {
+        position: relative;
+        padding-bottom: 56.25%;
+        height: 0;
+        margin: 0.5rem 0 0.8rem;
+    }
+    .player-ratio-box iframe {
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        border: none;
+        border-radius: 4px;
+    }
 
     .title-swap-container {
         flex: 1;
@@ -217,6 +306,8 @@ const artists = Object.keys(groupedByArtist);
         overflow: hidden;
         display: flex;
         align-items: center;
+        text-decoration: none;
+        color: inherit;
     }
     .title-default, .title-hover {
         font-size: 0.95rem;

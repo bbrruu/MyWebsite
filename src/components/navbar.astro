@@ -22,6 +22,12 @@ const { currentPath } = Astro.props;
         <span class="lang-option" data-lang="en">EN</span>
       </button>
     )}
+    <button id="search-btn" class="search-btn" title="搜尋 (/)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+    </button>
     <div class="current-time">
       <span id="live-time"></span>
     </div>
@@ -100,4 +106,17 @@ const { currentPath } = Astro.props;
     color: var(--border);
     font-size: 0.7rem;
   }
+
+  .search-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: var(--muted);
+    padding: 0.2rem;
+    transition: color 0.3s;
+    line-height: 1;
+  }
+  .search-btn:hover { color: var(--accent); }
 </style>

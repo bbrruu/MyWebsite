@@ -28,6 +28,7 @@ const currentPath = pathname.slice(1).split('/')[0];
 		<ClientRouter />
 	</head>
 	<body transition:animate="fade">
+		<div id="progress-bar"></div>
 		<canvas id="click-canvas"></canvas>
 		<div class="paper-texture"></div>
 
@@ -39,6 +40,14 @@ const currentPath = pathname.slice(1).split('/')[0];
 
 		<div class="container">
 			<slot />
+		</div>
+
+		<!-- 全站搜尋 Overlay -->
+		<div id="search-overlay" class="search-overlay" aria-hidden="true">
+			<div class="search-modal">
+				<input id="search-input" type="text" placeholder="搜尋文章、音樂、書籍…" autocomplete="off" spellcheck="false" />
+				<div id="search-results" class="search-results"></div>
+			</div>
 		</div>
 
 		<script is:inline>
@@ -134,6 +143,117 @@ const currentPath = pathname.slice(1).split('/')[0];
 
 			document.addEventListener("astro:page-load", initClickEffect);
 		</script>
+
+		<!-- 全站搜尋邏輯 -->
+		<script is:inline>
+			var _searchData = null;
+
+			function openSearch() {
+				var overlay = document.getElementById('search-overlay');
+				var input = document.getElementById('search-input');
+				if (!overlay || !input) return;
+				overlay.classList.add('open');
+				overlay.setAttribute('aria-hidden', 'false');
+				input.value = '';
+				document.getElementById('search-results').innerHTML = '';
+				setTimeout(function() { input.focus(); }, 50);
+			}
+
+			function closeSearch() {
+				var overlay = document.getElementById('search-overlay');
+				if (!overlay) return;
+				overlay.classList.remove('open');
+				overlay.setAttribute('aria-hidden', 'true');
+			}
+
+			function renderResults(items) {
+				var container = document.getElementById('search-results');
+				if (!container) return;
+				if (items.length === 0) {
+					container.innerHTML = '<div class="search-empty">沒有找到相關結果</div>';
+					return;
+				}
+				container.innerHTML = items.map(function(item) {
+					return '<a href="' + item.url + '" class="search-result-item">' +
+						'<span class="result-type">' + item.type + '</span>' +
+						'<span class="result-title">' + item.title + '</span>' +
+						(item.subtitle ? '<span class="result-subtitle">' + item.subtitle + '</span>' : '') +
+						'</a>';
+				}).join('');
+			}
+
+			function doSearch(query) {
+				if (!query.trim()) {
+					document.getElementById('search-results').innerHTML = '';
+					return;
+				}
+				var q = query.toLowerCase();
+				var results = (_searchData || []).filter(function(item) {
+					return (item.title || '').toLowerCase().includes(q) ||
+						(item.subtitle || '').toLowerCase().includes(q);
+				});
+				renderResults(results.slice(0, 12));
+			}
+
+			function initSearch() {
+				var btn = document.getElementById('search-btn');
+				var overlay = document.getElementById('search-overlay');
+				var input = document.getElementById('search-input');
+				if (!overlay || !input) return;
+
+				if (btn) {
+					btn.addEventListener('click', openSearch);
+				}
+
+				document.addEventListener('keydown', function(e) {
+					if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+						e.preventDefault();
+						openSearch();
+					}
+					if (e.key === 'Escape') {
+						closeSearch();
+					}
+				});
+
+				overlay.addEventListener('click', function(e) {
+					if (e.target === overlay) closeSearch();
+				});
+
+				input.addEventListener('input', function() {
+					if (!_searchData) {
+						fetch('/search.json')
+							.then(function(r) { return r.json(); })
+							.then(function(data) {
+								_searchData = data;
+								doSearch(input.value);
+							});
+					} else {
+						doSearch(input.value);
+					}
+				});
+
+				document.getElementById('search-results').addEventListener('click', function() {
+					closeSearch();
+				});
+			}
+
+			document.addEventListener('astro:page-load', initSearch);
+		</script>
+
+		<script is:inline>
+			function initProgress() {
+				function update() {
+					var bar = document.getElementById('progress-bar');
+					if (!bar) return;
+					var scrolled = window.scrollY;
+					var total = document.documentElement.scrollHeight - window.innerHeight;
+					bar.style.width = total > 0 ? (scrolled / total * 100) + '%' : '0%';
+				}
+				window.addEventListener('scroll', update, { passive: true });
+				update();
+			}
+			document.addEventListener('astro:page-load', initProgress);
+		</script>
 	</body>
 </html>
 
@@ -226,5 +346,102 @@ const currentPath = pathname.slice(1).split('/')[0];
 	@media (max-width: 768px) {
 		.nav-inner { padding: 0 1rem; }
 		.container { padding: 1.5rem 1rem; }
+	}
+
+	/* --- 全站搜尋 Overlay --- */
+	.search-overlay {
+		position: fixed;
+		inset: 0;
+		z-index: 9000;
+		background: rgba(253, 250, 246, 0.95);
+		backdrop-filter: blur(8px);
+		-webkit-backdrop-filter: blur(8px);
+		display: flex;
+		align-items: flex-start;
+		justify-content: center;
+		padding-top: 15vh;
+		opacity: 0;
+		pointer-events: none;
+		transition: opacity 0.2s ease;
+	}
+	.search-overlay.open {
+		opacity: 1;
+		pointer-events: auto;
+	}
+	.search-modal {
+		width: 100%;
+		max-width: 600px;
+		padding: 0 1.5rem;
+	}
+	#search-input {
+		width: 100%;
+		background: none;
+		border: none;
+		border-bottom: 2px solid var(--accent);
+		outline: none;
+		font-size: 1.2rem;
+		font-family: "Noto Serif TC", serif;
+		color: var(--ink);
+		padding: 0.5rem 0;
+		letter-spacing: 0.5px;
+	}
+	#search-input::placeholder { color: var(--muted); }
+	.search-results {
+		margin-top: 1.2rem;
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+	}
+	.search-result-item {
+		display: flex;
+		align-items: baseline;
+		gap: 0.8rem;
+		padding: 0.65rem 0.8rem;
+		border-radius: 3px;
+		text-decoration: none;
+		color: var(--ink);
+		transition: background 0.2s;
+	}
+	.search-result-item:hover { background: rgba(139, 69, 19, 0.07); }
+	.result-type {
+		font-size: 0.58rem;
+		font-family: sans-serif;
+		letter-spacing: 2px;
+		color: var(--accent);
+		font-weight: 700;
+		flex-shrink: 0;
+		min-width: 60px;
+	}
+	.result-title {
+		font-size: 0.92rem;
+		font-weight: 700;
+		flex: 1;
+	}
+	.result-subtitle {
+		font-size: 0.78rem;
+		color: var(--muted);
+		font-family: sans-serif;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		max-width: 180px;
+	}
+	.search-empty {
+		padding: 1rem 0.8rem;
+		color: var(--muted);
+		font-size: 0.85rem;
+		font-family: sans-serif;
+	}
+
+	#progress-bar {
+		position: fixed;
+		top: 0;
+		left: 0;
+		height: 2px;
+		width: 0%;
+		background: var(--accent);
+		z-index: 99999;
+		pointer-events: none;
+		transition: width 0.08s linear;
 	}
 </style>

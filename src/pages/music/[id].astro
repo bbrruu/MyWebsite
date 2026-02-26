@@ -3,14 +3,20 @@ import Layout from "../../layouts/Layout.astro";
 import { getCollection, render } from "astro:content";
 
 export async function getStaticPaths() {
-  const posts = await getCollection("music");
-  return posts.map((post) => ({
+  const posts = (await getCollection("music")).sort(
+    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+  );
+  return posts.map((post, idx) => ({
     params: { id: post.id },
-    props: { post },
+    props: {
+      post,
+      prev: idx < posts.length - 1 ? posts[idx + 1] : null,
+      next: idx > 0 ? posts[idx - 1] : null,
+    },
   }));
 }
 
-const { post } = Astro.props;
+const { post, prev, next } = Astro.props;
 const { Content } = await render(post);
 ---
 
@@ -61,6 +67,25 @@ const { Content } = await render(post);
         <Content />
       </div>
     </section>
+
+    {(prev || next) && (
+      <nav class="post-pagination">
+        <div class="pagination-inner">
+          {prev ? (
+            <a href={`/music/${prev.id}`} class="pag-link pag-prev">
+              <span class="pag-dir">← 上一首</span>
+              <span class="pag-title">{prev.data.artist} — {prev.data.songName}</span>
+            </a>
+          ) : <div />}
+          {next ? (
+            <a href={`/music/${next.id}`} class="pag-link pag-next">
+              <span class="pag-dir">下一首 →</span>
+              <span class="pag-title">{next.data.artist} — {next.data.songName}</span>
+            </a>
+          ) : <div />}
+        </div>
+      </nav>
+    )}
   </article>
 </Layout>
 
@@ -133,4 +158,18 @@ const { Content } = await render(post);
   /* 捲軸美化 (Chrome/Safari) */
   .lyrics-scroll-box::-webkit-scrollbar { width: 4px; }
   .lyrics-scroll-box::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
+
+  .post-pagination { margin-top: 3rem; padding-top: 2rem; border-top: 1px dashed var(--border); }
+  .pagination-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  .pag-link { display: flex; flex-direction: column; gap: 0.4rem; text-decoration: none; color: var(--muted); transition: color 0.3s; padding: 0.8rem 0; }
+  .pag-link:hover { color: var(--accent); }
+  .pag-dir { font-size: 0.6rem; font-family: sans-serif; letter-spacing: 2px; text-transform: uppercase; }
+  .pag-title { font-size: 0.9rem; font-weight: 700; font-family: "Noto Serif TC", serif; color: var(--ink); line-height: 1.4; }
+  .pag-link:hover .pag-title { color: var(--accent); }
+  .pag-next { text-align: right; }
+
+  @media (max-width: 768px) {
+    .pagination-inner { grid-template-columns: 1fr; }
+    .pag-next { text-align: left; }
+  }
 </style>

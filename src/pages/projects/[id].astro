@@ -41,7 +41,7 @@ const { Content } = await render(project);
 
         <div class="meta-links">
           {project.data.demoUrl && (
-            <a href={project.data.demoUrl} class="meta-link-btn">Demo →</a>
+            <a href={project.data.demoUrl} class="meta-link-btn meta-link-demo">▶ DEMO</a>
           )}
           {project.data.githubUrl && (
             <a href={project.data.githubUrl} target="_blank" rel="noopener" class="meta-link-btn">GitHub →</a>
@@ -104,9 +104,11 @@ const { Content } = await render(project);
   .status--wip { color: #ea580c; font-weight: 700; }
   .status--archived { color: #64748b; }
 
-  .meta-links { display: flex; gap: 0.5rem; margin-top: 0.7rem; padding-top: 0.6rem; border-top: 1px dashed var(--border); }
+  .meta-links { display: flex; gap: 0.5rem; margin-top: 0.7rem; padding-top: 0.6rem; border-top: 1px dashed var(--border); align-items: center; }
   .meta-link-btn { font-size: 0.65rem; font-family: sans-serif; letter-spacing: 1px; color: var(--accent); text-decoration: none; padding: 3px 9px; border: 1px solid var(--accent); border-radius: 3px; transition: 0.3s; }
   .meta-link-btn:hover { background: var(--accent); color: var(--paper); }
+  .meta-link-demo { background: var(--accent); color: var(--paper); font-size: 0.72rem; font-weight: 700; letter-spacing: 2px; padding: 6px 14px; border-radius: 3px; box-shadow: 2px 2px 0 rgba(0,0,0,0.15); }
+  .meta-link-demo:hover { background: var(--ink); border-color: var(--ink); box-shadow: none; transform: translate(1px, 1px); }
 
   .cover-image { margin: 2rem 0; border-radius: 4px; overflow: hidden; border: 1px solid var(--border); }
   .cover-image img { width: 100%; max-height: 400px; object-fit: cover; display: block; }
