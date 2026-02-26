@@ -164,9 +164,10 @@ const currentPath = pathname.slice(1).split('/')[0];
 	}
 
 	/* 自訂游標 */
-	* { cursor: url('/images/cursor_1.png') 0 0, auto; }
-	a, button, [role="button"], select, label[for], input[type="submit"] {
-		cursor: url('/images/cursor_2.png') 0 0, pointer;
+	* { cursor: url('/images/cursor_1-removebg-preview.png') 0 0, auto; }
+	a, a *, button, button *, [role="button"], [role="button"] *,
+	select, label[for], input[type="submit"] {
+		cursor: url('/images/cursor_2-removebg-preview.png') 0 0, pointer !important;
 	}
 
 	/* 點擊粒子畫布 */
