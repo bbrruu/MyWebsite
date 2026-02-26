@@ -3,7 +3,10 @@
     "allow": [
       "Bash(identify:*)",
       "Bash(sips:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(echo \"y\" | npx astro add react 2>&1)",
+      "Bash(true:*)",
+      "Bash(npm run:*)"
     ]
   }
 }

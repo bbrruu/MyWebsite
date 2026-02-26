@@ -1,0 +1,122 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getCollection, render } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+
+export async function getStaticPaths() {
+  const projects = await getCollection("projects");
+  return projects.map((project: CollectionEntry<"projects">) => ({
+    params: { id: project.id },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const { Content } = await render(project);
+---
+
+<Layout title={`${project.data.title} | 作品集`}>
+  <div class="paper-texture"></div>
+
+  <article class="content-article">
+    <nav class="inner-nav">
+      <a href="/projects" class="back-link">
+        <span class="arrow">←</span>
+        <span class="text">PROJECTS / SIDE WORKS</span>
+      </a>
+    </nav>
+
+    <header class="post-header">
+      <div class="post-meta-card">
+        <div class="meta-grid">
+          <span class="meta-label">CATEGORY</span>
+          <span class="meta-value">{project.data.category}</span>
+
+          <span class="meta-label">STATUS</span>
+          <span class={`meta-value status--${project.data.status.toLowerCase()}`}>{project.data.status}</span>
+
+          <span class="meta-label">LAST UPDATED</span>
+          <span class="meta-value">{project.data.pubDate.toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' })}</span>
+        </div>
+
+        <div class="meta-links">
+          {project.data.demoUrl && (
+            <a href={project.data.demoUrl} class="meta-link-btn">Demo →</a>
+          )}
+          {project.data.githubUrl && (
+            <a href={project.data.githubUrl} target="_blank" rel="noopener" class="meta-link-btn">GitHub →</a>
+          )}
+        </div>
+      </div>
+
+      <div class="title-wrapper">
+        <p class="post-desc">{project.data.description}</p>
+        <h1 class="post-title">{project.data.title}</h1>
+        <div class="tech-tags">
+          {project.data.techStack.map((tech: string) => (
+            <span class="tech-tag">{tech}</span>
+          ))}
+        </div>
+      </div>
+      <div class="dynamic-accent-line"></div>
+    </header>
+
+    {project.data.coverImage && (
+      <div class="cover-image">
+        <img src={project.data.coverImage} alt={project.data.title} />
+      </div>
+    )}
+
+    <section class="post-content">
+      <Content />
+    </section>
+
+    <footer class="post-footer">
+      <div class="footer-info">
+        <span>Bruce's Side Projects</span>
+        <span class="dot">•</span>
+        <span>{project.data.category}</span>
+      </div>
+    </footer>
+  </article>
+</Layout>
+
+<style>
+  .content-article { width: 100%; padding: 0; font-family: "Noto Serif TC", serif; color: var(--ink); }
+  .inner-nav { margin-bottom: 1.5rem; }
+  .back-link { display: inline-flex; align-items: center; text-decoration: none; color: var(--muted); font-size: 0.7rem; letter-spacing: 2px; font-family: sans-serif; }
+  .back-link:hover { color: var(--accent); }
+  .back-link .arrow { margin-right: 8px; transition: 0.4s ease; }
+
+  .post-header { position: relative; margin-top: 0; }
+  .title-wrapper { padding-right: 380px; }
+  .post-desc { font-size: 0.85rem; color: var(--muted); margin: 0 0 0.5rem; font-family: sans-serif; letter-spacing: 1px; }
+  .post-title { font-size: 2rem; margin: 0 0 0.8rem; font-weight: 700; letter-spacing: -1.5px; line-height: 1.4; color: var(--ink); }
+  .tech-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; padding-bottom: 1rem; }
+  .tech-tag { font-size: 0.65rem; font-family: sans-serif; letter-spacing: 1px; padding: 3px 9px; border: 1px solid var(--border); border-radius: 3px; color: var(--muted); }
+  .dynamic-accent-line { width: 100%; height: 4px; background-color: var(--accent); border-radius: 2px; }
+
+  .post-meta-card { position: absolute; bottom: 1rem; right: 0; background: rgba(139,69,19,0.03); border: 1px solid var(--border); padding: 0.7rem 0.9rem; border-radius: 4px; width: max-content; min-width: 200px; max-width: 320px; }
+  .meta-grid { display: grid; grid-template-columns: auto max-content; align-items: baseline; column-gap: 0.7rem; row-gap: 0.35rem; }
+  .meta-label { font-size: 0.55rem; font-family: sans-serif; color: var(--muted); letter-spacing: 1.5px; font-weight: 700; text-transform: uppercase; }
+  .meta-value { font-size: 0.72rem; font-family: sans-serif; color: var(--muted); font-weight: 600; }
+  .status--active { color: #16a34a; font-weight: 700; }
+  .status--wip { color: #ea580c; font-weight: 700; }
+  .status--archived { color: #64748b; }
+
+  .meta-links { display: flex; gap: 0.5rem; margin-top: 0.7rem; padding-top: 0.6rem; border-top: 1px dashed var(--border); }
+  .meta-link-btn { font-size: 0.65rem; font-family: sans-serif; letter-spacing: 1px; color: var(--accent); text-decoration: none; padding: 3px 9px; border: 1px solid var(--accent); border-radius: 3px; transition: 0.3s; }
+  .meta-link-btn:hover { background: var(--accent); color: var(--paper); }
+
+  .cover-image { margin: 2rem 0; border-radius: 4px; overflow: hidden; border: 1px solid var(--border); }
+  .cover-image img { width: 100%; max-height: 400px; object-fit: cover; display: block; }
+
+  .post-content { width: 100%; line-height: 2.2; font-size: 1.1rem; text-align: justify; margin-top: 1.8rem; }
+  .post-footer { margin-top: 6rem; padding-top: 2rem; border-top: 1px dashed var(--border); }
+  .footer-info { display: flex; align-items: center; gap: 1rem; font-size: 0.75rem; color: var(--muted); font-family: sans-serif; }
+
+  @media (max-width: 768px) {
+    .title-wrapper { padding-right: 0; }
+    .post-meta-card { position: static; width: 100%; margin-top: 1rem; }
+  }
+</style>

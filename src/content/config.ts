@@ -55,9 +55,26 @@ const musicCollection = defineCollection({
   }),
 });
 
+const projectsCollection = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    pubDate: z.date(),
+    status: z.enum(['Active', 'WIP', 'Archived']).default('Active'),
+    techStack: z.array(z.string()).default([]),
+    demoUrl: z.string().optional(),
+    githubUrl: z.string().optional(),
+    coverImage: z.string().optional(),
+    featured: z.boolean().default(false),
+    category: z.enum(['App', 'Tool', 'Experiment', 'Other']).default('App'),
+  }),
+});
+
 export const collections = {
   'blog': blogCollection,
   'research': researchCollection,
   'reading': readingCollection,
   'music': musicCollection,
+  'projects': projectsCollection,
 };

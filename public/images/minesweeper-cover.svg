@@ -1,0 +1,137 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 220">
+  <!-- Background -->
+  <rect width="400" height="220" fill="#fdfaf6"/>
+
+  <!-- Grid separator background -->
+  <rect x="65" y="24" width="271" height="163" fill="#b5b0a8"/>
+
+  <!-- Revealed cells (empty + numbered): fill #ddd8cf -->
+  <!-- Row 0: E E E N -->
+  <rect x="66" y="25" width="26" height="26" fill="#ddd8cf"/>
+  <rect x="93" y="25" width="26" height="26" fill="#ddd8cf"/>
+  <rect x="120" y="25" width="26" height="26" fill="#ddd8cf"/>
+  <rect x="147" y="25" width="26" height="26" fill="#ddd8cf"/>
+  <!-- Row 1: E E N N N -->
+  <rect x="66" y="52" width="26" height="26" fill="#ddd8cf"/>
+  <rect x="93" y="52" width="26" height="26" fill="#ddd8cf"/>
+  <rect x="120" y="52" width="26" height="26" fill="#ddd8cf"/>
+  <rect x="147" y="52" width="26" height="26" fill="#ddd8cf"/>
+  <rect x="174" y="52" width="26" height="26" fill="#ddd8cf"/>
+  <!-- Row 2: N N N . N -->
+  <rect x="66" y="79" width="26" height="26" fill="#ddd8cf"/>
+  <rect x="93" y="79" width="26" height="26" fill="#ddd8cf"/>
+  <rect x="120" y="79" width="26" height="26" fill="#ddd8cf"/>
+  <rect x="174" y="79" width="26" height="26" fill="#ddd8cf"/>
+  <!-- Row 3: . . N F N N -->
+  <rect x="120" y="106" width="26" height="26" fill="#ddd8cf"/>
+  <rect x="174" y="106" width="26" height="26" fill="#ddd8cf"/>
+  <rect x="201" y="106" width="26" height="26" fill="#ddd8cf"/>
+  <!-- Row 4: . M N . . N E E E N -->
+  <rect x="120" y="133" width="26" height="26" fill="#ddd8cf"/>
+  <rect x="201" y="133" width="26" height="26" fill="#ddd8cf"/>
+  <rect x="228" y="133" width="26" height="26" fill="#ddd8cf"/>
+  <rect x="255" y="133" width="26" height="26" fill="#ddd8cf"/>
+  <rect x="282" y="133" width="26" height="26" fill="#ddd8cf"/>
+  <rect x="309" y="133" width="26" height="26" fill="#ddd8cf"/>
+  <!-- Row 5: . . N . . E E E E N -->
+  <rect x="120" y="160" width="26" height="26" fill="#ddd8cf"/>
+  <rect x="201" y="160" width="26" height="26" fill="#ddd8cf"/>
+  <rect x="228" y="160" width="26" height="26" fill="#ddd8cf"/>
+  <rect x="255" y="160" width="26" height="26" fill="#ddd8cf"/>
+  <rect x="282" y="160" width="26" height="26" fill="#ddd8cf"/>
+  <rect x="309" y="160" width="26" height="26" fill="#ddd8cf"/>
+
+  <!-- Unrevealed cells: fill #c8c3bc -->
+  <!-- Row 0: cols 4-9 -->
+  <rect x="174" y="25" width="26" height="26" fill="#c8c3bc"/>
+  <rect x="201" y="25" width="26" height="26" fill="#c8c3bc"/>
+  <rect x="228" y="25" width="26" height="26" fill="#c8c3bc"/>
+  <rect x="255" y="25" width="26" height="26" fill="#c8c3bc"/>
+  <rect x="282" y="25" width="26" height="26" fill="#c8c3bc"/>
+  <rect x="309" y="25" width="26" height="26" fill="#c8c3bc"/>
+  <!-- Row 1: cols 5-9 -->
+  <rect x="201" y="52" width="26" height="26" fill="#c8c3bc"/>
+  <rect x="228" y="52" width="26" height="26" fill="#c8c3bc"/>
+  <rect x="255" y="52" width="26" height="26" fill="#c8c3bc"/>
+  <rect x="282" y="52" width="26" height="26" fill="#c8c3bc"/>
+  <rect x="309" y="52" width="26" height="26" fill="#c8c3bc"/>
+  <!-- Row 2: col 3, cols 5-9 -->
+  <rect x="147" y="79" width="26" height="26" fill="#c8c3bc"/>
+  <rect x="201" y="79" width="26" height="26" fill="#c8c3bc"/>
+  <rect x="228" y="79" width="26" height="26" fill="#c8c3bc"/>
+  <rect x="255" y="79" width="26" height="26" fill="#c8c3bc"/>
+  <rect x="282" y="79" width="26" height="26" fill="#c8c3bc"/>
+  <rect x="309" y="79" width="26" height="26" fill="#c8c3bc"/>
+  <!-- Row 3: cols 0,1, cols 6-9 -->
+  <rect x="66" y="106" width="26" height="26" fill="#c8c3bc"/>
+  <rect x="93" y="106" width="26" height="26" fill="#c8c3bc"/>
+  <rect x="228" y="106" width="26" height="26" fill="#c8c3bc"/>
+  <rect x="255" y="106" width="26" height="26" fill="#c8c3bc"/>
+  <rect x="282" y="106" width="26" height="26" fill="#c8c3bc"/>
+  <rect x="309" y="106" width="26" height="26" fill="#c8c3bc"/>
+  <!-- Row 4: cols 0, 3, 4 -->
+  <rect x="66" y="133" width="26" height="26" fill="#c8c3bc"/>
+  <rect x="147" y="133" width="26" height="26" fill="#c8c3bc"/>
+  <rect x="174" y="133" width="26" height="26" fill="#c8c3bc"/>
+  <!-- Row 5: cols 0,1,3,4 -->
+  <rect x="66" y="160" width="26" height="26" fill="#c8c3bc"/>
+  <rect x="93" y="160" width="26" height="26" fill="#c8c3bc"/>
+  <rect x="147" y="160" width="26" height="26" fill="#c8c3bc"/>
+  <rect x="174" y="160" width="26" height="26" fill="#c8c3bc"/>
+
+  <!-- Flag cell (3,3): (147,106) -->
+  <rect x="147" y="106" width="26" height="26" fill="#c8c3bc"/>
+
+  <!-- Mine cell (4,1): (93,133) dark -->
+  <rect x="93" y="133" width="26" height="26" fill="#3a2a1e"/>
+
+  <!-- Subtle highlight on unrevealed (top + left edge lighter) -->
+  <!-- Row 0 -->
+  <rect x="174" y="25" width="26" height="1" fill="rgba(255,255,255,0.35)"/>
+  <rect x="201" y="25" width="26" height="1" fill="rgba(255,255,255,0.35)"/>
+  <rect x="228" y="25" width="26" height="1" fill="rgba(255,255,255,0.35)"/>
+  <rect x="255" y="25" width="26" height="1" fill="rgba(255,255,255,0.35)"/>
+  <rect x="282" y="25" width="26" height="1" fill="rgba(255,255,255,0.35)"/>
+  <rect x="309" y="25" width="26" height="1" fill="rgba(255,255,255,0.35)"/>
+
+  <!-- Number texts -->
+  <!-- "1" #3b6fd4 -->
+  <text x="160" y="38" text-anchor="middle" dominant-baseline="middle" font-family="'Courier New',monospace" font-size="12" font-weight="bold" fill="#3b6fd4">1</text>
+  <text x="133" y="65" text-anchor="middle" dominant-baseline="middle" font-family="'Courier New',monospace" font-size="12" font-weight="bold" fill="#3b6fd4">1</text>
+  <text x="187" y="65" text-anchor="middle" dominant-baseline="middle" font-family="'Courier New',monospace" font-size="12" font-weight="bold" fill="#3b6fd4">1</text>
+  <text x="79" y="92" text-anchor="middle" dominant-baseline="middle" font-family="'Courier New',monospace" font-size="12" font-weight="bold" fill="#3b6fd4">1</text>
+  <text x="106" y="92" text-anchor="middle" dominant-baseline="middle" font-family="'Courier New',monospace" font-size="12" font-weight="bold" fill="#3b6fd4">1</text>
+  <text x="187" y="92" text-anchor="middle" dominant-baseline="middle" font-family="'Courier New',monospace" font-size="12" font-weight="bold" fill="#3b6fd4">1</text>
+  <text x="133" y="119" text-anchor="middle" dominant-baseline="middle" font-family="'Courier New',monospace" font-size="12" font-weight="bold" fill="#3b6fd4">1</text>
+  <text x="187" y="119" text-anchor="middle" dominant-baseline="middle" font-family="'Courier New',monospace" font-size="12" font-weight="bold" fill="#3b6fd4">1</text>
+  <text x="214" y="119" text-anchor="middle" dominant-baseline="middle" font-family="'Courier New',monospace" font-size="12" font-weight="bold" fill="#3b6fd4">1</text>
+  <text x="214" y="146" text-anchor="middle" dominant-baseline="middle" font-family="'Courier New',monospace" font-size="12" font-weight="bold" fill="#3b6fd4">1</text>
+  <text x="322" y="146" text-anchor="middle" dominant-baseline="middle" font-family="'Courier New',monospace" font-size="12" font-weight="bold" fill="#3b6fd4">1</text>
+  <text x="133" y="173" text-anchor="middle" dominant-baseline="middle" font-family="'Courier New',monospace" font-size="12" font-weight="bold" fill="#3b6fd4">1</text>
+  <text x="322" y="173" text-anchor="middle" dominant-baseline="middle" font-family="'Courier New',monospace" font-size="12" font-weight="bold" fill="#3b6fd4">1</text>
+  <!-- "2" #4a9c5a -->
+  <text x="160" y="65" text-anchor="middle" dominant-baseline="middle" font-family="'Courier New',monospace" font-size="12" font-weight="bold" fill="#4a9c5a">2</text>
+  <text x="133" y="92" text-anchor="middle" dominant-baseline="middle" font-family="'Courier New',monospace" font-size="12" font-weight="bold" fill="#4a9c5a">2</text>
+  <text x="133" y="146" text-anchor="middle" dominant-baseline="middle" font-family="'Courier New',monospace" font-size="12" font-weight="bold" fill="#4a9c5a">2</text>
+
+  <!-- Mine symbol: spikes first, then body circle -->
+  <line x1="106" y1="146" x2="117" y2="146" stroke="#fdfaf6" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="106" y1="146" x2="95" y2="146" stroke="#fdfaf6" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="106" y1="146" x2="106" y2="135" stroke="#fdfaf6" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="106" y1="146" x2="106" y2="157" stroke="#fdfaf6" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="106" y1="146" x2="114" y2="138" stroke="#fdfaf6" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="106" y1="146" x2="98" y2="138" stroke="#fdfaf6" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="106" y1="146" x2="114" y2="154" stroke="#fdfaf6" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="106" y1="146" x2="98" y2="154" stroke="#fdfaf6" stroke-width="1.5" stroke-linecap="round"/>
+  <circle cx="106" cy="146" r="5" fill="#fdfaf6"/>
+  <circle cx="104" cy="144" r="1.5" fill="rgba(255,255,255,0.5)"/>
+
+  <!-- Flag symbol at (3,3): center (160,119) -->
+  <line x1="160" y1="112" x2="160" y2="127" stroke="#3c3c3c" stroke-width="1.5" stroke-linecap="round"/>
+  <polygon points="160,112 152,116 160,120" fill="#cc3030"/>
+
+  <!-- Bottom title band -->
+  <rect x="0" y="193" width="400" height="27" fill="rgba(253,250,246,0.95)"/>
+  <line x1="0" y1="193" x2="400" y2="193" stroke="#c8c4bc" stroke-width="0.5"/>
+  <text x="200" y="207" text-anchor="middle" dominant-baseline="middle" font-family="'Courier New',monospace" font-size="10" letter-spacing="5" fill="#8b4513" font-weight="bold">MINESWEEPER</text>
+</svg>
