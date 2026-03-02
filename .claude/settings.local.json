@@ -6,7 +6,11 @@
       "Bash(ls:*)",
       "Bash(echo \"y\" | npx astro add react 2>&1)",
       "Bash(true:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "WebSearch",
+      "WebFetch(domain:commons.wikimedia.org)",
+      "WebFetch(domain:en.wikipedia.org)",
+      "Bash(curl:*)"
     ]
   }
 }

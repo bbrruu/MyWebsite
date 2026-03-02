@@ -71,10 +71,23 @@ const projectsCollection = defineCollection({
   }),
 });
 
+const notesCollection = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title: z.string(),
+    description: z.string().optional(),
+    pubDate: z.date(),
+    tags: z.array(z.string()).default([]),
+    category: z.enum(['語言', '歷史文化', 'NLP', '天文']).default('語言'),
+    demoUrl: z.string().optional(),
+  }),
+});
+
 export const collections = {
   'blog': blogCollection,
   'research': researchCollection,
   'reading': readingCollection,
   'music': musicCollection,
   'projects': projectsCollection,
+  'notes': notesCollection,
 };

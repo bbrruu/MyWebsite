@@ -1,0 +1,186 @@
+---
+import Layout from "../layouts/Layout.astro";
+import PoincareDisk from "../components/hyperbolic/PoincareDisk";
+---
+
+<Layout title="雙曲語義空間 | Hyperbolic Semantics - Bruce">
+  <div class="viz-wrapper">
+    <div class="viz-title">
+      <h1>雙曲語義空間 <small>HYPERBOLIC SEMANTICS</small></h1>
+      <p class="subtitle">WordNet 語意層次的龐加萊圓盤嵌入</p>
+    </div>
+    <PoincareDisk client:load />
+  </div>
+</Layout>
+
+<style>
+  .viz-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1rem 0 3rem;
+  }
+  .viz-title {
+    text-align: center;
+  }
+  .viz-title h1 {
+    margin: 0;
+    font-size: 2rem;
+    letter-spacing: 0.05em;
+  }
+  .viz-title small {
+    font-size: 0.9rem;
+    color: var(--muted);
+    letter-spacing: 0.2em;
+    font-weight: 400;
+    margin-left: 0.5rem;
+  }
+  .subtitle {
+    margin: 0.25rem 0 0;
+    font-size: 0.8rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+</style>
+
+<style is:global>
+  /* ── Poincaré Disk Layout ── */
+  .hb-container {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 1.5rem;
+    font-family: 'Noto Serif TC', serif;
+    user-select: none;
+  }
+
+  @media (max-width: 768px) {
+    .hb-container {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+
+  /* ── SVG Disk ── */
+  .hb-disk-svg {
+    border: 1px solid var(--border);
+    background: rgba(139, 69, 19, 0.02);
+    flex-shrink: 0;
+  }
+
+  /* ── Info Panel ── */
+  .hb-info-panel {
+    width: 220px;
+    min-width: 180px;
+    border: 1px solid var(--border);
+    padding: 1rem;
+    background: rgba(139, 69, 19, 0.02);
+    font-size: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  @media (max-width: 768px) {
+    .hb-info-panel {
+      width: 360px;
+      max-width: 90vw;
+    }
+  }
+
+  .hb-info-title {
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+  }
+
+  .hb-info-node {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hb-info-node-label {
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .hb-node-name {
+    font-size: 0.95rem;
+    color: var(--accent);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    margin-bottom: 0.1rem;
+  }
+
+  .hb-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .hb-info-key {
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+
+  /* ── Distance display ── */
+  .hb-distance-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.6rem;
+    border: 1px solid var(--border);
+    background: rgba(139, 69, 19, 0.04);
+  }
+
+  .hb-dist-row {
+    border: none;
+    padding: 0;
+  }
+
+  .hb-distance-value {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  }
+
+  .hb-formula {
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    padding: 0.3rem 0.5rem;
+    border: 1px solid var(--border);
+    background: var(--paper);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* ── Hints ── */
+  .hb-hint-section {
+    border-top: 1px solid var(--border);
+    padding-top: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .hb-hint {
+    margin: 0;
+    font-size: 0.75rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+</style>

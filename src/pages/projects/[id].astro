@@ -122,3 +122,109 @@ const { Content } = await render(project);
     .post-meta-card { position: static; width: 100%; margin-top: 1rem; }
   }
 </style>
+
+<style is:global>
+  /* ── Project content: figure / img / figcaption ── */
+  .post-content figure {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 2.5rem auto;
+  }
+
+  .post-content figure img {
+    display: block;
+    max-width: 82%;
+    max-height: 440px;
+    height: auto;
+    border: 1px solid var(--border);
+    padding: 0.75rem;
+    background: rgba(139, 69, 19, 0.02);
+  }
+
+  .post-content figcaption {
+    max-width: 82%;
+    margin-top: 0.65rem;
+    padding-bottom: 1.8rem;
+    border-bottom: 1px dashed var(--border);
+    font-size: 0.76rem;
+    line-height: 1.7;
+    color: var(--muted);
+    font-style: italic;
+    text-align: center;
+    font-family: 'Noto Serif TC', serif;
+  }
+
+  /* ── Inline images (non-figure) ── */
+  .post-content p img {
+    display: block;
+    max-width: 82%;
+    max-height: 440px;
+    height: auto;
+    margin: 1.5rem auto 0.5rem;
+    border: 1px solid var(--border);
+    padding: 0.75rem;
+    background: rgba(139, 69, 19, 0.02);
+  }
+
+  /* ── Tables inside post-content ── */
+  .post-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    font-size: 0.9rem;
+  }
+
+  .post-content th {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 2px solid var(--border);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    font-family: sans-serif;
+  }
+
+  .post-content td {
+    padding: 0.45rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  .post-content tr:last-child td {
+    border-bottom: none;
+  }
+
+  /* ── Blockquotes (formulas) ── */
+  .post-content blockquote {
+    margin: 1.2rem 0;
+    padding: 0.6rem 1.2rem;
+    border-left: 3px solid var(--accent);
+    background: rgba(139, 69, 19, 0.03);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    color: var(--ink);
+  }
+
+  .post-content blockquote p {
+    margin: 0;
+  }
+
+  /* ── Horizontal rules ── */
+  .post-content hr {
+    border: none;
+    border-top: 1px dashed var(--border);
+    margin: 2.5rem 0;
+  }
+
+  @media (max-width: 768px) {
+    .post-content figure img,
+    .post-content p img {
+      max-width: 100%;
+      padding: 0.5rem;
+    }
+    .post-content figcaption {
+      max-width: 100%;
+    }
+  }
+</style>

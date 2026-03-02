@@ -7,8 +7,6 @@ const allProjects = (await getCollection("projects")).sort(
     (a: CollectionEntry<"projects">, b: CollectionEntry<"projects">) =>
         b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
 );
-
-const categories = ["App", "Tool", "Experiment", "Other"];
 ---
 
 <Layout title="作品集 | Side Projects - Bruce">
@@ -18,18 +16,11 @@ const categories = ["App", "Tool", "Experiment", "Other"];
         <header class="archive-header">
             <h1>作品集 <small>SIDE PROJECTS</small></h1>
             <div class="header-line"></div>
-
-            <nav class="category-filter">
-                <button class="cat-btn active" data-category="all">全部 ALL</button>
-                {categories.map((cat) => (
-                    <button class="cat-btn" data-category={cat}>{cat}</button>
-                ))}
-            </nav>
         </header>
 
         <div class="projects-grid" id="projects-list">
             {allProjects.map((project: CollectionEntry<"projects">) => (
-                <a href={`/projects/${project.id}`} class="project-card" data-cat={project.data.category}>
+                <a href={`/projects/${project.id}`} class="project-card">
                     <div class="card-cover">
                         {project.data.coverImage
                             ? <img src={project.data.coverImage} alt={project.data.title} />
@@ -66,28 +57,6 @@ const categories = ["App", "Tool", "Experiment", "Other"];
     </main>
 </Layout>
 
-<script>
-    const setup = () => {
-        const buttons = document.querySelectorAll(".cat-btn");
-        const cards = document.querySelectorAll(".project-card");
-        if (!buttons.length) return;
-
-        buttons.forEach((btn) => {
-            btn.addEventListener("click", () => {
-                const cat = btn.getAttribute("data-category")?.trim();
-                buttons.forEach((b) => b.classList.remove("active"));
-                btn.classList.add("active");
-                cards.forEach((card) => {
-                    const htmlCard = card as HTMLElement;
-                    const cardCat = htmlCard.getAttribute("data-cat")?.trim();
-                    htmlCard.style.display = (cat === "all" || cardCat === cat) ? "" : "none";
-                });
-            });
-        });
-    };
-    document.addEventListener("DOMContentLoaded", setup);
-    document.addEventListener("astro:page-load", setup);
-</script>
 
 <style>
     .projects-archive {
@@ -104,18 +73,8 @@ const categories = ["App", "Tool", "Experiment", "Other"];
         font-size: 0.75rem; font-family: sans-serif; letter-spacing: 4px;
         color: var(--muted); font-weight: 400;
     }
-    .header-line { width: 100%; height: 1px; background: var(--border); margin: 1.2rem 0 1.5rem; position: relative; }
+    .header-line { width: 100%; height: 1px; background: var(--border); margin: 1.2rem 0 3rem; position: relative; }
     .header-line::after { content: ''; position: absolute; left: 0; top: -1px; width: 80px; height: 3px; background: var(--accent); }
-
-    .category-filter { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 3rem; }
-    .cat-btn {
-        background: none; border: none; padding: 0 1.5rem 0.8rem 0;
-        font-size: 0.75rem; color: var(--muted); cursor: pointer;
-        transition: color 0.3s; font-family: sans-serif; letter-spacing: 2px;
-        position: relative; text-transform: uppercase;
-    }
-    .cat-btn.active { color: var(--accent); font-weight: 700; }
-    .cat-btn.active::after { content: ""; position: absolute; bottom: -1px; left: 0; width: calc(100% - 1.5rem); height: 3px; background: var(--accent); }
 
     .projects-grid {
         display: grid;

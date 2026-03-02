@@ -1,0 +1,166 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getCollection, render } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+
+export async function getStaticPaths() {
+  const notes = await getCollection("notes");
+  return notes.map((note: CollectionEntry<"notes">) => ({
+    params: { id: note.id },
+    props: { note },
+  }));
+}
+
+const { note } = Astro.props;
+const { Content } = await render(note);
+const dateStr = note.data.pubDate.toLocaleDateString("zh-TW", {
+  year: "numeric", month: "2-digit", day: "2-digit",
+});
+---
+
+<Layout title={`${note.data.title} | 學習筆記 - Bruce`}>
+  <div class="paper-texture"></div>
+
+  <article class="note-article">
+    <nav class="inner-nav">
+      <a href="/notes" class="back-link">
+        <span class="arrow">←</span>
+        <span class="text">學習筆記 / FIELD NOTES</span>
+      </a>
+    </nav>
+
+    <header class="note-header">
+      <div class="note-meta">
+        <span class="note-category">{note.data.category}</span>
+        <span class="note-date">{dateStr}</span>
+      </div>
+
+      {note.data.description && (
+        <p class="note-desc">{note.data.description}</p>
+      )}
+      <h1 class="note-title">{note.data.title}</h1>
+
+      <div class="note-footer-meta">
+        <div class="note-tags">
+          {note.data.tags.map((tag: string) => (
+            <span class="tag">{tag}</span>
+          ))}
+        </div>
+        {note.data.demoUrl && (
+          <a href={note.data.demoUrl} class="demo-btn">▶ 互動 DEMO</a>
+        )}
+      </div>
+
+      <div class="accent-line"></div>
+    </header>
+
+    <section class="note-content">
+      <Content />
+    </section>
+
+    <footer class="note-foot">
+      <div class="foot-info">
+        <span>學習筆記</span>
+        <span class="dot">•</span>
+        <span>{note.data.category}</span>
+        <span class="dot">•</span>
+        <span>{dateStr}</span>
+      </div>
+    </footer>
+  </article>
+</Layout>
+
+<style>
+  .note-article { width: 100%; padding: 0; font-family: "Noto Serif TC", serif; color: var(--ink); }
+
+  .inner-nav { margin-bottom: 1.5rem; }
+  .back-link { display: inline-flex; align-items: center; text-decoration: none; color: var(--muted); font-size: 0.7rem; letter-spacing: 2px; font-family: sans-serif; }
+  .back-link:hover { color: var(--accent); }
+  .back-link .arrow { margin-right: 8px; transition: 0.4s; }
+  .back-link:hover .arrow { transform: translateX(-4px); }
+
+  .note-header { margin-bottom: 0; }
+
+  .note-meta {
+    display: flex; align-items: center; gap: 1rem;
+    margin-bottom: 0.6rem;
+  }
+  .note-category {
+    font-size: 0.62rem; font-family: sans-serif; letter-spacing: 3px;
+    color: var(--accent); text-transform: uppercase; font-weight: 700;
+    background: rgba(139,69,19,0.08); padding: 2px 10px; border-radius: 3px;
+  }
+  .note-date { font-size: 0.7rem; font-family: sans-serif; color: var(--muted); }
+
+  .note-desc { font-size: 0.85rem; color: var(--muted); margin: 0 0 0.5rem; font-family: sans-serif; letter-spacing: 1px; }
+  .note-title { font-size: 2rem; margin: 0 0 1rem; font-weight: 700; letter-spacing: -1.5px; line-height: 1.4; }
+
+  .note-footer-meta { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .note-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+  .tag {
+    font-size: 0.65rem; font-family: sans-serif; letter-spacing: 1px;
+    padding: 3px 9px; border: 1px solid var(--border); border-radius: 3px; color: var(--muted);
+  }
+
+  .demo-btn {
+    font-size: 0.7rem; font-family: sans-serif; letter-spacing: 1.5px; font-weight: 700;
+    color: var(--paper); background: var(--accent); text-decoration: none;
+    padding: 5px 14px; border-radius: 3px; transition: 0.3s;
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.12);
+  }
+  .demo-btn:hover { background: var(--ink); box-shadow: none; transform: translate(1px,1px); }
+
+  .accent-line { width: 100%; height: 4px; background: var(--accent); border-radius: 2px; margin-bottom: 0; }
+
+  .note-content { width: 100%; line-height: 2.2; font-size: 1.05rem; text-align: justify; margin-top: 2rem; }
+
+  .note-foot { margin-top: 5rem; padding-top: 2rem; border-top: 1px dashed var(--border); }
+  .foot-info { display: flex; align-items: center; gap: 0.8rem; font-size: 0.75rem; color: var(--muted); font-family: sans-serif; }
+  .dot { color: var(--border); }
+
+  @media (max-width: 768px) {
+    .note-title { font-size: 1.5rem; }
+  }
+</style>
+
+<style is:global>
+  /* ── Notes content: figure / img / figcaption / table / blockquote ── */
+  .note-content figure {
+    display: flex; flex-direction: column; align-items: center; margin: 2.5rem auto;
+  }
+  .note-content figure img {
+    display: block; max-width: 82%; max-height: 440px; height: auto;
+    border: 1px solid var(--border); padding: 0.75rem;
+    background: rgba(139,69,19,0.02);
+  }
+  .note-content figcaption {
+    max-width: 82%; margin-top: 0.65rem; padding-bottom: 1.8rem;
+    border-bottom: 1px dashed var(--border);
+    font-size: 0.76rem; line-height: 1.7; color: var(--muted);
+    font-style: italic; text-align: center; font-family: "Noto Serif TC", serif;
+  }
+  .note-content table {
+    width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem;
+  }
+  .note-content th {
+    text-align: left; padding: 0.5rem 0.75rem; border-bottom: 2px solid var(--border);
+    font-size: 0.75rem; letter-spacing: 0.08em; color: var(--muted); font-family: sans-serif;
+  }
+  .note-content td {
+    padding: 0.45rem 0.75rem; border-bottom: 1px solid var(--border); vertical-align: top;
+  }
+  .note-content tr:last-child td { border-bottom: none; }
+  .note-content blockquote {
+    margin: 1.2rem 0; padding: 0.6rem 1.2rem;
+    border-left: 3px solid var(--accent);
+    background: rgba(139,69,19,0.03);
+    font-family: "JetBrains Mono", monospace; font-size: 0.9rem; color: var(--ink);
+  }
+  .note-content blockquote p { margin: 0; }
+  .note-content hr { border: none; border-top: 1px dashed var(--border); margin: 2.5rem 0; }
+
+  @media (max-width: 768px) {
+    .note-content figure img { max-width: 100%; padding: 0.5rem; }
+    .note-content figcaption { max-width: 100%; }
+  }
+</style>
