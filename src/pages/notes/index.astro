@@ -144,7 +144,7 @@ const months = Object.keys(groupedNotes);
     background: transparent; border: 1px solid var(--border); border-radius: 3px;
     padding: 0.35rem 2rem 0.35rem 0.8rem;
     font-size: 0.8rem; font-family: "Noto Serif TC", serif; color: var(--ink);
-    cursor: pointer; transition: border-color 0.3s, color 0.3s; min-width: 160px;
+    cursor: pointer; transition: border-color 0.3s, color 0.3s; min-width: 180px;
   }
   .cat-select:focus { outline: none; border-color: var(--accent); }
   .cat-select:hover { border-color: var(--accent); color: var(--accent); }
@@ -165,7 +165,8 @@ const months = Object.keys(groupedNotes);
   .month-title { font-size: 1.4rem; margin: 0; color: var(--ink); font-weight: 700; }
   .note-count { font-size: 0.72rem; color: var(--accent); font-weight: 700; font-family: sans-serif; letter-spacing: 1px; }
 
-  .note-wrapper { transition: opacity 0.4s, max-height 0.4s; max-height: 200px; overflow: hidden; }
+  .note-wrapper { transition: opacity 0.4s, max-height 0.4s; max-height: 200px; overflow: visible; }
+  .note-wrapper.is-hidden { overflow: hidden; }
   .note-wrapper.is-hidden { opacity: 0; max-height: 0; pointer-events: none; }
 
   .note-entry {

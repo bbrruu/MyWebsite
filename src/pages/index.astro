@@ -16,6 +16,9 @@ const allReadingPosts = (await getCollection("reading")).sort(
 const allMusicPosts = (await getCollection("music")).sort(
     (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
+const allNotesPosts = (await getCollection("notes")).sort(
+    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
 const featuredProjects = (await getCollection("projects"))
     .filter((p: CollectionEntry<"projects">) => p.data.featured)
     .sort((a: CollectionEntry<"projects">, b: CollectionEntry<"projects">) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
@@ -92,6 +95,33 @@ const randomSlogan = slogans[Math.floor(Math.random() * slogans.length)];
                 </div>
             </section>
         )}
+
+        <section class="featured-music">
+            <div class="fp-header">
+                <div class="fp-title-group">
+                    <span class="fp-label">SOUND & TRACKS</span>
+                    <h2 class="fp-title">聽聽音樂 <span class="fp-sub">RECENT PICKS</span></h2>
+                </div>
+                <a href="/music" class="fp-view-all">查看全部 →</a>
+            </div>
+            <div class="fm-grid">
+                {allMusicPosts.slice(0, 3).map((post) => (
+                    <a href={`/music/${post.id}`} class="fm-card">
+                        <div class="fm-cover">
+                            {post.data.youtubeId
+                                ? <img src={`https://img.youtube.com/vi/${post.data.youtubeId}/hqdefault.jpg`} alt={post.data.songName} />
+                                : <div class="fm-cover-placeholder"><span>{post.data.artist}</span></div>
+                            }
+                            <span class="fm-artist">{post.data.artist}</span>
+                        </div>
+                        <div class="fm-info">
+                            <h3 class="fm-songname">《{post.data.songName}》</h3>
+                            <p class="fm-desc">{post.data.title}</p>
+                        </div>
+                    </a>
+                ))}
+            </div>
+        </section>
 
         <div class="quad-grid">
             <section class="home-section">
@@ -176,28 +206,28 @@ const randomSlogan = slogans[Math.floor(Math.random() * slogans.length)];
             </section>
 
             <section class="home-section">
-                <a href="/music" class="section-title-link">
+                <a href="/notes" class="section-title-link">
                     <div class="title-container">
-                        <h2 class="section-title">聽聽音樂<div class="hover-accent-line"></div></h2>
-                        <span class="section-en">MUSIC</span>
+                        <h2 class="section-title">學習筆記<div class="hover-accent-line"></div></h2>
+                        <span class="section-en">FIELD NOTES</span>
                     </div>
                     <span class="enter-arrow">→</span>
                 </a>
                 <div class="section-content">
-                    {allMusicPosts.slice(0, 3).map((post) => (
-                        <a href={`/music/${post.id}`} class="preview-item">
+                    {allNotesPosts.slice(0, 3).map((note) => (
+                        <a href={`/notes/${note.id}`} class="preview-item">
                             <div class="preview-date">
-                                <span class="p-year">{post.data.pubDate.getFullYear()}</span>
-                                <span class="p-day">{post.data.pubDate.getDate()}日</span>
+                                <span class="p-year">{note.data.pubDate.getFullYear()}</span>
+                                <span class="p-day">{note.data.pubDate.getDate()}日</span>
                             </div>
                             <div class="preview-body">
-                                <h3 class="p-title">{post.data.title}</h3>
-                                <p class="p-excerpt">{post.data.artist || "旋律回響"}</p>
+                                <h3 class="p-title">{note.data.title}</h3>
+                                <p class="p-excerpt">{note.data.category || "學習筆記"}</p>
                             </div>
                         </a>
                     ))}
                     <div class="see-more-wrapper">
-                        <a href="/music" class="see-more-btn">查看更多 MORE<div class="btn-line"></div></a>
+                        <a href="/notes" class="see-more-btn">查看更多 MORE<div class="btn-line"></div></a>
                     </div>
                 </div>
             </section>
@@ -314,6 +344,33 @@ const randomSlogan = slogans[Math.floor(Math.random() * slogans.length)];
     .fp-link-badge { font-size: 0.6rem; font-family: sans-serif; letter-spacing: 1px; padding: 2px 7px; background: rgba(139,69,19,0.08); color: var(--accent); border-radius: 3px; }
 
     @media (max-width: 768px) { .fp-grid { grid-template-columns: 1fr; } }
+
+    /* 音樂卡片區 */
+    .featured-music { margin-bottom: 3rem; }
+
+    .fm-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; }
+
+    .fm-card {
+        text-decoration: none; color: inherit;
+        border: 1px solid var(--border); border-radius: 4px;
+        overflow: hidden; transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+        display: flex; flex-direction: column;
+    }
+    .fm-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(139,69,19,0.1); border-color: var(--accent); }
+
+    .fm-cover { position: relative; height: 190px; overflow: hidden; background: var(--border); }
+    .fm-cover img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+    .fm-card:hover .fm-cover img { transform: scale(1.04); }
+    .fm-cover-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(139,69,19,0.08), rgba(139,69,19,0.18)); }
+    .fm-cover-placeholder span { font-family: sans-serif; font-size: 0.75rem; letter-spacing: 3px; color: var(--accent); text-transform: uppercase; font-weight: 700; }
+
+    .fm-artist { position: absolute; top: 0.6rem; right: 0.6rem; font-size: 0.6rem; font-family: sans-serif; letter-spacing: 1px; padding: 2px 8px; border-radius: 20px; font-weight: 700; background: rgba(139,69,19,0.18); color: var(--accent); }
+
+    .fm-info { padding: 0.9rem; display: flex; flex-direction: column; gap: 0.3rem; flex: 1; }
+    .fm-songname { font-size: 1rem; font-weight: 700; margin: 0; }
+    .fm-desc { font-size: 0.78rem; color: var(--muted); margin: 0; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+    @media (max-width: 768px) { .fm-grid { grid-template-columns: 1fr; } }
 
     /* 四宮格 */
     .quad-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; }

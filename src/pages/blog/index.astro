@@ -9,7 +9,7 @@ const allPosts = (await getCollection("blog")).sort(
 );
 
 // 2. 定義分類標籤
-const categories = ["EVERYDAY-LIFE", "GAME", "REFLECTION", "LEARNING"];
+const categories = ["旅行", "日常", "省思"];
 
 // 3. 處理月份分組邏輯
 const groupedPosts: Record<string, CollectionEntry<"blog">[]> = allPosts.reduce((acc: Record<string, CollectionEntry<"blog">[]>, post) => {
@@ -33,12 +33,18 @@ const months = Object.keys(groupedPosts);
             <h1>生活隨筆 <small>COLLECTED MOMENTS</small></h1>
             <div class="header-line"></div>
 
-            <nav class="category-filter">
-                <button class="cat-btn active" data-category="all">全部 ALL</button>
-                {categories.map((cat) => (
-                    <button class="cat-btn" data-category={cat}>{cat}</button>
-                ))}
-            </nav>
+            <div class="category-filter">
+                <label for="category-select" class="filter-label">FILTER BY CATEGORY</label>
+                <div class="select-wrapper">
+                    <select id="category-select" class="category-select">
+                        <option value="all">全部 ALL</option>
+                        {categories.map((cat) => (
+                            <option value={cat}>{cat}</option>
+                        ))}
+                    </select>
+                    <span class="select-arrow">↓</span>
+                </div>
+            </div>
         </header>
 
         <div class="archive-content" id="master-list">
@@ -82,37 +88,30 @@ const months = Object.keys(groupedPosts);
 
 <script>
     const setupFilters = () => {
-        const buttons = document.querySelectorAll(".cat-btn");
-        const posts = document.querySelectorAll(".note-wrapper");
-        const monthSections = document.querySelectorAll(".month-section");
+        const select = document.getElementById("category-select") as HTMLSelectElement | null;
+        const posts = document.querySelectorAll<HTMLElement>(".note-wrapper");
+        const monthSections = document.querySelectorAll<HTMLElement>(".month-section");
 
-        if (buttons.length === 0) return;
+        if (!select) return;
 
-        buttons.forEach((btn) => {
-            btn.addEventListener("click", () => {
-                const selectedCat = btn.getAttribute("data-category")?.trim().toUpperCase();
+        select.addEventListener("change", () => {
+            const val = select.value.toUpperCase();
 
-                buttons.forEach((b) => b.classList.remove("active"));
-                btn.classList.add("active");
-
-                posts.forEach((post) => {
-                    const postCat = post.getAttribute("data-cat")?.trim().toUpperCase();
-                    const htmlPost = post as HTMLElement;
-                    if (selectedCat === "ALL" || postCat === selectedCat) {
-                        htmlPost.classList.remove("is-hidden");
-                    } else {
-                        htmlPost.classList.add("is-hidden");
-                    }
-                });
-
-                setTimeout(() => {
-                    monthSections.forEach((section) => {
-                        const htmlSection = section as HTMLElement;
-                        const visible = htmlSection.querySelectorAll(".note-wrapper:not(.is-hidden)");
-                        htmlSection.classList.toggle("month-hidden", visible.length === 0);
-                    });
-                }, 100);
+            posts.forEach((post) => {
+                const postCat = (post.getAttribute("data-cat") || "").trim().toUpperCase();
+                if (val === "ALL" || postCat === val) {
+                    post.classList.remove("is-hidden");
+                } else {
+                    post.classList.add("is-hidden");
+                }
             });
+
+            setTimeout(() => {
+                monthSections.forEach((section) => {
+                    const visible = section.querySelectorAll(".note-wrapper:not(.is-hidden)");
+                    section.classList.toggle("month-hidden", visible.length === 0);
+                });
+            }, 100);
         });
     };
 
@@ -148,16 +147,31 @@ const months = Object.keys(groupedPosts);
     .header-line { width: 100%; height: 1px; background: var(--border); margin: 1.2rem 0 1.5rem; position: relative; }
     .header-line::after { content: ''; position: absolute; left: 0; top: -1px; width: 80px; height: 3px; background: var(--accent); }
 
-    /* 分類導覽 */
-    .category-filter { display: flex; justify-content: space-between; width: 100%; border-bottom: 1px solid var(--border); margin-bottom: 3rem; }
-    .cat-btn {
-        flex: 1; background: none; border: none; padding: 0 0 0.8rem 0;
-        font-size: 0.75rem; color: var(--muted); cursor: pointer;
-        transition: color 0.3s ease; font-family: sans-serif; letter-spacing: 2px;
-        position: relative; text-transform: uppercase;
+    /* 分類篩選 */
+    .category-filter { display: flex; align-items: center; gap: 1rem; margin-bottom: 3rem; }
+    .filter-label { font-size: 0.6rem; font-family: sans-serif; letter-spacing: 2px; color: var(--muted); font-weight: 700; text-transform: uppercase; white-space: nowrap; }
+    .select-wrapper { position: relative; display: inline-flex; align-items: center; }
+    .category-select {
+        appearance: none; -webkit-appearance: none;
+        background: transparent;
+        border: 1px solid var(--border);
+        border-radius: 3px;
+        padding: 0.35rem 2rem 0.35rem 0.8rem;
+        font-size: 0.8rem;
+        font-family: "Noto Serif TC", serif;
+        color: var(--ink);
+        cursor: pointer;
+        transition: border-color 0.3s, color 0.3s;
+        min-width: 180px;
     }
-    .cat-btn.active { color: var(--accent); font-weight: 700; }
-    .cat-btn.active::after { content: ""; position: absolute; bottom: -1px; left: 0; width: 100%; height: 3px; background: var(--accent); }
+    .category-select:focus { outline: none; border-color: var(--accent); }
+    .category-select:hover { border-color: var(--accent); color: var(--accent); }
+    .select-arrow {
+        position: absolute; right: 0.6rem;
+        font-size: 0.6rem; color: var(--muted);
+        pointer-events: none; transition: color 0.3s;
+    }
+    .select-wrapper:hover .select-arrow { color: var(--accent); }
 
     /* 月份分組 */
     .month-section { margin-bottom: 3.5rem; transition: opacity 0.4s ease, transform 0.4s ease; }
@@ -190,8 +204,8 @@ const months = Object.keys(groupedPosts);
     }
 
     /* 條目 */
-    .note-wrapper { transition: opacity 0.4s ease, max-height 0.4s ease; max-height: 200px; overflow: hidden; }
-    .note-wrapper.is-hidden { opacity: 0; max-height: 0; pointer-events: none; }
+    .note-wrapper { transition: opacity 0.4s ease, max-height 0.4s ease; max-height: 200px; overflow: visible; }
+    .note-wrapper.is-hidden { opacity: 0; max-height: 0; pointer-events: none; overflow: hidden; }
 
     .blog-entry {
         display: flex;

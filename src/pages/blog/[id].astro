@@ -103,6 +103,47 @@ const { Content } = await render(post);
   .author-name { color: var(--accent); font-size: 0.78rem; font-weight: 700; }
 
   .post-content { width: 100%; line-height: 2.2; font-size: 1.15rem; text-align: justify; margin-top: 1.8rem; }
+
+  /* ── 日記自訂樣式（在 .md 裡用 HTML 標籤調用） ── */
+
+  /* 螢光筆：<mark>文字</mark> */
+  .post-content mark {
+    background: #fff9c4;
+    padding: 0 3px;
+    border-radius: 2px;
+    font-style: normal;
+  }
+
+  /* 強調紅字：<span class="hl-red">文字</span> */
+  .post-content .hl-red {
+    color: #c0392b;
+    font-weight: 700;
+  }
+
+  /* 強調藍字：<span class="hl-blue">文字</span> */
+  .post-content .hl-blue {
+    color: #2471a3;
+    font-weight: 700;
+  }
+
+  /* 旁白補充框：<div class="note">內容</div> */
+  .post-content .note {
+    border-left: 3px solid var(--accent);
+    padding: 0.5rem 1rem;
+    margin: 1.2rem 0;
+    background: rgba(139,69,19,0.04);
+    font-size: 0.95rem;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  /* 小字說明：<span class="caption">補充說明</span> */
+  .post-content .caption {
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-family: sans-serif;
+    letter-spacing: 0.5px;
+  }
   .post-footer { margin-top: 10rem; padding-top: 2rem; border-top: 1px dashed var(--border); }
   .footer-info { display: flex; align-items: center; gap: 1rem; font-size: 0.75rem; color: var(--muted); font-family: sans-serif; }
 

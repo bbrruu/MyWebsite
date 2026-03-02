@@ -11,7 +11,7 @@ const blogCollection = defineCollection({
     techStack: z.array(z.string()).default([]), // 當天研究的技術
     status: z.enum(['Stable', 'Deploying', 'Debugging']).default('Stable'), // 系統狀態感
     location: z.string().default('Taipei, Taiwan'),
-    category: z.enum(['EVERYDAY-LIFE', 'GAME', 'REFLECTION', 'LEARNING']).default('EVERYDAY-LIFE'),
+    category: z.enum(['旅行', '日常', '省思']).default('日常'),
   }),
 });
 

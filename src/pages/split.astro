@@ -1,0 +1,692 @@
+---
+import Layout from "../layouts/Layout.astro";
+import SplitApp from "../components/split/SplitApp";
+---
+
+<Layout title="出遊分帳 | Trip Split - Bruce">
+  <div class="sp-page-wrapper">
+    <div class="sp-page-title">
+      <h1>出遊分帳 <small>TRIP SPLIT</small></h1>
+      <p class="subtitle">記錄帳目，自動計算最少交易筆數結清所有費用</p>
+    </div>
+    <SplitApp client:load />
+  </div>
+</Layout>
+
+<style>
+  .sp-page-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1rem 0 3rem;
+  }
+  .sp-page-title {
+    text-align: center;
+  }
+  .sp-page-title h1 {
+    margin: 0;
+    font-size: 2rem;
+    letter-spacing: 0.05em;
+  }
+  .sp-page-title small {
+    font-size: 0.9rem;
+    color: var(--muted);
+    letter-spacing: 0.2em;
+    font-weight: 400;
+    margin-left: 0.5rem;
+  }
+  .subtitle {
+    margin: 0.25rem 0 0;
+    font-size: 0.8rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+</style>
+
+<style is:global>
+  /* ── Split App Root ── */
+  .sp-app {
+    position: relative;
+    width: 100%;
+    max-width: 560px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding: 0 1rem;
+    box-sizing: border-box;
+    font-family: 'Noto Serif TC', serif;
+  }
+
+  /* ── Reset Button ── */
+  .sp-reset-btn {
+    position: absolute;
+    top: 0;
+    right: 1rem;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 1.1rem;
+    padding: 0.3rem 0.55rem;
+    cursor: pointer;
+    border-radius: 3px;
+    line-height: 1;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .sp-reset-btn:hover {
+    color: #cc3030;
+    border-color: #cc3030;
+  }
+
+  /* ── Step Indicator ── */
+  .sp-step-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-top: 0.25rem;
+  }
+  .sp-step-row {
+    display: flex;
+    align-items: center;
+  }
+  .sp-step-connector {
+    width: 2rem;
+    height: 1px;
+    background: var(--border);
+  }
+  .sp-step-btn {
+    padding: 0.35rem 0.9rem;
+    border: 1px solid var(--border);
+    background: var(--paper);
+    color: var(--muted);
+    font-family: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+    border-radius: 2px;
+    letter-spacing: 0.05em;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .sp-step-btn:hover:not(.disabled) {
+    background: rgba(139, 69, 19, 0.06);
+    color: var(--ink);
+  }
+  .sp-step-btn.active {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+  .sp-step-btn.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* ── Step Content ── */
+  .sp-step-content {
+    border: 1px solid var(--border);
+    padding: 1.25rem;
+    background: rgba(139, 69, 19, 0.02);
+  }
+
+  /* ── Shared Form Elements ── */
+  .sp-input {
+    padding: 0.4rem 0.65rem;
+    border: 1px solid var(--border);
+    background: var(--paper);
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .sp-input:focus {
+    border-color: var(--accent);
+  }
+  .sp-input-full {
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .sp-input-num {
+    width: 100px;
+    text-align: right;
+  }
+  .sp-select-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+  }
+  .sp-select {
+    appearance: none;
+    -webkit-appearance: none;
+    padding: 0.4rem 2rem 0.4rem 0.65rem;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    background: transparent;
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 0.9rem;
+    cursor: pointer;
+    outline: none;
+    min-width: 120px;
+    transition: border-color 0.3s, color 0.3s;
+  }
+  .sp-select:hover { border-color: var(--accent); color: var(--accent); }
+  .sp-select:focus { border-color: var(--accent); }
+  .sp-select-arrow {
+    position: absolute;
+    right: 0.6rem;
+    font-size: 0.6rem;
+    color: var(--muted);
+    pointer-events: none;
+    transition: color 0.3s;
+  }
+  .sp-select-wrapper:hover .sp-select-arrow { color: var(--accent); }
+  .sp-label {
+    display: block;
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    margin-bottom: 0.3rem;
+    text-transform: uppercase;
+  }
+
+  .sp-btn-primary {
+    padding: 0.45rem 1.1rem;
+    border: 1px solid var(--ink);
+    background: var(--ink);
+    color: var(--paper);
+    font-family: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+    border-radius: 2px;
+    letter-spacing: 0.04em;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .sp-btn-primary:hover:not(:disabled) {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .sp-btn-primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .sp-btn-ghost {
+    padding: 0.45rem 1rem;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: background 0.15s;
+  }
+  .sp-btn-ghost:hover {
+    background: rgba(139, 69, 19, 0.06);
+  }
+
+  .sp-btn-danger {
+    padding: 0.45rem 1.1rem;
+    border: 1px solid #cc3030;
+    background: #cc3030;
+    color: #fff;
+    font-family: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: background 0.15s;
+  }
+  .sp-btn-danger:hover {
+    background: #aa2020;
+  }
+
+  .sp-btn-add {
+    display: block;
+    width: 100%;
+    padding: 0.6rem;
+    border: 1px dashed var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-family: inherit;
+    font-size: 0.88rem;
+    cursor: pointer;
+    letter-spacing: 0.06em;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    margin-top: 0.5rem;
+  }
+  .sp-btn-add:hover {
+    background: rgba(139, 69, 19, 0.05);
+    color: var(--ink);
+    border-color: var(--accent);
+  }
+
+  .sp-btn-copy {
+    display: block;
+    width: 100%;
+    margin-top: 1rem;
+    padding: 0.55rem 1rem;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    transition: background 0.15s;
+  }
+  .sp-btn-copy:hover {
+    background: rgba(139, 69, 19, 0.06);
+  }
+
+  .sp-error {
+    font-size: 0.78rem;
+    color: #cc3030;
+    margin: 0.25rem 0 0;
+  }
+  .sp-hint {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin: 0.3rem 0 0;
+    text-align: center;
+  }
+  .sp-empty {
+    font-size: 0.82rem;
+    color: var(--muted);
+    text-align: center;
+    padding: 1rem 0;
+    margin: 0;
+  }
+  .sp-step-desc {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin: 0 0 1rem;
+    letter-spacing: 0.04em;
+  }
+
+  /* ── Member dot ── */
+  .sp-member-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 0.35rem;
+    flex-shrink: 0;
+  }
+
+  /* ── Members Step ── */
+  .sp-members-input-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  .sp-members-input-row .sp-input {
+    flex: 1;
+  }
+  .sp-members-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0.75rem 0 1rem;
+    min-height: 2rem;
+  }
+  .sp-member-tag {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.3rem 0.6rem;
+    border: 1px solid;
+    border-radius: 2px;
+    font-size: 0.85rem;
+    background: rgba(139, 69, 19, 0.02);
+  }
+  .sp-member-name {
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .sp-member-remove {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    padding: 0 0.1rem;
+    margin-left: 0.1rem;
+    transition: color 0.12s;
+  }
+  .sp-member-remove:hover { color: #cc3030; }
+
+  .sp-step-nav {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.3rem;
+    margin-top: 1rem;
+  }
+  .sp-step-nav-2 {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* ── Expenses Step ── */
+  .sp-expense-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .sp-expense-card {
+    border: 1px solid var(--border);
+    background: var(--paper);
+  }
+  .sp-expense-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.55rem 0.75rem;
+    cursor: pointer;
+    user-select: none;
+    gap: 0.5rem;
+  }
+  .sp-expense-summary:hover {
+    background: rgba(139, 69, 19, 0.03);
+  }
+  .sp-expense-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+  }
+  .sp-expense-desc {
+    font-size: 0.9rem;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .sp-expense-payer {
+    font-size: 0.72rem;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+  }
+  .sp-expense-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+  }
+  .sp-expense-amount {
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  .sp-btn-remove {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    padding: 0.1rem 0.2rem;
+    transition: color 0.12s;
+  }
+  .sp-btn-remove:hover { color: #cc3030; }
+  .sp-expense-toggle {
+    font-size: 0.65rem;
+    color: var(--muted);
+  }
+  .sp-expense-detail {
+    padding: 0.5rem 0.75rem 0.65rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    background: rgba(139, 69, 19, 0.02);
+  }
+  .sp-split-detail-row {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+  .sp-split-detail-amt {
+    margin-left: auto;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── Expense Form ── */
+  .sp-expense-form {
+    border: 1px solid var(--border);
+    padding: 1rem;
+    margin-top: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    background: rgba(139, 69, 19, 0.02);
+  }
+  .sp-form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .sp-form-row-2 {
+    flex-direction: row;
+    gap: 1rem;
+    align-items: flex-end;
+  }
+  .sp-form-row-2 > div {
+    flex: 1;
+  }
+  .sp-splits-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .sp-splits-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .sp-splits-header .sp-btn-ghost {
+    padding: 0.25rem 0.7rem;
+    font-size: 0.78rem;
+  }
+  .sp-splits-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  .sp-split-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+  .sp-split-name {
+    display: flex;
+    align-items: center;
+    font-size: 0.85rem;
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .sp-split-summary {
+    font-size: 0.78rem;
+    color: var(--muted);
+    padding: 0.35rem 0.5rem;
+    background: rgba(139, 69, 19, 0.03);
+    border: 1px solid var(--border);
+  }
+  .sp-split-summary.sp-split-error {
+    color: #cc3030;
+    border-color: rgba(204, 48, 48, 0.3);
+    background: rgba(204, 48, 48, 0.04);
+  }
+  .sp-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+
+  /* ── Settlement Step ── */
+  .sp-settlement-step {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  .sp-settlement-subtitle {
+    font-size: 0.78rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin: 0 0 0.6rem;
+    font-weight: 400;
+  }
+  .sp-settlement-balances,
+  .sp-settlement-result {
+    border: 1px solid var(--border);
+    padding: 0.85rem 1rem;
+    background: rgba(139, 69, 19, 0.02);
+  }
+  .sp-balance-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .sp-balance-row {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.88rem;
+  }
+  .sp-balance-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .sp-balance-amount {
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+    min-width: 80px;
+    text-align: right;
+  }
+  .sp-balance-amount.sp-positive { color: #4a9c5a; }
+  .sp-balance-amount.sp-negative { color: #cc3030; }
+  .sp-balance-desc {
+    font-size: 0.72rem;
+    color: var(--muted);
+    min-width: 60px;
+  }
+
+  .sp-transaction-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .sp-transaction-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.88rem;
+    padding: 0.5rem 0.65rem;
+    border: 1px solid var(--border);
+    background: var(--paper);
+  }
+  .sp-tx-from,
+  .sp-tx-to {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .sp-tx-arrow {
+    font-size: 0.72rem;
+    color: var(--muted);
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .sp-tx-amount {
+    font-size: 0.95rem;
+    font-weight: 600;
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .sp-all-even {
+    font-size: 1rem;
+    text-align: center;
+    padding: 0.75rem 0;
+    color: #4a9c5a;
+    margin: 0;
+  }
+
+  /* ── Confirm Modal ── */
+  .sp-confirm-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  .sp-confirm-dialog {
+    background: var(--paper);
+    border: 1px solid var(--border);
+    padding: 1.5rem 1.75rem;
+    max-width: 340px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  }
+  .sp-confirm-msg {
+    font-size: 0.92rem;
+    line-height: 1.6;
+    margin: 0 0 1.25rem;
+    color: var(--ink);
+  }
+  .sp-confirm-actions {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+
+  /* ── Mobile ── */
+  @media (max-width: 768px) {
+    .sp-app {
+      padding: 0 0.5rem;
+    }
+    .sp-step-content {
+      padding: 1rem 0.85rem;
+    }
+    .sp-tx-arrow {
+      display: none;
+    }
+    .sp-transaction-row {
+      gap: 0.35rem;
+    }
+    .sp-form-row-2 {
+      flex-direction: column;
+      gap: 0.7rem;
+    }
+    .sp-input-num {
+      width: 90px;
+    }
+    .sp-balance-desc {
+      display: none;
+    }
+  }
+</style>
