@@ -1,21 +1,25 @@
 ---
+// ── 頁面介紹（可直接修改這段文字）──
+const pageDesc = "閱讀論文的筆記摘要，記錄值得一看的研究。";
+
 import Layout from "../../layouts/Layout.astro";
 import { getCollection } from "astro:content";
 
-// 1. 抓取所有研究文獻並排序
 const allResearch = (await getCollection("research")).sort(
     (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
 
-// 2. 依照作者 (Author) 進行分組，建立索引
-const groupedByAuthor = allResearch.reduce((acc, post) => {
-    const author = post.data.author || "佚名";
-    if (!acc[author]) acc[author] = [];
-    acc[author].push(post);
+const groupedResearch = allResearch.reduce((acc, post) => {
+    const d = post.data.pubDate;
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    if (!acc[key]) acc[key] = { year: d.getFullYear(), month: d.getMonth() + 1, items: [] as typeof allResearch };
+    acc[key].items.push(post);
     return acc;
-}, {});
+}, {} as Record<string, { year: number; month: number; items: typeof allResearch }>);
 
-const authors = Object.keys(groupedByAuthor);
+const researchGroups = Object.entries(groupedResearch)
+    .sort(([a], [b]) => b.localeCompare(a))
+    .map(([key, val]) => ({ key, ...val }));
 ---
 
 <Layout title="文獻回顧 | 學術存檔 - Bruce">
@@ -23,23 +27,23 @@ const authors = Object.keys(groupedByAuthor);
 
     <main class="research-archive">
         <header class="archive-header">
-            <h1>文獻回顧 <small>LITERATURE REVIEW</small></h1>
+            <div class="header-row">
+                <h1>文獻回顧 <small>LITERATURE REVIEW</small></h1>
+                <p class="page-desc">{pageDesc}</p>
+            </div>
             <div class="header-line"></div>
         </header>
 
         <div class="archive-content">
-            {authors.map((author) => (
-                <section class="author-section">
-                    <div class="author-header">
-                        <div class="author-name-group">
-                            <span class="prefix">Researcher / Scholar</span>
-                            <h2 class="author-title">{author}</h2>
-                        </div>
-                        <div class="note-count">{groupedByAuthor[author].length} PAPERS</div>
+            {researchGroups.map((group) => (
+                <section class="month-section">
+                    <div class="month-header">
+                        <h2 class="month-title">{group.year}年 {group.month}月</h2>
+                        <div class="note-count">{group.items.length} PAPERS</div>
                     </div>
 
                     <div class="note-list">
-                        {groupedByAuthor[author].map((post) => (
+                        {group.items.map((post) => (
                             <div class="note-wrapper">
                                 <a href={`/research/${post.id}`} class="research-entry">
                                     <div class="title-swap-container">
@@ -47,11 +51,8 @@ const authors = Object.keys(groupedByAuthor);
                                             〈{post.data.title}〉
                                         </div>
                                         <div class="title-hover">
-                                            <span class="focus-author">{post.data.author}</span> 
+                                            <span class="focus-author">{post.data.author}</span>
                                             <span class="cat-tag">#{post.data.category || 'Paper'}</span>
-                                            {post.data.tags && post.data.tags.slice(0, 2).map(tag => (
-                                                <span class="sub-tag">{tag}</span>
-                                            ))}
                                         </div>
                                     </div>
                                     <div class="entry-arrow">
@@ -76,14 +77,14 @@ const authors = Object.keys(groupedByAuthor);
         font-family: "Noto Serif TC", serif;
     }
 
+    /* ── Header ── */
+    .header-row { display: flex; align-items: flex-end; gap: 2.5rem; }
+
     .archive-header h1 {
         font-size: 1.6rem;
         margin: 0;
         font-weight: 700;
         letter-spacing: -1.5px;
-        display: flex;
-        justify-content: space-between;
-        align-items: baseline;
     }
     .archive-header h1 small {
         font-size: 0.75rem;
@@ -91,38 +92,38 @@ const authors = Object.keys(groupedByAuthor);
         letter-spacing: 4px;
         color: var(--muted);
         font-weight: 400;
+        margin-left: 0.6rem;
+    }
+
+    .page-desc {
+        flex: 1;
+        font-size: 0.82rem;
+        color: var(--muted);
+        line-height: 1.8;
+        margin: 0 0 0.15rem 0;
+        font-style: italic;
+        padding-left: 2rem;
+        border-left: 1px solid var(--border);
     }
 
     .header-line { width: 100%; height: 1px; background: var(--border); margin: 1rem 0 2.5rem; position: relative; }
     .header-line::after { content: ''; position: absolute; left: 0; top: -1px; width: 80px; height: 3px; background: var(--accent); }
 
-    .author-section { margin-bottom: 3rem; }
-    .author-header {
+    /* ── Month section ── */
+    .month-section { margin-bottom: 3.5rem; }
+
+    .month-header {
         display: flex;
         justify-content: space-between;
         align-items: flex-end;
-        padding-bottom: 0.7rem;
+        padding-bottom: 0.8rem;
         border-bottom: 2px solid var(--ink);
         margin-bottom: 0.8rem;
     }
-    .author-name-group .prefix {
-        font-size: 0.6rem;
-        text-transform: uppercase;
-        letter-spacing: 3px;
-        color: var(--muted);
-        font-family: sans-serif;
-        display: block;
-        margin-bottom: 0.3rem;
-    }
-    .author-title { font-size: 1.2rem; margin: 0; color: var(--ink); font-weight: 700; }
-    .note-count {
-        font-size: 0.72rem;
-        color: var(--accent);
-        font-weight: 700;
-        font-family: sans-serif;
-        letter-spacing: 1px;
-    }
+    .month-title { font-size: 1.4rem; margin: 0; color: var(--ink); font-weight: 700; }
+    .note-count { font-size: 0.72rem; color: var(--accent); font-weight: 700; font-family: sans-serif; letter-spacing: 1px; }
 
+    /* ── Entries ── */
     .research-entry {
         display: flex;
         align-items: center;
@@ -135,69 +136,25 @@ const authors = Object.keys(groupedByAuthor);
     }
     .research-entry:hover { background: rgba(139, 69, 19, 0.02); padding-left: 1.5rem; }
 
-    .title-swap-container {
-        flex: 1;
-        position: relative;
-        height: 1.5rem;
-        overflow: hidden;
-        display: flex;
-        align-items: center;
-    }
+    .title-swap-container { flex: 1; position: relative; height: 1.5rem; overflow: hidden; display: flex; align-items: center; }
     .title-default, .title-hover {
-        font-size: 0.95rem;
-        font-weight: 700;
+        font-size: 0.95rem; font-weight: 700;
         transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-        white-space: nowrap;
-        line-height: 1.5rem;
+        white-space: nowrap; line-height: 1.5rem;
     }
-    .title-hover {
-        position: absolute; top: 0; left: 0; 
-        opacity: 0; 
-        transform: translateY(15px); 
-        color: var(--accent);
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
-    
-    .cat-tag { 
-        font-size: 0.8rem; 
-        font-weight: 700; 
-        color: var(--accent); 
-        background: rgba(139, 69, 19, 0.1);
-        padding: 2px 8px;
-        border-radius: 4px;
-        font-family: sans-serif; 
-    }
-
-    .sub-tag {
-        font-size: 0.75rem;
-        color: var(--muted);
-        font-weight: 400;
-        font-family: sans-serif;
-    }
-    
+    .title-hover { position: absolute; top: 0; left: 0; opacity: 0; transform: translateY(15px); color: var(--accent); display: flex; align-items: center; gap: 1rem; }
+    .cat-tag { font-size: 0.8rem; font-weight: 700; color: var(--accent); background: rgba(139,69,19,0.1); padding: 2px 8px; border-radius: 4px; font-family: sans-serif; }
     .research-entry:hover .title-default { opacity: 0; transform: translateY(-15px); }
     .research-entry:hover .title-hover { opacity: 1; transform: translateY(0); }
 
-    .entry-arrow { 
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        font-size: 0.75rem; 
-        letter-spacing: 2px; 
-        color: var(--muted); 
-        opacity: 0.4; 
-        transition: 0.4s; 
-        font-family: sans-serif;
-    }
+    .entry-arrow { display: flex; align-items: center; gap: 1rem; font-size: 0.75rem; letter-spacing: 2px; color: var(--muted); opacity: 0.4; transition: 0.4s; font-family: sans-serif; }
     .research-entry:hover .entry-arrow { opacity: 1; color: var(--accent); transform: translateX(5px); }
     .view-text { font-weight: 700; }
 
     @media (max-width: 850px) {
-        .research-archive { margin: 2rem auto; }
-        .archive-header h1 { font-size: 2.5rem; flex-direction: column; gap: 0.5rem; }
-        .author-title { font-size: 1.6rem; }
+        .header-row { flex-direction: column; gap: 0.8rem; }
+        .page-desc { border-left: none; padding-left: 0; }
+        .archive-header h1 { font-size: 2.5rem; }
         .title-default, .title-hover { font-size: 1.1rem; }
         .entry-arrow .view-text { display: none; }
     }

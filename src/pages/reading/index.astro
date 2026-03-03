@@ -1,43 +1,49 @@
 ---
+// ── 頁面介紹（可直接修改這段文字）──
+const pageDesc = "看完的書留下的心得，留住那些觸動我的段落。";
+
 import Layout from "../../layouts/Layout.astro";
 import { getCollection } from "astro:content";
 
-// 1. 抓取閱測筆記並排序
 const allReading = (await getCollection("reading")).sort(
     (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
 
-// 2. 依照作者分組
-const groupedByAuthor = allReading.reduce((acc, post) => {
-    const author = post.data.author || "佚名";
-    if (!acc[author]) acc[author] = [];
-    acc[author].push(post);
+const groupedReading = allReading.reduce((acc, post) => {
+    const d = post.data.pubDate;
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    if (!acc[key]) acc[key] = { year: d.getFullYear(), month: d.getMonth() + 1, items: [] as typeof allReading };
+    acc[key].items.push(post);
     return acc;
-}, {});
+}, {} as Record<string, { year: number; month: number; items: typeof allReading }>);
 
-const authors = Object.keys(groupedByAuthor);
+const readingGroups = Object.entries(groupedReading)
+    .sort(([a], [b]) => b.localeCompare(a))
+    .map(([key, val]) => ({ key, ...val }));
 ---
 
 <Layout title="閱測筆記 | 書海拾貝 - Bruce">
+    <div class="paper-texture"></div>
+
     <main class="reading-archive">
         <header class="archive-header">
-            <h1>閱測筆記 <small>BOOK NOTES</small></h1>
+            <div class="header-row">
+                <h1>閱測筆記 <small>BOOK NOTES</small></h1>
+                <p class="page-desc">{pageDesc}</p>
+            </div>
             <div class="header-line"></div>
         </header>
 
         <div class="archive-content">
-            {authors.map((author) => (
-                <section class="author-section">
-                    <div class="author-header">
-                        <div class="author-name-group">
-                            <span class="prefix">Writer / Thinker</span>
-                            <h2 class="author-title">{author}</h2>
-                        </div>
-                        <div class="note-count">{groupedByAuthor[author].length} NOTES</div>
+            {readingGroups.map((group) => (
+                <section class="month-section">
+                    <div class="month-header">
+                        <h2 class="month-title">{group.year}年 {group.month}月</h2>
+                        <div class="note-count">{group.items.length} NOTES</div>
                     </div>
 
                     <div class="note-list">
-                        {groupedByAuthor[author].map((post) => (
+                        {group.items.map((post) => (
                             <div class="note-wrapper">
                                 <a href={`/reading/${post.id}`} class="reading-entry">
                                     <div class="book-cover">
@@ -77,24 +83,53 @@ const authors = Object.keys(groupedByAuthor);
         font-family: "Noto Serif TC", serif;
     }
 
+    /* ── Header ── */
+    .header-row { display: flex; align-items: flex-end; gap: 2.5rem; }
+
     .archive-header h1 {
-        font-size: 1.6rem; margin: 0; font-weight: 700; letter-spacing: -1.5px;
-        display: flex; justify-content: space-between; align-items: baseline;
+        font-size: 1.6rem;
+        margin: 0;
+        font-weight: 700;
+        letter-spacing: -1.5px;
     }
-    .archive-header h1 small { font-size: 0.75rem; font-family: sans-serif; letter-spacing: 4px; color: var(--muted); font-weight: 400; }
+    .archive-header h1 small {
+        font-size: 0.75rem;
+        font-family: sans-serif;
+        letter-spacing: 4px;
+        color: var(--muted);
+        font-weight: 400;
+        margin-left: 0.6rem;
+    }
+
+    .page-desc {
+        flex: 1;
+        font-size: 0.82rem;
+        color: var(--muted);
+        line-height: 1.8;
+        margin: 0 0 0.15rem 0;
+        font-style: italic;
+        padding-left: 2rem;
+        border-left: 1px solid var(--border);
+    }
 
     .header-line { width: 100%; height: 1px; background: var(--border); margin: 1rem 0 2.5rem; position: relative; }
     .header-line::after { content: ''; position: absolute; left: 0; top: -1px; width: 80px; height: 3px; background: var(--accent); }
 
-    .author-section { margin-bottom: 3rem; }
-    .author-header {
-        display: flex; justify-content: space-between; align-items: flex-end;
-        padding-bottom: 0.7rem; border-bottom: 2px solid var(--ink); margin-bottom: 0.8rem;
+    /* ── Month section ── */
+    .month-section { margin-bottom: 3.5rem; }
+
+    .month-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        padding-bottom: 0.8rem;
+        border-bottom: 2px solid var(--ink);
+        margin-bottom: 0.8rem;
     }
-    .author-name-group .prefix { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 3px; color: var(--muted); font-family: sans-serif; display: block; margin-bottom: 0.3rem; }
-    .author-title { font-size: 1.2rem; margin: 0; color: var(--ink); font-weight: 700; }
+    .month-title { font-size: 1.4rem; margin: 0; color: var(--ink); font-weight: 700; }
     .note-count { font-size: 0.72rem; color: var(--accent); font-weight: 700; font-family: sans-serif; letter-spacing: 1px; }
 
+    /* ── Entries ── */
     .reading-entry {
         display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;
         text-decoration: none; color: inherit; padding: 0.8rem 0;
@@ -112,15 +147,8 @@ const authors = Object.keys(groupedByAuthor);
         padding: 0.4rem; gap: 0.3rem;
         border-left: 4px solid rgba(255,255,255,0.25);
     }
-    .cover-title {
-        font-size: 0.5rem; font-family: sans-serif; color: #fff;
-        text-align: center; line-height: 1.4; font-weight: 700;
-        word-break: break-word; hyphens: auto;
-    }
-    .cover-author {
-        font-size: 0.42rem; font-family: sans-serif; color: rgba(255,255,255,0.7);
-        text-align: center; letter-spacing: 0.5px;
-    }
+    .cover-title { font-size: 0.5rem; font-family: sans-serif; color: #fff; text-align: center; line-height: 1.4; font-weight: 700; word-break: break-word; }
+    .cover-author { font-size: 0.42rem; font-family: sans-serif; color: rgba(255,255,255,0.7); text-align: center; letter-spacing: 0.5px; }
 
     .title-swap-container { flex: 1; position: relative; height: 1.5rem; overflow: hidden; display: flex; align-items: center; }
     .title-default, .title-hover {
@@ -130,15 +158,16 @@ const authors = Object.keys(groupedByAuthor);
     }
     .title-hover { position: absolute; top: 0; left: 0; opacity: 0; transform: translateY(15px); color: var(--accent); }
     .book-mark { font-weight: 400; font-size: 1rem; color: var(--muted); margin-left: 0.8rem; }
-    
+
     .reading-entry:hover .title-default { opacity: 0; transform: translateY(-15px); }
     .reading-entry:hover .title-hover { opacity: 1; transform: translateY(0); }
-    .entry-arrow { font-size: 0.75rem; letter-spacing: 2px; color: var(--muted); opacity: 0.4; transition: 0.4s; font-family: sans-serif; }
+    .entry-arrow { font-size: 0.75rem; letter-spacing: 2px; color: var(--muted); opacity: 0.4; transition: 0.4s; font-family: sans-serif; flex-shrink: 0; }
     .reading-entry:hover .entry-arrow { opacity: 1; color: var(--accent); transform: translateX(5px); }
 
     @media (max-width: 850px) {
-        .archive-header h1 { font-size: 2.5rem; flex-direction: column; gap: 0.5rem; }
-        .author-title { font-size: 1.6rem; }
+        .header-row { flex-direction: column; gap: 0.8rem; }
+        .page-desc { border-left: none; padding-left: 0; }
+        .archive-header h1 { font-size: 2.5rem; }
         .title-default, .title-hover { font-size: 1.1rem; }
     }
 </style>

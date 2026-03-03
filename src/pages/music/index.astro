@@ -1,21 +1,27 @@
 ---
+// ── 頁面介紹（可直接修改這段文字）──
+const pageDesc = "當下心情的配樂，以及聽這首歌時想說的話。";
+
 import Layout from "../../layouts/Layout.astro";
 import { getCollection } from "astro:content";
 
-// 1. 抓取所有音樂評論並排序
 const allMusic = (await getCollection("music")).sort(
     (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
 
-// 2. 依照演出者 (Artist) 進行分組
-const groupedByArtist = allMusic.reduce((acc, post) => {
-    const artist = post.data.artist || "佚名";
-    if (!acc[artist]) acc[artist] = [];
-    acc[artist].push(post);
-    return acc;
-}, {});
+const artists = [...new Set(allMusic.map((p) => p.data.artist || "佚名"))].sort();
 
-const artists = Object.keys(groupedByArtist);
+const groupedMusic = allMusic.reduce((acc, post) => {
+    const d = post.data.pubDate;
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    if (!acc[key]) acc[key] = { year: d.getFullYear(), month: d.getMonth() + 1, posts: [] as typeof allMusic };
+    acc[key].posts.push(post);
+    return acc;
+}, {} as Record<string, { year: number; month: number; posts: typeof allMusic }>);
+
+const musicGroups = Object.entries(groupedMusic)
+    .sort(([a], [b]) => b.localeCompare(a))
+    .map(([key, val]) => ({ key, ...val }));
 ---
 
 <Layout title="拾音集 | 樂評編目 - Bruce">
@@ -23,143 +29,309 @@ const artists = Object.keys(groupedByArtist);
 
     <main class="music-archive">
         <header class="archive-header">
-            <h1>拾音集 <small>SOUND & TRACKS</small></h1>
-            <div class="header-line"></div>
-            <div class="artist-filter">
-                <label for="artist-select" class="filter-label">FILTER BY ARTIST</label>
-                <div class="select-wrapper">
-                    <select id="artist-select" class="artist-select">
-                        <option value="all">全部 ALL</option>
-                        {artists.map((artist) => (
-                            <option value={artist}>{artist}</option>
-                        ))}
-                    </select>
-                    <span class="select-arrow">↓</span>
+            <div class="header-row">
+                <h1>拾音集 <small>SOUND & TRACKS</small></h1>
+                <p class="page-desc">{pageDesc}</p>
+                <div class="archive-filter">
+                    <label for="artist-select" class="filter-label">FILTER</label>
+                    <div class="select-wrapper">
+                        <select id="artist-select" class="filter-select">
+                            <option value="all">全部 ALL</option>
+                            {artists.map((artist) => (
+                                <option value={artist}>{artist}</option>
+                            ))}
+                        </select>
+                        <span class="select-arrow">↓</span>
+                    </div>
                 </div>
             </div>
+            <div class="header-line"></div>
         </header>
 
-        <div class="archive-content" id="music-list">
-            {artists.map((artist) => (
-                <section class="artist-section" data-artist={artist}>
-                    <div class="artist-header">
-                        <div class="author-name-group">
-                            <span class="prefix">Musician / Artist</span>
-                            <h2 class="artist-title">{artist}</h2>
-                        </div>
-                        <div class="note-count">{groupedByArtist[artist].length} RECORDS</div>
+        <div id="music-grid">
+            {musicGroups.map((group) => (
+                <section class="date-group" data-group={group.key}>
+                    <div class="group-header">
+                        <span class="group-year">{group.year} 年</span>
+                        <span class="group-month">{group.month} 月</span>
+                        <div class="group-line"></div>
+                        <span class="group-count">{group.posts.length} TRACKS</span>
                     </div>
-
-                    <div class="note-list">
-                        {groupedByArtist[artist].map((post, idx) => (
-                            <div class={`note-wrapper${idx >= 5 ? ' extra-entry' : ''}`}>
-                                <div class="music-entry">
-                                    <a href={`/music/${post.id}`} class="title-swap-container">
-                                        <div class="title-default">
-                                            {post.data.title} <span class="song-mark">《{post.data.songName || 'Untitled'}》</span>
+                    <div class="mc-grid">
+                        {group.posts.map((post) => (
+                            <a
+                                href={`/music/${post.id}`}
+                                class="mc-card"
+                                data-artist={post.data.artist || "佚名"}
+                                data-youtube-id={post.data.youtubeId || ""}
+                                data-song-name={post.data.songName || ""}
+                            >
+                                <div class="mc-cover">
+                                    {post.data.youtubeId
+                                        ? <img class="mc-thumb" src={`https://img.youtube.com/vi/${post.data.youtubeId}/hqdefault.jpg`} alt={post.data.songName} loading="lazy" />
+                                        : <div class="mc-thumb-placeholder"><span>{post.data.artist}</span></div>
+                                    }
+                                    {post.data.youtubeId && (
+                                        <div class="mc-yt-wrapper">
+                                            <div class="mc-yt-target"></div>
                                         </div>
-                                        <div class="title-hover">
-                                            <span class="focus-artist">{post.data.artist}</span>
-                                            <span class="song-mark">《{post.data.songName || 'Untitled'}》</span>
-                                            {(post.data as any).genre && <span class="cat-tag">#{(post.data as any).genre}</span>}
-                                        </div>
-                                    </a>
-                                    <div class="entry-actions">
-                                        {post.data.youtubeId && (
-                                            <button class="preview-btn" data-youtube-id={post.data.youtubeId}>▶ PREVIEW</button>
-                                        )}
-                                        <a href={`/music/${post.id}`} class="entry-arrow">
-                                            <span class="view-text">LISTEN</span>
-                                            <span class="arrow">→</span>
-                                        </a>
+                                    )}
+                                    <div class="mc-hover-overlay">
+                                        <span class="mc-play-icon">▶</span>
+                                        <span class="mc-hover-hint">懸停播放</span>
                                     </div>
+                                    <span class="mc-artist-badge">{post.data.artist}</span>
                                 </div>
-                                {post.data.youtubeId && (
-                                    <div class="inline-player" data-youtube-id={post.data.youtubeId}>
-                                        <div class="player-ratio-box">
-                                            <iframe allowfullscreen allow="autoplay; encrypted-media; picture-in-picture"></iframe>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
+                                <div class="mc-info">
+                                    <h3 class="mc-songname">《{post.data.songName}》</h3>
+                                    <p class="mc-desc">{post.data.title}</p>
+                                </div>
+                            </a>
                         ))}
                     </div>
-                    {groupedByArtist[artist].length > 5 && (
-                        <div class="see-more-wrapper">
-                            <button class="show-more-btn" data-artist={artist}>
-                                顯示更多 MORE<div class="btn-line"></div>
-                            </button>
-                        </div>
-                    )}
                 </section>
             ))}
         </div>
     </main>
+
+    <!-- 底部迷你播放器 -->
+    <div id="mini-player" class="mini-player">
+        <div class="mp-info">
+            <span class="mp-song" id="mp-song"></span>
+            <span class="mp-artist" id="mp-artist"></span>
+        </div>
+        <div class="mp-controls">
+            <button id="mp-playpause" class="mp-btn mp-playpause">⏸</button>
+            <div class="mp-progress-area">
+                <span class="mp-time" id="mp-cur">0:00</span>
+                <input type="range" id="mp-bar" class="mp-bar" min="0" max="1000" value="0" step="1">
+                <span class="mp-time" id="mp-dur">0:00</span>
+            </div>
+        </div>
+        <button id="mp-close" class="mp-btn mp-close-btn">✕</button>
+    </div>
 </Layout>
 
 <script is:inline>
+    // ── YouTube IFrame API 初始化 ──────────────────────────────────────
+    if (!window.__ytApiListenerSet) {
+        window.__ytApiListenerSet = true;
+        window.onYouTubeIframeAPIReady = function () { window.ytApiReady = true; };
+    }
+    if (!document.querySelector('script[src*="youtube.com/iframe_api"]')) {
+        var s = document.createElement('script');
+        s.src = 'https://www.youtube.com/iframe_api';
+        document.head.appendChild(s);
+    }
+    if (window.YT && window.YT.Player) window.ytApiReady = true;
+
+    // ── 全域清理參考（頁面切換用）────────────────────────────────────
+    if (!window.__musicCleanupSet) {
+        window.__musicCleanupSet = true;
+        document.addEventListener('astro:before-preparation', function () {
+            if (window.__musicStop) { window.__musicStop(); window.__musicStop = null; }
+        });
+    }
+
+    // ── 主邏輯 ────────────────────────────────────────────────────────
     function musicSetup() {
-        // 歌手篩選下拉
-        var select = document.getElementById('artist-select');
-        var sections = document.querySelectorAll('.artist-section');
-        if (!select) return;
+        var ytPlayer    = null;
+        var activeCard  = null;
+        var pollTimer   = null;
+        var isDragging  = false;
+        var switchTimer = null;   // 3 秒切歌防抖
 
-        select.addEventListener('change', function() {
-            var val = select.value;
-            sections.forEach(function(section) {
-                if (val === 'all' || section.dataset.artist === val) {
-                    section.style.display = '';
-                } else {
-                    section.style.display = 'none';
-                }
-            });
-        });
+        var miniPlayer  = document.getElementById('mini-player');
+        var mpPlayPause = document.getElementById('mp-playpause');
+        var mpClose     = document.getElementById('mp-close');
+        var mpBar       = document.getElementById('mp-bar');
+        var mpCur       = document.getElementById('mp-cur');
+        var mpDur       = document.getElementById('mp-dur');
+        var mpSong      = document.getElementById('mp-song');
+        var mpArtist    = document.getElementById('mp-artist');
 
-        // 顯示更多按鈕：切換下拉選單至該歌手
-        document.querySelectorAll('.show-more-btn').forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                var artist = btn.dataset.artist;
-                if (!artist) return;
-                select.value = artist;
-                select.dispatchEvent(new Event('change'));
-            });
-        });
+        if (!miniPlayer) return;
 
-        // 音樂快速預覽播放器
-        document.querySelectorAll('.preview-btn').forEach(function(btn) {
-            btn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                var youtubeId = btn.dataset.youtubeId;
-                var wrapper = btn.closest('.note-wrapper');
-                var player = wrapper && wrapper.querySelector('.inline-player');
-                var iframe = player && player.querySelector('iframe');
-                if (!player || !iframe || !youtubeId) return;
+        // ── 工具函式 ──
+        function fmt(sec) {
+            if (!isFinite(sec) || isNaN(sec)) return '0:00';
+            var m = Math.floor(sec / 60), s = Math.floor(sec % 60);
+            return m + ':' + (s < 10 ? '0' : '') + s;
+        }
 
-                var isOpen = player.classList.contains('open');
+        function fillBar(pct) {
+            mpBar.style.background =
+                'linear-gradient(to right, var(--accent) ' + pct + '%, rgba(255,255,255,0.18) ' + pct + '%)';
+        }
 
-                // 關閉所有其他播放器
-                document.querySelectorAll('.inline-player.open').forEach(function(p) {
-                    if (p !== player) {
-                        p.classList.remove('open');
-                        var f = p.querySelector('iframe');
-                        if (f) f.src = '';
-                        var otherWrapper = p.closest('.note-wrapper');
-                        var otherBtn = otherWrapper && otherWrapper.querySelector('.preview-btn');
-                        if (otherBtn) otherBtn.classList.remove('active');
+        function tick() {
+            if (!ytPlayer || !ytPlayer.getCurrentTime || isDragging) return;
+            try {
+                var cur = ytPlayer.getCurrentTime();
+                var dur = ytPlayer.getDuration();
+                if (!dur) return;
+                var pct = (cur / dur) * 100;
+                mpBar.value = Math.round((cur / dur) * 1000);
+                mpCur.textContent = fmt(cur);
+                mpDur.textContent = fmt(dur);
+                fillBar(pct);
+            } catch (_) {}
+        }
+
+        // ── 停止清理 ──
+        function stopPlayer() {
+            if (pollTimer)  { clearInterval(pollTimer); pollTimer = null; }
+            if (ytPlayer)   { try { ytPlayer.destroy(); } catch (_) {} ytPlayer = null; }
+            if (activeCard) { activeCard.classList.remove('active'); activeCard = null; }
+            if (miniPlayer) miniPlayer.classList.remove('active');
+            mpBar.value = 0;
+            fillBar(0);
+        }
+        window.__musicStop = stopPlayer;
+
+        // ── 建立播放器 ──
+        function createPlayer(card, ytId) {
+            var wrapper = card.querySelector('.mc-yt-wrapper');
+            if (!wrapper) return;
+
+            // 清除舊 iframe，重新插入 target div
+            wrapper.innerHTML = '';
+            var target = document.createElement('div');
+            wrapper.appendChild(target);
+
+            ytPlayer = new YT.Player(target, {
+                videoId: ytId,
+                playerVars: { autoplay: 1, controls: 0, loop: 1, playlist: ytId, playsinline: 1, rel: 0, modestbranding: 1 },
+                events: {
+                    onReady: function (e) {
+                        e.target.playVideo();
+
+                        // 把 YT 建立的 iframe 撐滿 wrapper
+                        var iframe = wrapper.querySelector('iframe');
+                        if (iframe) {
+                            iframe.style.position    = 'absolute';
+                            iframe.style.top         = '0';
+                            iframe.style.left        = '0';
+                            iframe.style.width       = '100%';
+                            iframe.style.height      = '100%';
+                            iframe.style.border      = 'none';
+                            iframe.style.pointerEvents = 'none';
+                        }
+
+                        card.classList.add('active');
+
+                        // 更新 mini player
+                        mpSong.textContent   = '《' + (card.dataset.songName || '') + '》';
+                        mpArtist.textContent = card.dataset.artist || '';
+                        mpPlayPause.textContent = '⏸';
+                        mpDur.textContent    = fmt(e.target.getDuration());
+                        miniPlayer.classList.add('active');
+
+                        if (pollTimer) clearInterval(pollTimer);
+                        pollTimer = setInterval(tick, 250);
+                    },
+                    onStateChange: function (e) {
+                        // YT.PlayerState: 1=playing, 2=paused, 0=ended
+                        if (e.data === 1)      mpPlayPause.textContent = '⏸';
+                        else if (e.data === 2) mpPlayPause.textContent = '▶';
+                        else if (e.data === 0) mpPlayPause.textContent = '▶';
                     }
-                });
-
-                if (isOpen) {
-                    player.classList.remove('open');
-                    iframe.src = '';
-                    btn.classList.remove('active');
-                } else {
-                    iframe.src = 'https://www.youtube.com/embed/' + youtubeId + '?autoplay=1';
-                    player.classList.add('open');
-                    btn.classList.add('active');
                 }
             });
+        }
+
+        // ── 切換到指定卡片 ──
+        function activateCard(card) {
+            if (activeCard === card) return;
+
+            if (pollTimer)  { clearInterval(pollTimer); pollTimer = null; }
+            if (ytPlayer)   { try { ytPlayer.destroy(); } catch (_) {} ytPlayer = null; }
+            if (activeCard) { activeCard.classList.remove('active'); }
+
+            activeCard = card;
+            var ytId = card.dataset.youtubeId;
+
+            if (window.ytApiReady) {
+                createPlayer(card, ytId);
+            } else {
+                // API 尚未就緒，輪詢等待
+                var wait = setInterval(function () {
+                    if (window.ytApiReady) { clearInterval(wait); createPlayer(card, ytId); }
+                }, 80);
+            }
+        }
+
+        // ── 歌手篩選 ──
+        var select = document.getElementById('artist-select');
+        if (select) {
+            select.addEventListener('change', function () {
+                var val = select.value;
+                document.querySelectorAll('.date-group').forEach(function (section) {
+                    var count = 0;
+                    section.querySelectorAll('.mc-card').forEach(function (card) {
+                        if (val === 'all' || card.dataset.artist === val) {
+                            card.style.display = ''; count++;
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                    section.style.display = count === 0 ? 'none' : '';
+                });
+            });
+        }
+
+        // ── 卡片懸停（正在播音樂時，移到其他卡片需等 3 秒才切換）──
+        document.querySelectorAll('.mc-card').forEach(function (card) {
+            if (!card.dataset.youtubeId) return;
+
+            card.addEventListener('mouseenter', function () {
+                clearTimeout(switchTimer);
+                if (activeCard === card) return;        // 已在播這首，不動作
+                if (activeCard) {
+                    // 有其他歌在播：延遲 3 秒才切換
+                    switchTimer = setTimeout(function () { activateCard(card); }, 1500);
+                } else {
+                    // 沒有歌在播：立即開始
+                    activateCard(card);
+                }
+            });
+
+            card.addEventListener('mouseleave', function () {
+                clearTimeout(switchTimer);  // 離開卡片就取消預約切換
+            });
         });
+
+        // ── 播放 / 暫停 ──
+        mpPlayPause.addEventListener('click', function () {
+            if (!ytPlayer) return;
+            var state = ytPlayer.getPlayerState();
+            if (state === 1) ytPlayer.pauseVideo();
+            else             ytPlayer.playVideo();
+        });
+
+        // ── 關閉 ──
+        mpClose.addEventListener('click', stopPlayer);
+
+        // ── 進度條拖拉 ──
+        mpBar.addEventListener('mousedown',  function () { isDragging = true; });
+        mpBar.addEventListener('touchstart', function () { isDragging = true; }, { passive: true });
+
+        mpBar.addEventListener('input', function () {
+            if (!ytPlayer) return;
+            var dur = ytPlayer.getDuration();
+            var cur = (mpBar.value / 1000) * dur;
+            mpCur.textContent = fmt(cur);
+            fillBar((mpBar.value / 1000) * 100);
+        });
+
+        function commitSeek() {
+            isDragging = false;
+            if (!ytPlayer) return;
+            var dur = ytPlayer.getDuration();
+            ytPlayer.seekTo((mpBar.value / 1000) * dur, true);
+        }
+        mpBar.addEventListener('mouseup',  commitSeek);
+        mpBar.addEventListener('touchend', commitSeek);
     }
 
     document.addEventListener('astro:page-load', musicSetup);
@@ -173,196 +345,143 @@ const artists = Object.keys(groupedByArtist);
         font-family: "Noto Serif TC", serif;
     }
 
-    .archive-header h1 {
-        font-size: 1.6rem;
-        margin: 0;
-        font-weight: 700;
-        letter-spacing: -1.5px;
-        display: flex;
-        justify-content: space-between;
-        align-items: baseline;
-    }
-    .archive-header h1 small {
-        font-size: 0.75rem;
-        font-family: sans-serif;
-        letter-spacing: 4px;
-        color: var(--muted);
-        font-weight: 400;
-    }
-
-    .header-line { width: 100%; height: 1px; background: var(--border); margin: 1rem 0 1.2rem; position: relative; }
+    /* ── Header ── */
+    .header-row { display: flex; align-items: flex-end; gap: 2.5rem; }
+    .archive-header h1 { font-size: 1.6rem; margin: 0; font-weight: 700; letter-spacing: -1.5px; }
+    .archive-header h1 small { font-size: 0.75rem; font-family: sans-serif; letter-spacing: 4px; color: var(--muted); font-weight: 400; margin-left: 0.6rem; }
+    .header-line { width: 100%; height: 1px; background: var(--border); margin: 1rem 0 1.5rem; position: relative; }
     .header-line::after { content: ''; position: absolute; left: 0; top: -1px; width: 80px; height: 3px; background: var(--accent); }
 
-    .artist-filter { display: flex; align-items: center; gap: 1rem; margin-bottom: 2.5rem; }
+    .page-desc {
+        flex: 1;
+        font-size: 0.82rem;
+        color: var(--muted);
+        line-height: 1.8;
+        margin: 0 0 0.15rem 0;
+        font-style: italic;
+        padding-left: 2rem;
+        border-left: 1px solid var(--border);
+        min-width: 120px;
+    }
+
+    /* ── Filter ── */
+    .archive-filter { display: flex; align-items: center; gap: 0.6rem; padding-bottom: 0.15rem; flex-shrink: 0; }
     .filter-label { font-size: 0.6rem; font-family: sans-serif; letter-spacing: 2px; color: var(--muted); font-weight: 700; text-transform: uppercase; white-space: nowrap; }
     .select-wrapper { position: relative; display: inline-flex; align-items: center; }
-    .artist-select {
-        appearance: none; -webkit-appearance: none;
-        background: transparent;
-        border: 1px solid var(--border);
-        border-radius: 3px;
-        padding: 0.35rem 2rem 0.35rem 0.8rem;
-        font-size: 0.8rem;
-        font-family: "Noto Serif TC", serif;
-        color: var(--ink);
-        cursor: pointer;
-        transition: border-color 0.3s, color 0.3s;
-        min-width: 180px;
-    }
-    .artist-select:focus { outline: none; border-color: var(--accent); }
-    .artist-select:hover { border-color: var(--accent); color: var(--accent); }
-    .select-arrow {
-        position: absolute; right: 0.6rem;
-        font-size: 0.6rem; color: var(--muted);
-        pointer-events: none; transition: color 0.3s;
-    }
+    .filter-select { appearance: none; -webkit-appearance: none; background: transparent; border: 1px solid var(--border); border-radius: 3px; padding: 0.3rem 1.8rem 0.3rem 0.7rem; font-size: 0.78rem; font-family: "Noto Serif TC", serif; color: var(--ink); cursor: pointer; transition: border-color 0.3s, color 0.3s; min-width: 160px; }
+    .filter-select:focus { outline: none; border-color: var(--accent); }
+    .filter-select:hover { border-color: var(--accent); color: var(--accent); }
+    .select-arrow { position: absolute; right: 0.5rem; font-size: 0.6rem; color: var(--muted); pointer-events: none; transition: color 0.3s; }
     .select-wrapper:hover .select-arrow { color: var(--accent); }
 
-    .artist-section { margin-bottom: 3rem; }
-    .artist-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
-        padding-bottom: 0.7rem;
-        border-bottom: 2px solid var(--ink);
-        margin-bottom: 0.8rem;
-    }
-    .author-name-group .prefix {
-        font-size: 0.6rem;
-        text-transform: uppercase;
-        letter-spacing: 3px;
-        color: var(--muted);
-        font-family: sans-serif;
-        display: block;
-        margin-bottom: 0.3rem;
-    }
-    .artist-title { font-size: 1.2rem; margin: 0; color: var(--ink); font-weight: 700; }
-    .note-count {
-        font-size: 0.72rem;
-        color: var(--accent);
-        font-weight: 700;
-        font-family: sans-serif;
-        letter-spacing: 1px;
-    }
+    /* ── Date group ── */
+    .date-group { margin-bottom: 3rem; }
+    .group-header { display: flex; align-items: baseline; gap: 0.6rem; margin-bottom: 1.2rem; }
+    .group-year { font-size: 0.62rem; font-family: sans-serif; letter-spacing: 2px; color: var(--muted); }
+    .group-month { font-size: 1.15rem; font-weight: 700; color: var(--ink); letter-spacing: -0.5px; }
+    .group-line { flex: 1; height: 1px; background: var(--border); align-self: center; }
+    .group-count { font-size: 0.58rem; font-family: sans-serif; letter-spacing: 2px; color: var(--accent); font-weight: 700; }
 
-    .music-entry {
+    /* ── Grid ── */
+    .mc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; }
+
+    /* ── Card ── */
+    .mc-card { text-decoration: none; color: inherit; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s; display: flex; flex-direction: column; }
+    .mc-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(139,69,19,0.1); border-color: var(--accent); }
+    .mc-card.active { border-color: var(--accent); }
+
+    /* ── Cover ── */
+    .mc-cover { position: relative; height: 190px; overflow: hidden; background: var(--border); }
+    .mc-thumb { width: 100%; height: 100%; object-fit: cover; display: block; transition: opacity 0.4s; }
+    .mc-card.active .mc-thumb { opacity: 0; }
+    .mc-thumb-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(139,69,19,0.08), rgba(139,69,19,0.18)); }
+    .mc-thumb-placeholder span { font-family: sans-serif; font-size: 0.75rem; letter-spacing: 3px; color: var(--accent); text-transform: uppercase; font-weight: 700; }
+
+    /* ── YouTube wrapper（YT.Player 的目標容器）── */
+    .mc-yt-wrapper { position: absolute; inset: 0; opacity: 0; transition: opacity 0.45s; z-index: 1; overflow: hidden; }
+    .mc-card.active .mc-yt-wrapper { opacity: 1; }
+
+    /* ── Hover overlay ── */
+    .mc-hover-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; background: transparent; transition: background 0.3s; z-index: 2; pointer-events: none; }
+    .mc-play-icon { font-size: 2rem; color: #fff; opacity: 0; transform: scale(0.8); transition: opacity 0.25s, transform 0.25s; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+    .mc-hover-hint { font-size: 0.6rem; font-family: sans-serif; letter-spacing: 2px; color: #fff; opacity: 0; transition: opacity 0.25s; text-shadow: 0 1px 6px rgba(0,0,0,0.5); }
+    .mc-card:hover:not(.active) .mc-hover-overlay { background: rgba(0,0,0,0.18); }
+    .mc-card:hover:not(.active) .mc-play-icon { opacity: 1; transform: scale(1); }
+    .mc-card:hover:not(.active) .mc-hover-hint { opacity: 1; }
+
+    /* ── Artist badge ── */
+    .mc-artist-badge { position: absolute; top: 0.6rem; right: 0.6rem; font-size: 0.72rem; font-family: sans-serif; letter-spacing: 0.5px; padding: 3px 10px; border-radius: 20px; font-weight: 700; background: rgba(20,10,5,0.68); color: #fff; z-index: 3; pointer-events: none; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+
+    /* ── Info ── */
+    .mc-info { padding: 0.9rem; display: flex; flex-direction: column; gap: 0.3rem; flex: 1; }
+    .mc-songname { font-size: 1rem; font-weight: 700; margin: 0; }
+    .mc-desc { font-size: 0.78rem; color: var(--muted); margin: 0; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+    /* ── Mini Player ── */
+    .mini-player {
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        height: 62px;
+        background: var(--ink);
+        color: var(--paper);
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        color: inherit;
-        padding: 0.8rem 0;
-        border-bottom: 1px dashed var(--border);
-        transition: 0.4s ease;
+        gap: 1.5rem;
+        padding: 0 1.5rem;
+        transform: translateY(100%);
+        transition: transform 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 200;
+        border-top: 2px solid var(--accent);
+        font-family: "Noto Serif TC", serif;
     }
-    .music-entry:hover { background: rgba(139, 69, 19, 0.02); padding-left: 1.5rem; }
+    .mini-player.active { transform: translateY(0); }
 
-    .entry-actions {
-        display: flex;
-        align-items: center;
-        gap: 0.8rem;
-        flex-shrink: 0;
-    }
+    .mp-info { min-width: 140px; display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
+    .mp-song { font-size: 0.82rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .mp-artist { font-size: 0.6rem; color: rgba(255,255,255,0.55); font-family: sans-serif; letter-spacing: 1.5px; text-transform: uppercase; }
 
-    .preview-btn {
-        background: none;
-        border: 1px solid var(--border);
-        border-radius: 2px;
-        padding: 0.25rem 0.55rem;
-        font-size: 0.6rem;
-        font-family: sans-serif;
-        letter-spacing: 1.5px;
-        color: var(--muted);
-        transition: 0.3s;
-        white-space: nowrap;
-        line-height: 1.4;
-    }
-    .preview-btn:hover { border-color: var(--accent); color: var(--accent); }
-    .preview-btn.active { background: var(--accent); color: var(--paper); border-color: var(--accent); }
+    .mp-controls { flex: 1; display: flex; align-items: center; gap: 1rem; min-width: 0; }
 
-    .inline-player {
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.5s ease;
-    }
-    .inline-player.open { max-height: 100vw; }
-    .player-ratio-box {
-        position: relative;
-        padding-bottom: 56.25%;
-        height: 0;
-        margin: 0.5rem 0 0.8rem;
-    }
-    .player-ratio-box iframe {
-        position: absolute;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        border: none;
-        border-radius: 4px;
-    }
+    .mp-btn { background: none; border: none; cursor: pointer; color: var(--paper); font-size: 1rem; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: background 0.2s; flex-shrink: 0; }
+    .mp-btn:hover { background: rgba(255,255,255,0.12); }
+    .mp-close-btn { color: rgba(255,255,255,0.45); font-size: 0.8rem; }
+    .mp-close-btn:hover { color: #fff; }
 
-    .title-swap-container {
+    .mp-progress-area { flex: 1; display: flex; align-items: center; gap: 0.7rem; min-width: 0; }
+    .mp-time { font-size: 0.62rem; font-family: monospace; color: rgba(255,255,255,0.5); min-width: 32px; flex-shrink: 0; }
+    #mp-cur { text-align: right; }
+
+    /* ── 進度條 ── */
+    .mp-bar {
         flex: 1;
-        position: relative;
-        height: 1.5rem;
-        overflow: hidden;
-        display: flex;
-        align-items: center;
-        text-decoration: none;
-        color: inherit;
+        -webkit-appearance: none;
+        appearance: none;
+        height: 3px;
+        border-radius: 3px;
+        outline: none;
+        cursor: pointer;
+        background: rgba(255,255,255,0.18);
+        min-width: 0;
     }
-    .title-default, .title-hover {
-        font-size: 0.95rem;
-        font-weight: 700;
-        transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-        white-space: nowrap;
-        line-height: 1.5rem;
+    .mp-bar::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 13px; height: 13px;
+        border-radius: 50%;
+        background: var(--accent);
+        cursor: pointer;
+        transition: transform 0.15s;
+        box-shadow: 0 0 0 2px rgba(139,69,19,0.3);
     }
-    .title-hover {
-        position: absolute; top: 0; left: 0; 
-        opacity: 0; 
-        transform: translateY(15px); 
-        color: var(--accent);
-        display: flex;
-        align-items: center;
-        gap: 0.8rem;
-    }
-    
-    .song-mark { font-weight: 400; font-size: 1rem; color: var(--muted); margin-left: 0.5rem; }
-    .cat-tag { font-size: 0.75rem; color: var(--muted); font-family: sans-serif; opacity: 0.6; }
+    .mp-bar:hover::-webkit-slider-thumb { transform: scale(1.3); }
+    .mp-bar::-moz-range-thumb { width: 13px; height: 13px; border: none; border-radius: 50%; background: var(--accent); cursor: pointer; }
+    .mp-bar::-moz-range-track { height: 3px; background: rgba(255,255,255,0.18); border-radius: 3px; }
 
-    .music-entry:hover .title-default { opacity: 0; transform: translateY(-15px); }
-    .music-entry:hover .title-hover { opacity: 1; transform: translateY(0); }
-
-    .entry-arrow { 
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        font-size: 0.75rem; 
-        letter-spacing: 2px; 
-        color: var(--muted); 
-        opacity: 0.4; 
-        transition: 0.4s; 
-        font-family: sans-serif;
-    }
-    .music-entry:hover .entry-arrow { opacity: 1; color: var(--accent); transform: translateX(5px); }
-    .view-text { font-weight: 700; }
-
-    .extra-entry { display: none; }
-
-.see-more-wrapper { display: flex; justify-content: flex-end; margin-top: 0.8rem; }
-    .show-more-btn {
-        background: none; border: none; cursor: pointer;
-        color: var(--muted); font-size: 0.7rem; letter-spacing: 2px;
-        font-family: sans-serif; position: relative; padding: 8px 0;
-        transition: 0.3s;
-    }
-    .show-more-btn .btn-line { position: absolute; bottom: 0; right: 0; width: 30px; height: 2px; background-color: var(--border); transition: 0.4s; }
-    .show-more-btn:hover { color: var(--accent); }
-    .show-more-btn:hover .btn-line { width: 100%; background-color: var(--accent); }
-
-    @media (max-width: 850px) {
-        .archive-header h1 { font-size: 2.5rem; flex-direction: column; gap: 0.5rem; }
-        .artist-title { font-size: 1.6rem; }
-        .title-default, .title-hover { font-size: 1.1rem; }
-        .view-text { display: none; }
+    /* ── Responsive ── */
+    @media (max-width: 850px) { .mc-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 500px) {
+        .mc-grid { grid-template-columns: 1fr; }
+        .header-top { flex-direction: column; align-items: flex-start; }
+        .page-desc { display: none; }
+        .mp-info { display: none; }
     }
 </style>

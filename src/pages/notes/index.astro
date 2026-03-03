@@ -1,4 +1,7 @@
 ---
+// ── 頁面介紹（可直接修改這段文字）──
+const pageDesc = "語言學與 NLP 的學習筆記，整理思路用的。";
+
 import Layout from "../../layouts/Layout.astro";
 import { getCollection } from "astro:content";
 import type { CollectionEntry } from "astro:content";
@@ -31,31 +34,30 @@ const months = Object.keys(groupedNotes);
 
   <main class="notes-archive">
     <header class="archive-header">
-      <h1>學習筆記 <small>FIELD NOTES</small></h1>
-      <div class="header-line"></div>
-
-      <div class="category-filter">
-        <label for="cat-select" class="filter-label">FILTER BY CATEGORY</label>
-        <div class="select-wrapper">
-          <select id="cat-select" class="cat-select">
-            <option value="all">全部 ALL</option>
-            {categories.map((cat) => (
-              <option value={cat}>{cat}</option>
-            ))}
-          </select>
-          <span class="select-arrow">↓</span>
+      <div class="header-row">
+        <h1>學習筆記 <small>FIELD NOTES</small></h1>
+        <p class="page-desc">{pageDesc}</p>
+        <div class="archive-filter">
+          <label for="cat-select" class="filter-label">FILTER</label>
+          <div class="select-wrapper">
+            <select id="cat-select" class="filter-select">
+              <option value="all">全部 ALL</option>
+              {categories.map((cat) => (
+                <option value={cat}>{cat}</option>
+              ))}
+            </select>
+            <span class="select-arrow">↓</span>
+          </div>
         </div>
       </div>
+      <div class="header-line"></div>
     </header>
 
     <div class="archive-content" id="master-list">
       {months.map((month) => (
         <section class="month-section" data-month={month}>
           <div class="month-header">
-            <div class="month-name-group">
-              <span class="prefix">Learning Notes / Field Notes</span>
-              <h2 class="month-title">{month}</h2>
-            </div>
+            <h2 class="month-title">{month}</h2>
             <div class="note-count">{groupedNotes[month].length} ENTRIES</div>
           </div>
 
@@ -124,31 +126,38 @@ const months = Object.keys(groupedNotes);
     font-family: "Noto Serif TC", serif;
   }
 
+  .header-row { display: flex; align-items: flex-end; gap: 2.5rem; }
+
   .archive-header h1 {
     font-size: 1.6rem; margin: 0; font-weight: 700; letter-spacing: -1.5px;
-    display: flex; justify-content: space-between; align-items: baseline;
   }
   .archive-header h1 small {
     font-size: 0.75rem; font-family: sans-serif; letter-spacing: 4px;
-    color: var(--muted); font-weight: 400;
+    color: var(--muted); font-weight: 400; margin-left: 0.6rem;
+  }
+
+  .page-desc {
+    flex: 1; font-size: 0.82rem; color: var(--muted); line-height: 1.8;
+    margin: 0 0 0.15rem 0; font-style: italic;
+    padding-left: 2rem; border-left: 1px solid var(--border);
   }
 
   .header-line { width: 100%; height: 1px; background: var(--border); margin: 1.2rem 0 1.5rem; position: relative; }
   .header-line::after { content: ''; position: absolute; left: 0; top: -1px; width: 80px; height: 3px; background: var(--accent); }
 
-  .category-filter { display: flex; align-items: center; gap: 1rem; margin-bottom: 2.5rem; }
+  .archive-filter { display: flex; align-items: center; gap: 0.6rem; padding-bottom: 0.15rem; flex-shrink: 0; }
   .filter-label { font-size: 0.6rem; font-family: sans-serif; letter-spacing: 2px; color: var(--muted); font-weight: 700; text-transform: uppercase; white-space: nowrap; }
   .select-wrapper { position: relative; display: inline-flex; align-items: center; }
-  .cat-select {
+  .filter-select {
     appearance: none; -webkit-appearance: none;
     background: transparent; border: 1px solid var(--border); border-radius: 3px;
-    padding: 0.35rem 2rem 0.35rem 0.8rem;
-    font-size: 0.8rem; font-family: "Noto Serif TC", serif; color: var(--ink);
-    cursor: pointer; transition: border-color 0.3s, color 0.3s; min-width: 180px;
+    padding: 0.3rem 1.8rem 0.3rem 0.7rem;
+    font-size: 0.78rem; font-family: "Noto Serif TC", serif; color: var(--ink);
+    cursor: pointer; transition: border-color 0.3s, color 0.3s; min-width: 160px;
   }
-  .cat-select:focus { outline: none; border-color: var(--accent); }
-  .cat-select:hover { border-color: var(--accent); color: var(--accent); }
-  .select-arrow { position: absolute; right: 0.6rem; font-size: 0.6rem; color: var(--muted); pointer-events: none; transition: color 0.3s; }
+  .filter-select:focus { outline: none; border-color: var(--accent); }
+  .filter-select:hover { border-color: var(--accent); color: var(--accent); }
+  .select-arrow { position: absolute; right: 0.5rem; font-size: 0.6rem; color: var(--muted); pointer-events: none; transition: color 0.3s; }
   .select-wrapper:hover .select-arrow { color: var(--accent); }
 
   .month-section { margin-bottom: 3.5rem; transition: opacity 0.4s, transform 0.4s; }
@@ -157,10 +166,6 @@ const months = Object.keys(groupedNotes);
   .month-header {
     display: flex; justify-content: space-between; align-items: flex-end;
     padding-bottom: 0.8rem; border-bottom: 2px solid var(--ink); margin-bottom: 0.8rem;
-  }
-  .month-name-group .prefix {
-    font-size: 0.6rem; text-transform: uppercase; letter-spacing: 3px;
-    color: var(--muted); font-family: sans-serif; display: block; margin-bottom: 0.3rem;
   }
   .month-title { font-size: 1.4rem; margin: 0; color: var(--ink); font-weight: 700; }
   .note-count { font-size: 0.72rem; color: var(--accent); font-weight: 700; font-family: sans-serif; letter-spacing: 1px; }
@@ -219,6 +224,8 @@ const months = Object.keys(groupedNotes);
 
   @media (max-width: 768px) {
     .entry-arrow .view-text { display: none; }
-    .archive-header h1 { font-size: 1.4rem; flex-direction: column; gap: 0.3rem; }
+    .archive-header h1 { font-size: 1.4rem; }
+    .header-row { flex-direction: column; gap: 0.8rem; }
+    .page-desc { border-left: none; padding-left: 0; }
   }
 </style>
