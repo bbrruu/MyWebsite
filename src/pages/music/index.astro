@@ -1,6 +1,6 @@
 ---
 // ── 頁面介紹（可直接修改這段文字）──
-const pageDesc = "當下心情的配樂，以及聽這首歌時想說的話。";
+const pageDesc = "我會在這邊分享我喜歡的一些音樂以及我聽完歌曲後的心得感想。";
 
 import Layout from "../../layouts/Layout.astro";
 import { getCollection } from "astro:content";
@@ -178,6 +178,16 @@ const musicGroups = Object.entries(groupedMusic)
             } catch (_) {}
         }
 
+        // ── 設定播放按鈕文字與樣式 ──
+        function setMpBtn(text) {
+            mpPlayPause.textContent = text;
+            var isLong = text.length > 2;
+            mpPlayPause.style.width         = isLong ? 'auto' : '';
+            mpPlayPause.style.padding       = isLong ? '0 10px' : '';
+            mpPlayPause.style.fontSize      = isLong ? '0.68rem' : '';
+            mpPlayPause.style.letterSpacing = isLong ? '0.5px' : '';
+        }
+
         // ── 停止清理 ──
         function stopPlayer() {
             if (pollTimer)  { clearInterval(pollTimer); pollTimer = null; }
@@ -223,7 +233,7 @@ const musicGroups = Object.entries(groupedMusic)
                         // 更新 mini player
                         mpSong.textContent   = '《' + (card.dataset.songName || '') + '》';
                         mpArtist.textContent = card.dataset.artist || '';
-                        mpPlayPause.textContent = '⏸';
+                        setMpBtn('點擊我播放');
                         mpDur.textContent    = fmt(e.target.getDuration());
                         miniPlayer.classList.add('active');
 
@@ -232,9 +242,9 @@ const musicGroups = Object.entries(groupedMusic)
                     },
                     onStateChange: function (e) {
                         // YT.PlayerState: 1=playing, 2=paused, 0=ended
-                        if (e.data === 1)      mpPlayPause.textContent = '⏸';
-                        else if (e.data === 2) mpPlayPause.textContent = '▶';
-                        else if (e.data === 0) mpPlayPause.textContent = '▶';
+                        if (e.data === 1)      setMpBtn('⏸');
+                        else if (e.data === 2) setMpBtn('▶');
+                        else if (e.data === 0) setMpBtn('▶');
                     }
                 }
             });
