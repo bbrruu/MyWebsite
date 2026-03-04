@@ -2,6 +2,7 @@
 title: "就是go your way"
 songName: "My Way"
 artist: "Frank Sinatra"
+language: western
 pubDate: 2026-01-29
 youtubeId: "qQzdAsjWGPg"
 lyrics: |

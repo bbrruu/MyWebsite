@@ -2,6 +2,7 @@
 title: "聽說斑馬無法獨自睡去"
 songName: "斑馬斑馬"
 artist: "宋冬野"
+language: chinese
 pubDate: 2026-01-30
 youtubeId: "7q2DrrQ33OQ"
 lyrics: |

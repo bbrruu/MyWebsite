@@ -49,6 +49,7 @@ const musicCollection = defineCollection({
     artist: z.string(), // 歌手/樂團
     album: z.string().optional(),
     pubDate: z.date(),
+    language: z.enum(['chinese', 'japanese', 'western', 'other']).default('other'), // 語言分類
     link: z.string().url().optional(), // 音樂連結
     youtubeId: z.string().optional(), // 例如: 'dQw4w9WgXcQ'
     lyrics: z.string().default(''),   // 存放歌詞文字

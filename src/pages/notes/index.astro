@@ -222,10 +222,11 @@ const months = Object.keys(groupedNotes);
   .note-entry:hover .entry-arrow { opacity: 1; color: var(--accent); transform: translateX(5px); }
   .view-text { font-weight: 700; }
 
-  @media (max-width: 768px) {
-    .entry-arrow .view-text { display: none; }
-    .archive-header h1 { font-size: 1.4rem; }
+  @media (max-width: 850px) {
     .header-row { flex-direction: column; gap: 0.8rem; }
     .page-desc { border-left: none; padding-left: 0; }
+    .archive-header h1 { font-size: 2.5rem; }
+    .title-default, .title-hover { font-size: 1.1rem; }
+    .entry-arrow .view-text { display: none; }
   }
 </style>

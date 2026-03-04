@@ -2,6 +2,7 @@
 title: "波奇塔寶寶"
 songName: "Iris Out"
 artist: "米津玄師"
+language: japanese
 pubDate: 2026-03-03
 youtubeId: "LmZD-TU96q4"
 lyrics: |

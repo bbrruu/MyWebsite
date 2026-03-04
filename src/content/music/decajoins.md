@@ -2,6 +2,7 @@
 title: "遺忘好不容易"
 songName: "浴室"
 artist: "Deca Joins"
+language: chinese
 pubDate: 2026-01-30
 youtubeId: "KWlP4gHOvXo"
 lyrics: |

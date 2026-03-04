@@ -254,6 +254,16 @@ const currentPath = pathname.slice(1).split('/')[0];
 			}
 			document.addEventListener('astro:page-load', initProgress);
 		</script>
+
+		<!-- 全站 --nav-h 測量（供手機漢堡選單定位用）-->
+		<script is:inline>
+			function measureNavH() {
+				var nav = document.querySelector('.sticky-nav');
+				if (nav) document.documentElement.style.setProperty('--nav-h', nav.offsetHeight + 'px');
+			}
+			document.addEventListener('astro:page-load', measureNavH);
+			window.addEventListener('resize', measureNavH);
+		</script>
 	</body>
 </html>
 
@@ -282,6 +292,8 @@ const currentPath = pathname.slice(1).split('/')[0];
 		font-family: "Noto Serif TC", serif;
 		line-height: 1.6;
 	}
+	/* body 用 hidden 防止橫向溢位，html 不設 overflow（保留 scroll-snap 正常運作）*/
+	body { overflow-x: hidden; }
 
 	/* 自訂游標 */
 	* { cursor: url('/images/cursor_1-removebg-preview.png') 0 0, auto; }

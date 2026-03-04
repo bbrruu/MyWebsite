@@ -32,8 +32,80 @@ const { currentPath } = Astro.props;
     <div class="current-time">
       <span id="live-time"></span>
     </div>
+    <!-- 漢堡按鈕（僅手機顯示）-->
+    <button class="burger-btn" id="burger-btn" aria-label="選單" aria-expanded="false">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
   </div>
 </nav>
+
+<!-- 手機版展開選單 -->
+<nav class="mobile-menu" id="mobile-menu" aria-hidden="true">
+  <a href="/" class={currentPath === "" ? "active" : ""}>首頁 / INDEX</a>
+  <a href="/about" class={currentPath === "about" ? "active" : ""}>關於我 / ABOUT</a>
+  <a href="/blog" class={currentPath === "blog" ? "active" : ""}>生活隨筆</a>
+  <a href="/notes" class={currentPath === "notes" ? "active" : ""}>學習筆記</a>
+  <a href="/research" class={currentPath === "research" ? "active" : ""}>讀讀文獻</a>
+  <a href="/reading" class={currentPath === "reading" ? "active" : ""}>看看書籍</a>
+  <a href="/music" class={currentPath === "music" ? "active" : ""}>聽聽音樂</a>
+  <a href="/projects" class={currentPath === "projects" ? "active" : ""}>作品集</a>
+</nav>
+
+<script is:inline>
+  function initBurger() {
+    var btn  = document.getElementById('burger-btn');
+    var menu = document.getElementById('mobile-menu');
+    if (!btn || !menu) return;
+
+    function closeMenu() {
+      menu.classList.remove('open');
+      menu.setAttribute('aria-hidden', 'true');
+      btn.classList.remove('open');
+      btn.setAttribute('aria-expanded', 'false');
+    }
+    function openMenu() {
+      menu.classList.add('open');
+      menu.setAttribute('aria-hidden', 'false');
+      btn.classList.add('open');
+      btn.setAttribute('aria-expanded', 'true');
+    }
+
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      menu.classList.contains('open') ? closeMenu() : openMenu();
+    });
+
+    menu.querySelectorAll('a').forEach(function (link) {
+      link.addEventListener('click', closeMenu);
+    });
+
+    // 點選單外部關閉（只綁一次）
+    if (!window._burgerDocListenerSet) {
+      window._burgerDocListenerSet = true;
+      document.addEventListener('click', function (e) {
+        var m = document.getElementById('mobile-menu');
+        var b = document.getElementById('burger-btn');
+        if (m && m.classList.contains('open') && b && !b.contains(e.target) && !m.contains(e.target)) {
+          m.classList.remove('open');
+          m.setAttribute('aria-hidden', 'true');
+          b.classList.remove('open');
+          b.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
+  }
+
+  document.addEventListener('astro:page-load', initBurger);
+  // 頁面切換時關閉選單
+  document.addEventListener('astro:before-preparation', function () {
+    var menu = document.getElementById('mobile-menu');
+    var btn  = document.getElementById('burger-btn');
+    if (menu) { menu.classList.remove('open'); menu.setAttribute('aria-hidden', 'true'); }
+    if (btn)  { btn.classList.remove('open');  btn.setAttribute('aria-expanded', 'false'); }
+  });
+</script>
 
 <style>
   .top-nav {
@@ -67,6 +139,7 @@ const { currentPath } = Astro.props;
     display: flex;
     align-items: center;
     gap: 1.2rem;
+    flex-shrink: 0;
   }
 
   .current-time {
@@ -75,7 +148,6 @@ const { currentPath } = Astro.props;
     font-size: 0.8rem;
   }
 
-  /* 語言切換：改為輕量文字樣式，與 nav 連結一致 */
   .lang-toggle-btn {
     display: flex;
     align-items: center;
@@ -88,25 +160,10 @@ const { currentPath } = Astro.props;
     padding: 0;
     transition: 0.3s;
   }
-
   .lang-toggle-btn:hover .lang-option { color: var(--accent); }
-
-  .lang-option {
-    color: var(--muted);
-    transition: 0.3s;
-    font-weight: 400;
-    letter-spacing: 1px;
-  }
-
-  .lang-option.active {
-    color: var(--ink);
-    font-weight: 700;
-  }
-
-  .lang-divider {
-    color: var(--border);
-    font-size: 0.7rem;
-  }
+  .lang-option { color: var(--muted); transition: 0.3s; font-weight: 400; letter-spacing: 1px; }
+  .lang-option.active { color: var(--ink); font-weight: 700; }
+  .lang-divider { color: var(--border); font-size: 0.7rem; }
 
   .search-btn {
     display: flex;
@@ -120,4 +177,84 @@ const { currentPath } = Astro.props;
     line-height: 1;
   }
   .search-btn:hover { color: var(--accent); }
+
+  /* ── 漢堡按鈕（桌面隱藏）── */
+  .burger-btn {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    background: none;
+    border: none;
+    padding: 4px;
+    width: 28px;
+    height: 28px;
+  }
+  .burger-btn span {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: var(--ink);
+    border-radius: 2px;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    transform-origin: center;
+  }
+  .burger-btn.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .burger-btn.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+  .burger-btn.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  /* ── 手機展開選單（桌面隱藏）── */
+  .mobile-menu {
+    display: none;
+  }
+
+  /* ── 手機版（≤768px）── */
+  @media (max-width: 768px) {
+    /* 隱藏桌面導覽列和時鐘 */
+    .nav-links  { display: none; }
+    .current-time { display: none; }
+
+    /* 顯示漢堡按鈕 */
+    .burger-btn { display: flex; }
+
+    /* 展開選單：固定在 navbar 下方 */
+    .mobile-menu {
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: var(--nav-h, 56px);
+      left: 0;
+      right: 0;
+      background: rgba(253, 250, 246, 0.97);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 2px solid var(--border);
+      padding: 0.4rem 1.5rem 0.8rem;
+      /* 預設：收起（向上滑出）*/
+      transform: translateY(-110%);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
+      z-index: 98;
+    }
+    .mobile-menu.open {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .mobile-menu a {
+      font-family: "Noto Serif TC", serif;
+      font-size: 0.92rem;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 0.75rem 0;
+      border-bottom: 1px dashed var(--border);
+      transition: color 0.2s, padding-left 0.2s;
+      letter-spacing: 0.5px;
+      display: block;
+    }
+    .mobile-menu a:last-child { border-bottom: none; }
+    .mobile-menu a.active { color: var(--ink); font-weight: 700; }
+    .mobile-menu a:hover  { color: var(--accent); padding-left: 0.5rem; }
+  }
 </style>

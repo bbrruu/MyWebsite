@@ -33,15 +33,31 @@ const musicGroups = Object.entries(groupedMusic)
                 <h1>拾音集 <small>SOUND & TRACKS</small></h1>
                 <p class="page-desc">{pageDesc}</p>
                 <div class="archive-filter">
-                    <label for="artist-select" class="filter-label">FILTER</label>
-                    <div class="select-wrapper">
-                        <select id="artist-select" class="filter-select">
-                            <option value="all">全部 ALL</option>
-                            {artists.map((artist) => (
-                                <option value={artist}>{artist}</option>
-                            ))}
-                        </select>
-                        <span class="select-arrow">↓</span>
+                    <div class="lang-filter">
+                        <label class="filter-label">語系</label>
+                        <div class="lang-tabs">
+                            <button class="lang-tab active" data-lang="all">全部</button>
+                            <span class="tab-div">/</span>
+                            <button class="lang-tab" data-lang="chinese">中文</button>
+                            <span class="tab-div">/</span>
+                            <button class="lang-tab" data-lang="japanese">日文</button>
+                            <span class="tab-div">/</span>
+                            <button class="lang-tab" data-lang="western">歐美</button>
+                            <span class="tab-div">/</span>
+                            <button class="lang-tab" data-lang="other">其他</button>
+                        </div>
+                    </div>
+                    <div class="artist-filter">
+                        <label for="artist-select" class="filter-label">FILTER</label>
+                        <div class="select-wrapper">
+                            <select id="artist-select" class="filter-select">
+                                <option value="all">全部 ALL</option>
+                                {artists.map((artist) => (
+                                    <option value={artist}>{artist}</option>
+                                ))}
+                            </select>
+                            <span class="select-arrow">↓</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -63,6 +79,7 @@ const musicGroups = Object.entries(groupedMusic)
                                 href={`/music/${post.id}`}
                                 class="mc-card"
                                 data-artist={post.data.artist || "佚名"}
+                                data-language={post.data.language || "other"}
                                 data-youtube-id={post.data.youtubeId || ""}
                                 data-song-name={post.data.songName || ""}
                             >
@@ -271,22 +288,39 @@ const musicGroups = Object.entries(groupedMusic)
             }
         }
 
+        // ── 篩選狀態 ──
+        var activeLang   = 'all';
+        var activeArtist = 'all';
+
+        function applyFilters() {
+            document.querySelectorAll('.date-group').forEach(function (section) {
+                var count = 0;
+                section.querySelectorAll('.mc-card').forEach(function (card) {
+                    var langOk   = activeLang   === 'all' || card.dataset.language === activeLang;
+                    var artistOk = activeArtist === 'all' || card.dataset.artist   === activeArtist;
+                    if (langOk && artistOk) { card.style.display = ''; count++; }
+                    else                    { card.style.display = 'none'; }
+                });
+                section.style.display = count === 0 ? 'none' : '';
+            });
+        }
+
+        // ── 語系 tab ──
+        document.querySelectorAll('.lang-tab').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                document.querySelectorAll('.lang-tab').forEach(function (b) { b.classList.remove('active'); });
+                btn.classList.add('active');
+                activeLang = btn.dataset.lang;
+                applyFilters();
+            });
+        });
+
         // ── 歌手篩選 ──
         var select = document.getElementById('artist-select');
         if (select) {
             select.addEventListener('change', function () {
-                var val = select.value;
-                document.querySelectorAll('.date-group').forEach(function (section) {
-                    var count = 0;
-                    section.querySelectorAll('.mc-card').forEach(function (card) {
-                        if (val === 'all' || card.dataset.artist === val) {
-                            card.style.display = ''; count++;
-                        } else {
-                            card.style.display = 'none';
-                        }
-                    });
-                    section.style.display = count === 0 ? 'none' : '';
-                });
+                activeArtist = select.value;
+                applyFilters();
             });
         }
 
@@ -375,8 +409,18 @@ const musicGroups = Object.entries(groupedMusic)
     }
 
     /* ── Filter ── */
-    .archive-filter { display: flex; align-items: center; gap: 0.6rem; padding-bottom: 0.15rem; flex-shrink: 0; }
+    .archive-filter { display: flex; align-items: center; gap: 1.4rem; padding-bottom: 0.15rem; flex-shrink: 0; }
+    .lang-filter { display: flex; align-items: center; gap: 0.6rem; }
+    .artist-filter { display: flex; align-items: center; gap: 0.6rem; }
     .filter-label { font-size: 0.6rem; font-family: sans-serif; letter-spacing: 2px; color: var(--muted); font-weight: 700; text-transform: uppercase; white-space: nowrap; }
+
+    /* 語系 tabs */
+    .lang-tabs { display: flex; align-items: center; gap: 0.3rem; }
+    .lang-tab { background: none; border: none; cursor: pointer; font-family: "Noto Serif TC", serif; font-size: 0.78rem; color: var(--muted); padding: 0; transition: color 0.25s; letter-spacing: 0.5px; }
+    .lang-tab.active { color: var(--ink); font-weight: 700; }
+    .lang-tab:hover { color: var(--accent); }
+    .tab-div { color: var(--border); font-size: 0.7rem; user-select: none; }
+
     .select-wrapper { position: relative; display: inline-flex; align-items: center; }
     .filter-select { appearance: none; -webkit-appearance: none; background: transparent; border: 1px solid var(--border); border-radius: 3px; padding: 0.3rem 1.8rem 0.3rem 0.7rem; font-size: 0.78rem; font-family: "Noto Serif TC", serif; color: var(--ink); cursor: pointer; transition: border-color 0.3s, color 0.3s; min-width: 160px; }
     .filter-select:focus { outline: none; border-color: var(--accent); }
@@ -487,11 +531,15 @@ const musicGroups = Object.entries(groupedMusic)
     .mp-bar::-moz-range-track { height: 3px; background: rgba(255,255,255,0.18); border-radius: 3px; }
 
     /* ── Responsive ── */
-    @media (max-width: 850px) { .mc-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 850px) {
+        .mc-grid { grid-template-columns: repeat(2, 1fr); }
+        .header-row { flex-direction: column; align-items: flex-start; gap: 0.8rem; }
+        .page-desc { border-left: none; padding-left: 0; }
+        .archive-header h1 { font-size: 2.5rem; }
+        .archive-filter { flex-direction: column; align-items: flex-start; gap: 0.8rem; }
+    }
     @media (max-width: 500px) {
         .mc-grid { grid-template-columns: 1fr; }
-        .header-top { flex-direction: column; align-items: flex-start; }
-        .page-desc { display: none; }
         .mp-info { display: none; }
     }
 </style>

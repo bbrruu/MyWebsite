@@ -2,6 +2,7 @@
 title: "鎖死在我的腦海中"
 songName: "鴿子"
 artist: "宋冬野"
+language: chinese
 pubDate: 2026-01-29
 youtubeId: "IMeJNnm1d6I"
 lyrics: |
