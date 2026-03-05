@@ -27,7 +27,7 @@ const currentPath = pathname.slice(1).split('/')[0];
 		<title>{title}</title>
 		<ClientRouter />
 	</head>
-	<body transition:animate="fade">
+	<body>
 		<div id="progress-bar"></div>
 		<canvas id="click-canvas"></canvas>
 		<div class="paper-texture"></div>
@@ -455,5 +455,28 @@ const currentPath = pathname.slice(1).split('/')[0];
 		z-index: 99999;
 		pointer-events: none;
 		transition: width 0.08s linear;
+	}
+
+	/* ── 預設頁面轉換：fade（取代移除的 transition:animate="fade"）── */
+	::view-transition-old(root) {
+		animation: pg-fade-out 0.18s ease forwards;
+	}
+	::view-transition-new(root) {
+		animation: pg-fade-in 0.22s ease forwards;
+	}
+	@keyframes pg-fade-out { to   { opacity: 0; } }
+	@keyframes pg-fade-in  { from { opacity: 0; } }
+
+	/* ── 字卡點擊：JS cover 跑動畫，CSS view transition 關閉避免衝突 ── */
+	html.card-nav::view-transition-old(root) {
+		animation: none;
+		opacity: 0;
+	}
+	html.card-nav::view-transition-new(root) {
+		animation: none;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		::view-transition-old(root),
+		::view-transition-new(root) { animation: none; }
 	}
 </style>

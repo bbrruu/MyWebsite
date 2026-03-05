@@ -90,11 +90,32 @@ const slides = [
                 <button id="c-prev" class="c-arrow" aria-label="上一個">←</button>
 
                 <div class="c-track" id="c-track">
+                    <!-- About card (index 0) -->
+                    <a href="/about" class="c-slide c-slide--active" data-idx="0">
+                        <div class="cs-header">
+                            <span class="cs-en">ABOUT</span>
+                            <span class="cs-sep">·</span>
+                            <span class="cs-name">關於我</span>
+                        </div>
+                        <div class="cs-about-body">
+                            <div class="cs-about-photo">
+                                <img src="/images/profile.jpg" alt="Bruce" transition:name="profile-photo" />
+                            </div>
+                            <span class="cs-about-name">曾冠瑜</span>
+                            <span class="cs-about-sub">Bruce Tseng</span>
+                        </div>
+                        <div class="cs-footer">
+                            <span class="cs-label">查看</span>
+                            <span class="cs-latest">個人簡介</span>
+                            <span class="cs-go">→</span>
+                        </div>
+                    </a>
+
                     {slides.map((slide, i) => (
                         <a
                             href={slide.href}
-                            class={`c-slide${i === 0 ? " c-slide--active" : ""}`}
-                            data-idx={i}
+                            class="c-slide"
+                            data-idx={i + 1}
                         >
                             <!-- 頂部：英文 + 中文 -->
                             <div class="cs-header">
@@ -126,11 +147,13 @@ const slides = [
 
             <!-- Dots -->
             <div class="c-dots" id="c-dots">
+                <!-- About dot (index 0) -->
+                <button class="c-dot active" data-idx="0" aria-label="第 1 項"></button>
                 {slides.map((_, i) => (
                     <button
-                        class={`c-dot${i === 0 ? " active" : ""}`}
-                        data-idx={i}
-                        aria-label={`第 ${i + 1} 項`}
+                        class="c-dot"
+                        data-idx={i + 1}
+                        aria-label={`第 ${i + 2} 項`}
                     ></button>
                 ))}
             </div>
@@ -331,6 +354,24 @@ const slides = [
         document.documentElement.classList.remove("hp-snap");
     });
 
+    // ── 字卡展開動畫：延遲 Astro 換頁，讓 cover 先跑完（只註冊一次）──
+    if (!window._cardNavDelayAdded) {
+        window._cardNavDelayAdded = true;
+        document.addEventListener("astro:before-preparation", function (e) {
+            if (!document.documentElement.classList.contains("card-nav")) return;
+            var orig = e.loader;
+            e.loader = function () {
+                return new Promise(function (r) { setTimeout(r, 340); })
+                    .then(function () { return orig(); });
+            };
+        });
+    }
+
+    // ── 換頁後清除 card-nav class ────────────────────────────────
+    document.addEventListener("astro:page-load", function () {
+        document.documentElement.classList.remove("card-nav");
+    });
+
     // ── Scroll Snap 啟動 ──────────────────────────────────────
     function initScrollSnap() {
         var nav = document.querySelector(".sticky-nav");
@@ -422,11 +463,44 @@ const slides = [
         updateLayout();
         goTo(0);
 
-        // 側牌點擊 → 切換；active 牌點擊 → 正常連結
+        // 側牌點擊 → 切換；active 牌點擊 → JS cover 展開動畫
         slides.forEach(function (s, i) {
             s.addEventListener("click", function (e) {
                 if (dragMoved) { e.preventDefault(); dragMoved = false; return; }
-                if (i !== cur) { e.preventDefault(); goTo(i); }
+                if (i !== cur) { e.preventDefault(); goTo(i); return; }
+
+                // Active card：建立 cover div，從卡片位置展開到全螢幕
+                var rect = s.getBoundingClientRect();
+                var cover = document.createElement("div");
+                cover.style.cssText =
+                    "position:fixed;z-index:9990;pointer-events:none;" +
+                    "background:var(--paper);border-radius:6px;" +
+                    "top:" + rect.top + "px;" +
+                    "left:" + rect.left + "px;" +
+                    "width:" + rect.width + "px;" +
+                    "height:" + rect.height + "px;" +
+                    "transition:" +
+                    "top .32s cubic-bezier(.4,0,.2,1)," +
+                    "left .32s cubic-bezier(.4,0,.2,1)," +
+                    "width .32s cubic-bezier(.4,0,.2,1)," +
+                    "height .32s cubic-bezier(.4,0,.2,1)," +
+                    "border-radius .32s;";
+                document.body.appendChild(cover);
+
+                // 標記 card-nav（讓 loader 延遲 + 讓 CSS 關閉 view transition）
+                document.documentElement.classList.add("card-nav");
+
+                // 展開到全螢幕
+                requestAnimationFrame(function () {
+                    requestAnimationFrame(function () {
+                        cover.style.top = "0px";
+                        cover.style.left = "0px";
+                        cover.style.width = "100vw";
+                        cover.style.height = "100vh";
+                        cover.style.borderRadius = "0px";
+                    });
+                });
+                // 讓連結正常導航（不 preventDefault），loader delay 會等動畫跑完
             });
         });
 
@@ -512,6 +586,7 @@ const slides = [
     }
     html.hp-snap .hero-section    { scroll-snap-align: start; }
     html.hp-snap .content-section { scroll-snap-align: start; }
+
 </style>
 
 <style>
@@ -839,6 +914,86 @@ const slides = [
     .btn-line { position: absolute; bottom: 0; right: 0; width: 30px; height: 2px; background: var(--border); transition: 0.4s; }
     .see-more-btn:hover { color: var(--accent); }
     .see-more-btn:hover .btn-line { width: 100%; background: var(--accent); }
+
+    /* ══ About card 樣式 ══════════════════════════════════════ */
+    .cs-about-body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        min-height: 0;
+    }
+
+    /* 相框效果 */
+    .cs-about-photo {
+        flex: 0 0 58%;
+        width: 58%;
+        min-height: 0;
+        position: relative;
+        padding: 5px;
+        background: var(--paper);
+        border: 1px solid var(--border);
+        box-shadow:
+            3px 3px 0 rgba(139,69,19,0.07),
+            0 8px 24px rgba(139,69,19,0.12);
+        transform: rotate(-1.5deg);
+        transition: transform 0.35s ease, box-shadow 0.35s ease;
+    }
+    /* 四角裝飾線 */
+    .cs-about-photo::before,
+    .cs-about-photo::after {
+        content: "";
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        border-color: var(--accent);
+        border-style: solid;
+        opacity: 0.5;
+        transition: opacity 0.35s, width 0.35s, height 0.35s;
+        z-index: 2;
+    }
+    .cs-about-photo::before {
+        top: -1px; left: -1px;
+        border-width: 2px 0 0 2px;
+    }
+    .cs-about-photo::after {
+        bottom: -1px; right: -1px;
+        border-width: 0 2px 2px 0;
+    }
+    .c-slide:hover .cs-about-photo {
+        transform: rotate(0deg) scale(1.03);
+        box-shadow:
+            4px 4px 0 rgba(139,69,19,0.1),
+            0 12px 32px rgba(139,69,19,0.18);
+    }
+    .c-slide:hover .cs-about-photo::before,
+    .c-slide:hover .cs-about-photo::after {
+        opacity: 1;
+        width: 14px;
+        height: 14px;
+    }
+    .cs-about-photo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center top;
+        display: block;
+    }
+
+    .cs-about-name {
+        font-size: 0.9rem;
+        font-weight: 700;
+        font-family: "Noto Serif TC", serif;
+        color: var(--ink);
+    }
+    .cs-about-sub {
+        font-size: 0.62rem;
+        font-family: sans-serif;
+        color: var(--muted);
+        letter-spacing: 2px;
+    }
 
     /* ══ Responsive ══════════════════════════════════════════ */
     @media (max-width: 768px) {
