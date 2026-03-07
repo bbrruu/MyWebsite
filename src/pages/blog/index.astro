@@ -1,285 +1,503 @@
 ---
-// ── 頁面介紹（可直接修改這段文字）──
-const pageDesc = "這邊記錄我的生活點滴，像是旅行、日常還有一些省思等等。";
-
 import Layout from "../../layouts/Layout.astro";
 import { getCollection } from "astro:content";
-import type { CollectionEntry } from "astro:content";
 
-// 1. 抓取文章並排序
 const allPosts = (await getCollection("blog")).sort(
-    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
 );
-
-// 2. 定義分類標籤
-const categories = ["旅行", "日常", "省思"];
-
-// 3. 處理月份分組邏輯
-const groupedPosts: Record<string, CollectionEntry<"blog">[]> = allPosts.reduce((acc: Record<string, CollectionEntry<"blog">[]>, post) => {
-    const date = new Date(post.data.pubDate);
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1;
-    const monthKey = `${year}年 ${month}月`;
-    if (!acc[monthKey]) acc[monthKey] = [];
-    acc[monthKey].push(post);
-    return acc;
-}, {});
-
-const months = Object.keys(groupedPosts);
+const catCounts = allPosts.reduce((acc, p) => {
+  acc[p.data.category] = (acc[p.data.category] || 0) + 1;
+  return acc;
+}, {} as Record<string, number>);
 ---
 
-<Layout title="生活隨筆 | 拾光目錄 - Bruce">
-    <div class="paper-texture"></div>
+<Layout title="生活隨筆 | Bruce 的手帳">
 
-    <main class="blog-archive">
-        <header class="archive-header">
-            <div class="header-row">
-                <h1>生活隨筆 <small>COLLECTED MOMENTS</small></h1>
-                <p class="page-desc">{pageDesc}</p>
-                <div class="archive-filter">
-                    <label for="category-select" class="filter-label">FILTER</label>
-                    <div class="select-wrapper">
-                        <select id="category-select" class="filter-select">
-                            <option value="all">全部 ALL</option>
-                            {categories.map((cat) => (
-                                <option value={cat}>{cat}</option>
-                            ))}
-                        </select>
-                        <span class="select-arrow">↓</span>
-                    </div>
-                </div>
-            </div>
-            <div class="header-line"></div>
+  <div class="jnl-outer">
+    <div class="book-spread">
+
+      <!-- ── LEFT PAGE: Cover ── -->
+      <div class="book-page left-page">
+
+        <!-- Botanical SVG -->
+        <svg class="botanical" viewBox="0 0 220 320" xmlns="http://www.w3.org/2000/svg">
+          <!-- Main monstera leaf -->
+          <path class="lf-fill" d="M108 280 C95 248 55 215 44 172 C33 130 52 96 82 82 C112 68 148 86 162 126 C174 160 162 205 138 238 Z"/>
+          <path class="lf-stroke" d="M108 280 C95 248 55 215 44 172 C33 130 52 96 82 82 C112 68 148 86 162 126 C174 160 162 205 138 238 Z"/>
+          <!-- Fenestrations -->
+          <path class="lf-hole" d="M87 148 C85 136 94 124 104 127 C113 130 114 143 108 151 Z"/>
+          <path class="lf-hole" d="M124 168 C122 154 133 142 143 147 C151 152 149 167 141 173 Z"/>
+          <!-- Leaf veins -->
+          <line class="lf-vein" x1="108" y1="280" x2="78" y2="168"/>
+          <line class="lf-vein" x1="108" y1="280" x2="148" y2="190"/>
+          <path class="lf-vein" d="M95 220 C75 205 60 188 55 170"/>
+          <path class="lf-vein" d="M122 230 C140 210 152 195 158 178"/>
+          <!-- Stem -->
+          <path class="lf-stroke" d="M108 280 C110 292 113 308 112 318"/>
+
+          <!-- Left fern sprigs -->
+          <path class="lf-stroke" d="M38 210 C28 192 18 174 10 155"/>
+          <path class="lf-stroke" d="M38 210 C26 204 18 192 16 178"/>
+          <path class="lf-stroke" d="M38 210 C29 200 24 188 26 174"/>
+          <path class="lf-stroke" d="M33 220 C22 218 15 208 14 196"/>
+
+          <!-- Small leaf top right -->
+          <path class="lf-fill-sm" d="M178 62 C192 40 208 35 212 46 C206 60 192 64 178 62 Z"/>
+          <path class="lf-stroke" d="M178 62 C192 40 208 35 212 46 C206 60 192 64 178 62 Z"/>
+          <path class="lf-vein" d="M178 62 C190 49 204 39 212 46"/>
+
+          <!-- Berries cluster -->
+          <circle class="lf-berry" cx="168" cy="88" r="4"/>
+          <circle class="lf-berry" cx="180" cy="82" r="3"/>
+          <circle class="lf-berry" cx="174" cy="72" r="2.5"/>
+          <circle class="lf-berry-sm" cx="164" cy="76" r="2"/>
+          <circle class="lf-berry-sm" cx="182" cy="94" r="2"/>
+
+          <!-- Tiny fern frond top left -->
+          <path class="lf-stroke-sm" d="M30 70 C20 55 25 40 35 42"/>
+          <path class="lf-stroke-sm" d="M30 70 C15 65 12 52 18 44"/>
+          <path class="lf-stroke-sm" d="M30 70 C22 68 16 60 18 52"/>
+          <path class="lf-stroke-sm" d="M30 70 C35 60 38 50 34 42"/>
+          <line class="lf-vein-sm" x1="30" y1="70" x2="28" y2="38"/>
+        </svg>
+
+        <!-- Cover text -->
+        <div class="cover-text">
+          <div class="journal-eyebrow">PERSONAL JOURNAL</div>
+          <h1 class="journal-title">Bruce 的手帳</h1>
+          <div class="journal-rule"></div>
+          <p class="journal-tagline">用文字捕捉每個當下的溫度</p>
+          <div class="cover-stats">
+            {Object.entries(catCounts).map(([cat, count]) => (
+              <span class="cover-stat"><strong>{count}</strong> {cat}</span>
+            ))}
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── SPINE ── -->
+      <div class="book-spine">
+        <span class="spine-label">LIFE JOURNAL · 生活隨筆</span>
+      </div>
+
+      <!-- ── RIGHT PAGE: TOC ── -->
+      <div class="book-page right-page">
+
+        <header class="toc-header">
+          <span class="toc-eyebrow">COLLECTED MOMENTS</span>
+          <h2 class="toc-h2">索引目錄</h2>
+          <div class="toc-rule"></div>
         </header>
 
-        <div class="archive-content" id="master-list">
-            {months.map((month) => (
-                <section class="month-section" data-month={month}>
-                    <div class="month-header">
-                        <h2 class="month-title">{month}</h2>
-                        <div class="note-count">{groupedPosts[month].length} ENTRIES</div>
-                    </div>
-
-                    <div class="note-list">
-                        {groupedPosts[month].map((post) => (
-                            <div class="note-wrapper" data-cat={post.data.category}>
-                                <a href={`/blog/${post.id}`} class="blog-entry">
-                                    <div class="title-swap-container">
-                                        <div class="title-default">
-                                            {post.data.title}
-                                        </div>
-                                        <div class="title-hover">
-                                            <span class="cat-tag">#{post.data.category}</span>
-                                            <span class="sub-tag">📍 {post.data.location || "Taipei"}</span>
-                                            <span class="sub-tag">心情：{post.data.mood || "還行"}</span>
-                                        </div>
-                                    </div>
-                                    <div class="entry-arrow">
-                                        <span class="view-text">READ ENTRY</span>
-                                        <span class="arrow">→</span>
-                                    </div>
-                                </a>
-                            </div>
-                        ))}
-                    </div>
-                </section>
-            ))}
+        <!-- 類別篩選 -->
+        <div class="cat-filters" id="cat-filters">
+          <button class="cat-btn active" data-cat="全部">全部</button>
+          {Object.entries(catCounts).map(([cat, count]) => (
+            <button class="cat-btn" data-cat={cat}>{cat} · {count}</button>
+          ))}
         </div>
-    </main>
+
+        <div class="toc-list">
+          {allPosts.map((post, i) => (
+            <a href={`/blog/${post.id}`} class="toc-item" data-cat={post.data.category}>
+              <span class="toc-num">{String(allPosts.length - i).padStart(2, '0')}</span>
+              <span class="toc-item-title">{post.data.title}</span>
+              <span class="toc-item-right">
+                <span class="toc-cat">{post.data.category}</span>
+                <span class="toc-date">
+                  {post.data.pubDate.toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' })}
+                </span>
+              </span>
+            </a>
+          ))}
+        </div>
+
+        <div class="page-num right-num">{allPosts.length} 篇</div>
+      </div>
+
+    </div>
+  </div>
+
 </Layout>
 
 <script>
-    const setupFilters = () => {
-        const select = document.getElementById("category-select") as HTMLSelectElement | null;
-        const posts = document.querySelectorAll<HTMLElement>(".note-wrapper");
-        const monthSections = document.querySelectorAll<HTMLElement>(".month-section");
-
-        if (!select) return;
-
-        select.addEventListener("change", () => {
-            const val = select.value.toUpperCase();
-
-            posts.forEach((post) => {
-                const postCat = (post.getAttribute("data-cat") || "").trim().toUpperCase();
-                if (val === "ALL" || postCat === val) {
-                    post.classList.remove("is-hidden");
-                } else {
-                    post.classList.add("is-hidden");
-                }
-            });
-
-            setTimeout(() => {
-                monthSections.forEach((section) => {
-                    const visible = section.querySelectorAll(".note-wrapper:not(.is-hidden)");
-                    section.classList.toggle("month-hidden", visible.length === 0);
-                });
-            }, 100);
+  function initFilter() {
+    const btns = document.querySelectorAll<HTMLButtonElement>('.cat-btn');
+    const items = document.querySelectorAll<HTMLElement>('.toc-item');
+    btns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        btns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const cat = btn.dataset.cat;
+        items.forEach(item => {
+          item.style.display = (cat === '全部' || item.dataset.cat === cat) ? '' : 'none';
         });
-    };
-
-    document.addEventListener("DOMContentLoaded", setupFilters);
-    document.addEventListener("astro:page-load", setupFilters);
+      });
+    });
+  }
+  document.addEventListener('astro:page-load', initFilter);
 </script>
 
 <style>
-    .blog-archive {
-        max-width: 1400px;
-        margin: 2rem auto;
-        padding: 0;
-        font-family: "Noto Serif TC", serif;
-    }
+  /* ── Outer wrapper: centers the book vertically ── */
+  .jnl-outer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 120px);
+    padding: 1.5rem 0;
+  }
 
-    .header-row { display: flex; align-items: flex-end; gap: 2.5rem; }
+  /* ── Book spread container ── */
+  .book-spread {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    max-width: 880px;
+    height: 600px;
+    box-shadow:
+      -8px 8px 32px rgba(0,0,0,0.18),
+       8px 8px 32px rgba(0,0,0,0.10);
+    border-radius: 2px 6px 6px 2px;
+    position: relative;
+  }
 
-    .archive-header h1 {
-        font-size: 1.6rem;
-        margin: 0;
-        font-weight: 700;
-        letter-spacing: -1.5px;
-    }
-    .archive-header h1 small {
-        font-size: 0.75rem;
-        font-family: sans-serif;
-        letter-spacing: 4px;
-        color: var(--muted);
-        font-weight: 400;
-        margin-left: 0.6rem;
-    }
+  /* ── Shared page styles ── */
+  .book-page {
+    flex: 1;
+    position: relative;
+    background: #fdfaf6;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
 
-    .page-desc {
-        flex: 1;
-        font-size: 0.82rem;
-        color: var(--muted);
-        line-height: 1.8;
-        margin: 0 0 0.15rem 0;
-        font-style: italic;
-        padding-left: 2rem;
-        border-left: 1px solid var(--border);
-    }
+  /* Horizontal ruled lines (like a notebook) */
+  .page-lines {
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent,
+      transparent 31px,
+      rgba(180, 160, 130, 0.12) 31px,
+      rgba(180, 160, 130, 0.12) 32px
+    );
+    background-position: 0 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
 
-    .header-line { width: 100%; height: 1px; background: var(--border); margin: 1.2rem 0 1.5rem; position: relative; }
-    .header-line::after { content: ''; position: absolute; left: 0; top: -1px; width: 80px; height: 3px; background: var(--accent); }
+  /* Page number */
+  .page-num {
+    position: absolute;
+    bottom: 16px;
+    font-size: 0.6rem;
+    font-family: sans-serif;
+    color: var(--muted);
+    letter-spacing: 1px;
+    z-index: 2;
+  }
+  .left-page .page-num { left: 50%; transform: translateX(-50%); }
+  .right-num { left: 50%; transform: translateX(-50%); }
 
-    /* 篩選器 */
-    .archive-filter { display: flex; align-items: center; gap: 0.6rem; padding-bottom: 0.15rem; flex-shrink: 0; }
-    .filter-label { font-size: 0.6rem; font-family: sans-serif; letter-spacing: 2px; color: var(--muted); font-weight: 700; text-transform: uppercase; white-space: nowrap; }
-    .select-wrapper { position: relative; display: inline-flex; align-items: center; }
-    .filter-select {
-        appearance: none; -webkit-appearance: none;
-        background: transparent; border: 1px solid var(--border); border-radius: 3px;
-        padding: 0.3rem 1.8rem 0.3rem 0.7rem;
-        font-size: 0.78rem; font-family: "Noto Serif TC", serif; color: var(--ink);
-        cursor: pointer; transition: border-color 0.3s, color 0.3s; min-width: 160px;
-    }
-    .filter-select:focus { outline: none; border-color: var(--accent); }
-    .filter-select:hover { border-color: var(--accent); color: var(--accent); }
-    .select-arrow { position: absolute; right: 0.5rem; font-size: 0.6rem; color: var(--muted); pointer-events: none; transition: color 0.3s; }
-    .select-wrapper:hover .select-arrow { color: var(--accent); }
+  /* ── LEFT PAGE ── */
+  .left-page {
+    border-radius: 2px 0 0 2px;
+    border-right: none;
+  }
 
-    /* 月份分組 */
-    .month-section { margin-bottom: 3.5rem; transition: opacity 0.4s ease, transform 0.4s ease; }
-    .month-section.month-hidden { opacity: 0; height: 0; margin-bottom: 0; overflow: hidden; pointer-events: none; }
+  /* Botanical SVG — 放大讓主葉更飽滿 */
+  .botanical {
+    position: absolute;
+    top: -8%;
+    left: -8%;
+    width: 120%;
+    height: 120%;
+    opacity: 0.88;
+    z-index: 1;
+    mask-image: linear-gradient(to bottom, black 50%, transparent 76%);
+    -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 76%);
+  }
+  .lf-fill   { fill: rgba(139,69,19,0.08); }
+  .lf-fill-sm{ fill: rgba(139,69,19,0.10); }
+  .lf-hole   { fill: #fdfaf6; stroke: rgba(139,69,19,0.55); stroke-width: 1.2; }
+  .lf-stroke { fill: none; stroke: rgba(139,69,19,0.55); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .lf-stroke-sm{ fill: none; stroke: rgba(139,69,19,0.40); stroke-width: 1.1; stroke-linecap: round; }
+  .lf-vein   { fill: none; stroke: rgba(139,69,19,0.30); stroke-width: 0.9; stroke-linecap: round; }
+  .lf-vein-sm{ fill: none; stroke: rgba(139,69,19,0.25); stroke-width: 0.8; stroke-linecap: round; }
+  .lf-berry  { fill: rgba(139,69,19,0.40); stroke: rgba(139,69,19,0.55); stroke-width: 0.8; }
+  .lf-berry-sm{ fill: rgba(139,69,19,0.20); }
 
-    .month-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
-        padding-bottom: 0.8rem;
-        border-bottom: 2px solid var(--ink);
-        margin-bottom: 0.8rem;
-    }
-    .month-title { font-size: 1.4rem; margin: 0; color: var(--ink); font-weight: 700; }
-    .note-count {
-        font-size: 0.72rem;
-        color: var(--accent);
-        font-weight: 700;
-        font-family: sans-serif;
-        letter-spacing: 1px;
-    }
+  /* Cover text block */
+  .cover-text {
+    position: absolute;
+    bottom: 56px;
+    left: 28px;
+    right: 28px;
+    z-index: 2;
+  }
 
-    /* 條目 */
-    .note-wrapper { transition: opacity 0.4s ease, max-height 0.4s ease; max-height: 200px; overflow: visible; }
-    .note-wrapper.is-hidden { opacity: 0; max-height: 0; pointer-events: none; overflow: hidden; }
+  /* Each element carries its OWN ruled lines via 1lh:
+     "1lh" = the element's own computed line-height.
+     calc(1lh - 3px) always lands exactly 3px below the text's bottom edge,
+     regardless of font size. background-size: 100% 1lh tiles once per line. */
+  /* Rule: background-size = line-height in em, gradient stop = same em - 3px.
+     "em" in gradient/background-size resolves to the element's own font-size,
+     so X × em = exactly X × font-size = the computed line-height when line-height: X. */
+  .journal-eyebrow {
+    font-size: 0.52rem;
+    font-family: sans-serif;
+    letter-spacing: 3px;
+    color: var(--muted);
+    font-weight: 700;
+    line-height: 2.4;
+    margin: 0;
+    background-image: repeating-linear-gradient(
+      transparent 0, transparent calc(2.4em - 3px),
+      rgba(180,160,130,0.18) calc(2.4em - 3px),
+      rgba(180,160,130,0.18) calc(2.4em - 1px)
+    );
+    background-size: 100% 2.4em;
+  }
+  .journal-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.5px;
+    line-height: 1.4;
+    margin: 0;
+    background-image: repeating-linear-gradient(
+      transparent 0, transparent calc(1.4em - 3px),
+      rgba(180,160,130,0.18) calc(1.4em - 3px),
+      rgba(180,160,130,0.18) calc(1.4em - 1px)
+    );
+    background-size: 100% 1.4em;
+  }
+  .journal-rule {
+    width: 40px;
+    height: 2px;
+    background: var(--accent);
+    margin: 0;
+  }
+  .cover-stats {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+  .cover-stat {
+    font-size: 0.6rem;
+    font-family: sans-serif;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+  }
+  .cover-stat strong {
+    color: var(--accent);
+    font-size: 0.78rem;
+    margin-right: 2px;
+  }
 
-    .blog-entry {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        text-decoration: none;
-        color: inherit;
-        padding: 0.9rem 0;
-        border-bottom: 1px dashed var(--border);
-        transition: 0.4s ease;
-    }
-    .blog-entry:hover { background: rgba(139, 69, 19, 0.02); padding-left: 1.5rem; }
+  .journal-tagline {
+    font-size: 0.78rem;
+    color: var(--muted);
+    font-style: italic;
+    line-height: 2.0;
+    margin: 0;
+    background-image: repeating-linear-gradient(
+      transparent 0, transparent calc(2.0em - 3px),
+      rgba(180,160,130,0.18) calc(2.0em - 3px),
+      rgba(180,160,130,0.18) calc(2.0em - 1px)
+    );
+    background-size: 100% 2.0em;
+  }
 
-    .title-swap-container {
-        flex: 1;
-        position: relative;
-        height: 1.5rem;
-        overflow: hidden;
-        display: flex;
-        align-items: center;
-    }
-    .title-default, .title-hover {
-        font-size: 1rem;
-        font-weight: 700;
-        transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-        white-space: nowrap;
-        line-height: 1.5rem;
-    }
-    .title-hover {
-        position: absolute;
-        top: 0;
-        left: 0;
-        opacity: 0;
-        transform: translateY(15px);
-        color: var(--accent);
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
+  /* ── SPINE ── */
+  .book-spine {
+    width: 38px;
+    flex-shrink: 0;
+    background: linear-gradient(to right,
+      rgba(100,60,20,0.20) 0%,
+      rgba(139,69,19,0.28) 30%,
+      rgba(100,60,20,0.22) 60%,
+      rgba(80,45,12,0.32) 100%
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 3;
+    box-shadow:
+      inset -3px 0 8px rgba(0,0,0,0.12),
+      inset  3px 0 8px rgba(0,0,0,0.08);
+  }
+  .spine-label {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transform: rotate(180deg);
+    font-size: 0.48rem;
+    font-family: sans-serif;
+    letter-spacing: 2px;
+    color: rgba(139,69,19,0.8);
+    font-weight: 700;
+    white-space: nowrap;
+  }
 
-    .cat-tag {
-        font-size: 0.8rem;
-        font-weight: 700;
-        color: var(--accent);
-        background: rgba(139, 69, 19, 0.1);
-        padding: 2px 8px;
-        border-radius: 4px;
-        font-family: sans-serif;
-    }
-    .sub-tag {
-        font-size: 0.75rem;
-        color: var(--muted);
-        font-weight: 400;
-        font-family: sans-serif;
-    }
+  /* ── RIGHT PAGE: TOC ── */
+  .right-page {
+    border-radius: 0 6px 6px 0;
+    padding: 32px 28px 40px;
+  }
 
-    .blog-entry:hover .title-default { opacity: 0; transform: translateY(-15px); }
-    .blog-entry:hover .title-hover { opacity: 1; transform: translateY(0); }
+  .toc-header {
+    position: relative;
+    z-index: 2;
+    margin-bottom: 1.2rem;
+  }
+  .toc-eyebrow {
+    font-size: 0.52rem;
+    font-family: sans-serif;
+    letter-spacing: 3px;
+    color: var(--muted);
+    font-weight: 700;
+  }
+  .toc-h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin: 0.3rem 0 0.6rem;
+    color: var(--ink);
+    letter-spacing: -0.5px;
+  }
+  .toc-rule {
+    width: 100%;
+    height: 1px;
+    background: var(--border);
+    position: relative;
+  }
+  .toc-rule::before {
+    content: '';
+    position: absolute;
+    left: 0; top: -1px;
+    width: 50px; height: 3px;
+    background: var(--accent);
+  }
 
-    .entry-arrow {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        font-size: 0.75rem;
-        letter-spacing: 2px;
-        color: var(--muted);
-        opacity: 0.4;
-        transition: 0.4s;
-        font-family: sans-serif;
-    }
-    .blog-entry:hover .entry-arrow { opacity: 1; color: var(--accent); transform: translateX(5px); }
-    .view-text { font-weight: 700; }
+  /* 類別篩選按鈕 */
+  .cat-filters {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    gap: 6px;
+    margin-bottom: 0.6rem;
+    flex-wrap: wrap;
+  }
+  .cat-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    font-size: 0.55rem;
+    font-family: sans-serif;
+    letter-spacing: 1px;
+    color: var(--muted);
+    padding: 2px 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .cat-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .cat-btn.active { background: var(--accent); border-color: var(--accent); color: #fdfaf6; }
 
-    @media (max-width: 850px) {
-        .blog-archive { margin: 2rem auto; }
-        .header-row { flex-direction: column; gap: 0.8rem; }
-        .page-desc { border-left: none; padding-left: 0; }
-        .archive-header h1 { font-size: 2.5rem; }
-        .month-title { font-size: 1.6rem; }
-        .title-default, .title-hover { font-size: 1.1rem; }
-        .entry-arrow .view-text { display: none; }
+  .toc-list {
+    position: relative;
+    z-index: 2;
+    overflow-y: auto;
+    max-height: calc(100% - 100px);
+    padding-right: 4px;
+  }
+  .toc-list::-webkit-scrollbar { width: 3px; }
+  .toc-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .toc-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    height: 40px;
+    overflow: hidden;
+    text-decoration: none;
+    color: var(--ink);
+    transition: all 0.25s ease;
+    font-size: 0.88rem;
+    border-bottom: 1px solid rgba(180, 160, 130, 0.30);
+    padding: 0 0 0 0;
+  }
+  .toc-item:hover { color: var(--accent); padding-left: 6px; }
+
+  .toc-num {
+    font-size: 0.55rem;
+    font-family: sans-serif;
+    color: var(--accent);
+    font-weight: 700;
+    letter-spacing: 1px;
+    flex-shrink: 0;
+    min-width: 24px;
+  }
+  .toc-item-title {
+    flex: 1;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .toc-item-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 1px;
+    flex-shrink: 0;
+  }
+  .toc-cat {
+    font-size: 0.52rem;
+    font-family: sans-serif;
+    letter-spacing: 1px;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .toc-date {
+    font-size: 0.58rem;
+    font-family: sans-serif;
+    color: var(--muted);
+  }
+
+  /* ── Mobile: single page ── */
+  @media (max-width: 700px) {
+    .jnl-outer { padding: 0; min-height: auto; }
+    .book-spread {
+      flex-direction: column;
+      height: auto;
+      max-width: 100%;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+      border-radius: 6px;
     }
+    .left-page {
+      height: 260px;
+      border-radius: 6px 6px 0 0;
+    }
+    .book-spine {
+      width: 100%;
+      height: 24px;
+      flex-shrink: 0;
+    }
+    .spine-label {
+      writing-mode: horizontal-tb;
+      transform: none;
+      letter-spacing: 3px;
+    }
+    .right-page {
+      height: auto;
+      min-height: 400px;
+      border-radius: 0 0 6px 6px;
+      padding: 20px 16px 32px;
+    }
+    .botanical { opacity: 0.6; }
+    .cover-text { left: 16px; right: 16px; }
+  }
 </style>

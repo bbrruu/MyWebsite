@@ -18,151 +18,773 @@ export async function getStaticPaths() {
 
 const { post, prev, next } = Astro.props;
 const { Content } = await render(post);
+const { category, tags, quote } = post.data;
 ---
 
-<Layout title={`${post.data.title} | 生活隨筆`}>
-  <div class="paper-texture"></div>
+<Layout title={`${post.data.title} | Bruce 的手帳`}>
 
-  <article class="content-article">
-    <nav class="inner-nav">
-      <a href="/blog" class="back-link">
-        <span class="arrow">←</span>
-        <span class="text">INDEX / LIFE JOURNAL</span>
-      </a>
-    </nav>
+  <div class="jnl-outer">
+    <div class="book-spread">
 
-    <header class="post-header">
-      <div class="post-meta-card">
-        <div class="meta-grid">
-          <span class="meta-label">CATEGORY</span>
-          <span class="meta-value">{post.data.category}</span>
+      <!-- ── LEFT PAGE: Metadata ── -->
+      <div class="book-page left-page">
+        <!-- Small botanical deco -->
+        <svg class="meta-botanical" viewBox="0 0 120 180" xmlns="http://www.w3.org/2000/svg">
+          <path class="mb-fill" d="M60 165 C52 145 28 122 22 96 C16 72 28 52 46 44 C64 36 82 48 88 72 C94 92 86 122 70 142 Z"/>
+          <path class="mb-stroke" d="M60 165 C52 145 28 122 22 96 C16 72 28 52 46 44 C64 36 82 48 88 72 C94 92 86 122 70 142 Z"/>
+          <path class="mb-hole" d="M48 88 C46 80 53 72 60 74 C67 76 68 85 63 91 Z"/>
+          <line class="mb-vein" x1="60" y1="165" x2="40" y2="105"/>
+          <line class="mb-vein" x1="60" y1="165" x2="80" y2="118"/>
+          <circle class="mb-berry" cx="94" cy="46" r="3.5"/>
+          <circle class="mb-berry" cx="103" cy="40" r="2.5"/>
+          <circle class="mb-berry-sm" cx="99" cy="32" r="2"/>
+          <path class="mb-sprig" d="M18 42 C10 28 14 16 22 18"/>
+          <path class="mb-sprig" d="M18 42 C8 38 6 26 12 20"/>
+          <path class="mb-sprig" d="M18 42 C10 40 6 32 8 24"/>
+          <line class="mb-sprig" x1="18" y1="42" x2="16" y2="14"/>
+        </svg>
 
-          <span class="meta-label">MOOD</span>
-          <span class="meta-value author-name">{post.data.mood || '還行'}</span>
+        <!-- Back nav -->
+        <a href="/blog" class="back-link">
+          <span>←</span>
+          <span>返回索引</span>
+        </a>
 
-          <span class="meta-label">POSTED</span>
-          <span class="meta-value date">{post.data.pubDate.toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' })}</span>
+        <!-- 裝飾章印（絕對定位於左下角）-->
+        {category === '旅行' && (
+          <svg class="cat-stamp" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="40" cy="40" r="36" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="40" cy="40" r="31" fill="none" stroke="currentColor" stroke-width="0.7"/>
+            <path d="M40 16 L43 32 L57 34 L43 36 L40 52 L37 36 L23 34 L37 32 Z"
+              fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+            <circle cx="40" cy="34" r="2.5" fill="currentColor"/>
+            <text x="40" y="63" text-anchor="middle" font-family="sans-serif" font-size="5.5" letter-spacing="2" font-weight="700" fill="currentColor">TRAVEL</text>
+          </svg>
+        )}
+        {category === '日常' && (
+          <svg class="cat-stamp" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="40" cy="40" r="36" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="40" cy="40" r="31" fill="none" stroke="currentColor" stroke-width="0.7"/>
+            <circle cx="40" cy="33" r="7.5" fill="none" stroke="currentColor" stroke-width="1.4"/>
+            <line x1="40" y1="18" x2="40" y2="22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="40" y1="44" x2="40" y2="48" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="25" y1="33" x2="29" y2="33" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="51" y1="33" x2="55" y2="33" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="29.4" y1="22.4" x2="32.2" y2="25.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="47.8" y1="40.8" x2="50.6" y2="43.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="50.6" y1="22.4" x2="47.8" y2="25.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="32.2" y1="40.8" x2="29.4" y2="43.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <text x="40" y="63" text-anchor="middle" font-family="sans-serif" font-size="5.5" letter-spacing="2" font-weight="700" fill="currentColor">DAILY</text>
+          </svg>
+        )}
+        {category === '省思' && (
+          <svg class="cat-stamp" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="40" cy="40" r="36" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="40" cy="40" r="31" fill="none" stroke="currentColor" stroke-width="0.7"/>
+            <path d="M24 21 L40 24 L40 51 L24 48 Z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+            <path d="M40 24 L56 21 L56 48 L40 51 Z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+            <line x1="28" y1="31" x2="38" y2="32.5" stroke="currentColor" stroke-width="0.9" stroke-linecap="round"/>
+            <line x1="28" y1="36" x2="38" y2="37.5" stroke="currentColor" stroke-width="0.9" stroke-linecap="round"/>
+            <line x1="28" y1="41" x2="38" y2="42.5" stroke="currentColor" stroke-width="0.9" stroke-linecap="round"/>
+            <line x1="42" y1="32.5" x2="52" y2="31" stroke="currentColor" stroke-width="0.9" stroke-linecap="round"/>
+            <line x1="42" y1="37.5" x2="52" y2="36" stroke="currentColor" stroke-width="0.9" stroke-linecap="round"/>
+            <line x1="42" y1="42.5" x2="52" y2="41" stroke="currentColor" stroke-width="0.9" stroke-linecap="round"/>
+            <text x="40" y="63" text-anchor="middle" font-family="sans-serif" font-size="5.5" letter-spacing="2" font-weight="700" fill="currentColor">REFLECT</text>
+          </svg>
+        )}
+
+        <!-- Meta block -->
+        <div class="meta-block">
+          <h1 class="meta-title">{post.data.title}</h1>
+          {quote && <p class="meta-quote">「{quote}」</p>}
+          <div class="meta-rule"></div>
+          <dl class="meta-dl">
+            <dt>DATE</dt>
+            <dd>{post.data.pubDate.toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' })}</dd>
+            <dt>MOOD</dt>
+            <dd>{post.data.mood || '還行'}</dd>
+            <dt>LOCATION</dt>
+            <dd>{post.data.location || 'Taipei'}</dd>
+            {tags.length > 0 && (
+              <>
+                <dt>TAGS</dt>
+                <dd class="tag-list">{tags.map(t => <span class="tag">{t}</span>)}</dd>
+              </>
+            )}
+          </dl>
+        </div>
+
+        <!-- Post navigation at bottom -->
+        <div class="post-nav">
+          {prev && (
+            <a href={`/blog/${prev.id}`} class="post-nav-link">
+              <span class="nav-dir">← 上一篇</span>
+              <span class="nav-title">{prev.data.title}</span>
+            </a>
+          )}
+          {next && (
+            <a href={`/blog/${next.id}`} class="post-nav-link post-nav-right">
+              <span class="nav-dir">下一篇 →</span>
+              <span class="nav-title">{next.data.title}</span>
+            </a>
+          )}
+        </div>
+
+        <div class="page-num">INDEX</div>
+      </div>
+
+      <!-- ── SPINE ── -->
+      <div class="book-spine">
+        <span class="spine-label">LIFE JOURNAL · 生活隨筆</span>
+      </div>
+
+      <!-- ── RIGHT PAGE: Content (paginated) ── -->
+      <div class="book-page right-page" id="content-page">
+
+        <!-- Hidden source — Astro renders Content here -->
+        <div id="content-source" aria-hidden="true">
+          <Content />
+        </div>
+
+        <!-- Flip wrapper: has 3D perspective -->
+        <div class="flip-outer" id="flip-outer">
+          <div class="flip-inner" id="flip-inner">
+            <!-- Displayed content (filled by JS) -->
+            <div class="content-display" id="content-display"></div>
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="page-controls">
+          <button id="pg-prev" class="pg-btn" aria-label="上一頁" disabled>‹</button>
+          <span id="pg-indicator" class="pg-indicator">— / —</span>
+          <button id="pg-next" class="pg-btn" aria-label="下一頁">›</button>
+          <button id="sound-btn" class="pg-btn sound-btn" aria-label="翻頁音效" title="翻頁音效">♪</button>
         </div>
       </div>
 
-      <div class="title-wrapper">
-        <h1 class="post-title">{post.data.title}</h1>
-      </div>
-      <div class="dynamic-accent-line"></div>
-    </header>
+    </div>
+  </div>
 
-    <section class="post-content">
-      <Content />
-    </section>
-
-    <footer class="post-footer">
-      <div class="footer-info">
-        <span>📍 {post.data.location || 'Taipei'}</span>
-        <span class="dot">•</span>
-        <span>Bruce's Life Journal</span>
-      </div>
-    </footer>
-
-    {(prev || next) && (
-      <nav class="post-pagination">
-        <div class="pagination-inner">
-          {prev ? (
-            <a href={`/blog/${prev.id}`} class="pag-link pag-prev">
-              <span class="pag-dir">← 上一篇</span>
-              <span class="pag-title">{prev.data.title}</span>
-            </a>
-          ) : <div />}
-          {next ? (
-            <a href={`/blog/${next.id}`} class="pag-link pag-next">
-              <span class="pag-dir">下一篇 →</span>
-              <span class="pag-title">{next.data.title}</span>
-            </a>
-          ) : <div />}
-        </div>
-      </nav>
-    )}
-  </article>
 </Layout>
 
+<script>
+  // ── 翻頁音效 ──
+  let _soundOn = true;
+  function playFlip() {
+    if (!_soundOn) return;
+    try {
+      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const len = Math.floor(ctx.sampleRate * 0.09);
+      const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < len; i++)
+        d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 1.8);
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      const bp = ctx.createBiquadFilter();
+      bp.type = 'bandpass'; bp.frequency.value = 2400; bp.Q.value = 0.6;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.22, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.09);
+      src.connect(bp); bp.connect(g); g.connect(ctx.destination);
+      src.start(); src.stop(ctx.currentTime + 0.09);
+    } catch (_) {}
+  }
+
+  function initJournal() {
+    const source   = document.getElementById('content-source') as HTMLElement | null;
+    const display  = document.getElementById('content-display') as HTMLElement | null;
+    const flipInner= document.getElementById('flip-inner') as HTMLElement | null;
+    const prevBtn  = document.getElementById('pg-prev') as HTMLButtonElement | null;
+    const nextBtn  = document.getElementById('pg-next') as HTMLButtonElement | null;
+    const indicator= document.getElementById('pg-indicator') as HTMLElement | null;
+    const soundBtn = document.getElementById('sound-btn') as HTMLButtonElement | null;
+
+    if (!source || !display || !flipInner) return;
+
+    // 音效開關
+    if (soundBtn) {
+      soundBtn.classList.toggle('sound-off', !_soundOn);
+      soundBtn.addEventListener('click', () => {
+        _soundOn = !_soundOn;
+        soundBtn.classList.toggle('sound-off', !_soundOn);
+        soundBtn.title = _soundOn ? '翻頁音效（開）' : '翻頁音效（關）';
+      });
+    }
+    const d = display;
+
+    // ── 1. 把 <br> 拆開成獨立行，避免單一長段落無法分頁 ──
+    function expandBr(rawNodes: Element[]): Element[] {
+      const result: Element[] = [];
+      for (const el of rawNodes) {
+        if (!el.querySelector('br')) { result.push(el); continue; }
+        const tag = el.tagName.toLowerCase();
+        let chunk = document.createElement(tag);
+        for (const child of Array.from(el.childNodes)) {
+          if (child.nodeName === 'BR') {
+            if (chunk.hasChildNodes()) { result.push(chunk); chunk = document.createElement(tag); }
+          } else {
+            chunk.appendChild(child.cloneNode(true));
+          }
+        }
+        if (chunk.hasChildNodes()) result.push(chunk);
+      }
+      return result;
+    }
+
+    const rawNodes = Array.from(source.children) as Element[];
+    const nodes = expandBr(rawNodes);
+    if (nodes.length === 0) return;
+
+    // ── 2. 可用高度（保守估算，留足夠 buffer 避免最後一行被剪掉）──
+    const availH = () => {
+      const page = d.closest('.right-page') as HTMLElement;
+      return page ? page.clientHeight - 150 : 400;
+    };
+
+    // ── 3. 依高度分頁 ──
+    function buildPages(): Element[][] {
+      const pages: Element[][] = [];
+      let page: Element[] = [];
+      let h = 0;
+      const limit = availH();
+
+      const ruler = document.createElement('div');
+      ruler.style.cssText = `
+        position: absolute; visibility: hidden; pointer-events: none;
+        width: ${d.clientWidth}px;
+        font-size: 1rem; line-height: 30px; font-family: "Noto Serif TC", serif;
+        padding: 0; margin: 0;
+      `;
+      document.body.appendChild(ruler);
+
+      for (const node of nodes) {
+        const clone = node.cloneNode(true) as HTMLElement;
+        clone.style.margin = '0';
+        clone.style.padding = '0';
+        clone.style.lineHeight = '30px';
+        ruler.appendChild(clone);
+        const nodeH = (ruler.lastElementChild?.getBoundingClientRect().height ?? 30);
+        ruler.removeChild(clone);
+
+        if (h + nodeH > limit && page.length > 0) {
+          pages.push(page);
+          page = [node];
+          h = nodeH;
+        } else {
+          page.push(node);
+          h += nodeH;
+        }
+      }
+      if (page.length > 0) pages.push(page);
+
+      document.body.removeChild(ruler);
+
+      // 孤立標題修正：末尾是標題就移到下一頁開頭
+      for (let i = 0; i < pages.length - 1; i++) {
+        const pg = pages[i];
+        const last = pg[pg.length - 1];
+        if (/^H[1-6]$/.test(last.tagName)) {
+          pg.pop();
+          pages[i + 1].unshift(last);
+          if (pg.length === 0) { pages.splice(i, 1); i--; }
+        }
+      }
+
+      return pages;
+    }
+
+    let pages: Node[][] = [];
+    let cur = 0;
+
+    function renderPage(idx: number) {
+      d.innerHTML = '';
+      (pages[idx] || []).forEach(n => d.appendChild(n.cloneNode(true)));
+    }
+
+    function updateControls() {
+      if (!prevBtn || !nextBtn || !indicator) return;
+      prevBtn.disabled = cur === 0;
+      nextBtn.disabled = cur >= pages.length - 1;
+      indicator.textContent = `${cur + 1} / ${pages.length}`;
+    }
+
+    function flipTo(idx: number, dir: 1 | -1) {
+      if (idx < 0 || idx >= pages.length) return;
+      // Half-flip: exit → swap → enter
+      const exitClass = dir > 0 ? 'flip-exit-left' : 'flip-exit-right';
+      const enterClass = dir > 0 ? 'flip-enter-right' : 'flip-enter-left';
+
+      playFlip();
+      flipInner!.classList.add(exitClass);
+      setTimeout(() => {
+        flipInner!.classList.remove(exitClass);
+        cur = idx;
+        renderPage(cur);
+        updateControls();
+        flipInner!.classList.add(enterClass);
+        setTimeout(() => flipInner!.classList.remove(enterClass), 280);
+      }, 240);
+    }
+
+    // ── Init ──
+    // Wait one frame for layout to settle
+    requestAnimationFrame(() => {
+      pages = buildPages();
+      cur = 0;
+      renderPage(0);
+      updateControls();
+    });
+
+    prevBtn?.addEventListener('click', () => { if (cur > 0) flipTo(cur - 1, -1); });
+    nextBtn?.addEventListener('click', () => { if (cur < pages.length - 1) flipTo(cur + 1, 1); });
+
+    // Keyboard support
+    const onKey = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement).tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+      if (e.key === 'ArrowRight' && cur < pages.length - 1) flipTo(cur + 1, 1);
+      if (e.key === 'ArrowLeft'  && cur > 0)               flipTo(cur - 1, -1);
+    };
+    document.addEventListener('keydown', onKey);
+
+    // Rebuild on resize
+    let resizeTimer: ReturnType<typeof setTimeout>;
+    const onResize = () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        pages = buildPages();
+        cur = Math.min(cur, pages.length - 1);
+        renderPage(cur);
+        updateControls();
+      }, 200);
+    };
+    window.addEventListener('resize', onResize);
+  }
+
+  document.addEventListener('astro:page-load', initJournal);
+</script>
+
 <style>
-  .content-article { width: 100%; padding: 0; font-family: "Noto Serif TC", serif; color: var(--ink); }
-  .inner-nav { margin-bottom: 1.5rem; }
-  .back-link { display: inline-flex; align-items: center; text-decoration: none; color: var(--muted); font-size: 0.7rem; letter-spacing: 2px; font-family: sans-serif; }
+  /* ── Outer wrapper ── */
+  .jnl-outer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 120px);
+    padding: 1.5rem 0;
+  }
+
+  /* ── Book spread ── */
+  .book-spread {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    max-width: 880px;
+    height: 600px;
+    box-shadow:
+      -8px 8px 32px rgba(0,0,0,0.18),
+       8px 8px 32px rgba(0,0,0,0.10);
+    border-radius: 2px 6px 6px 2px;
+  }
+
+  /* ── Shared page ── */
+  .book-page {
+    flex: 1;
+    position: relative;
+    background: #fdfaf6;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .page-lines {
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent, transparent 31px,
+      rgba(180,160,130,0.12) 31px,
+      rgba(180,160,130,0.12) 32px
+    );
+    background-position: 0 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .page-num {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.6rem;
+    font-family: sans-serif;
+    color: var(--muted);
+    letter-spacing: 1px;
+    z-index: 2;
+  }
+
+  /* ── LEFT PAGE ── */
+  .left-page {
+    border-radius: 2px 0 0 2px;
+    padding: 24px 24px 40px;
+  }
+
+  .meta-botanical {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 55%;
+    height: auto;
+    opacity: 0.75;
+    z-index: 0;
+  }
+  .mb-fill    { fill: rgba(139,69,19,0.07); }
+  .mb-stroke  { fill: none; stroke: rgba(139,69,19,0.50); stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+  .mb-hole    { fill: #fdfaf6; stroke: rgba(139,69,19,0.50); stroke-width: 1.2; }
+  .mb-vein    { fill: none; stroke: rgba(139,69,19,0.28); stroke-width: 0.9; stroke-linecap: round; }
+  .mb-berry   { fill: rgba(139,69,19,0.38); stroke: rgba(139,69,19,0.55); stroke-width: 0.8; }
+  .mb-berry-sm{ fill: rgba(139,69,19,0.20); }
+  .mb-sprig   { fill: none; stroke: rgba(139,69,19,0.38); stroke-width: 1; stroke-linecap: round; }
+
+  .back-link {
+    position: relative;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.6rem;
+    font-family: sans-serif;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 0.3s;
+    margin-bottom: 1.2rem;
+  }
   .back-link:hover { color: var(--accent); }
-  .back-link .arrow { margin-right: 8px; transition: 0.4s ease; }
 
-  .post-header { position: relative; margin-top: 0; }
-  .title-wrapper { padding-right: 380px; }
-  .post-title { font-size: 2rem; margin: 0; font-weight: 700; letter-spacing: -1.5px; line-height: 1.4; color: var(--ink); padding-bottom: 1rem; }
-  .dynamic-accent-line { width: 100%; height: 4px; background-color: var(--accent); border-radius: 2px; }
+  .meta-block {
+    position: relative;
+    z-index: 2;
+    flex: 1;
+  }
+  .cat-stamp {
+    display: block;
+    position: absolute;
+    bottom: 155px;
+    left: 20px;
+    width: 116px;
+    height: 116px;
+    color: var(--accent);
+    opacity: 0.50;
+    transform: rotate(-8deg);
+    z-index: 2;
+  }
+  .meta-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 0.6rem 0;
+    line-height: 1.4;
+    color: var(--ink);
+    letter-spacing: -0.3px;
+  }
+  .meta-quote {
+    font-size: 0.74rem;
+    font-style: italic;
+    color: var(--muted);
+    margin: 0.3rem 0 0.5rem;
+    padding-left: 8px;
+    border-left: 2px solid rgba(139,69,19,0.25);
+    line-height: 1.5;
+  }
+  .meta-rule {
+    width: 32px;
+    height: 2px;
+    background: var(--accent);
+    margin-bottom: 1rem;
+  }
+  .meta-dl {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.3rem 0.8rem;
+    margin: 0;
+  }
+  .meta-dl dt {
+    font-size: 0.52rem;
+    font-family: sans-serif;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    font-weight: 700;
+    text-transform: uppercase;
+    align-self: baseline;
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(180, 160, 130, 0.30);
+  }
+  .meta-dl dd {
+    font-size: 0.78rem;
+    color: var(--ink);
+    font-family: sans-serif;
+    margin: 0;
+    align-self: baseline;
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(180, 160, 130, 0.30);
+  }
 
-  .post-meta-card { position: absolute; bottom: 1rem; right: 0; background: rgba(139, 69, 19, 0.03); border: 1px solid var(--border); padding: 0.6rem 0.9rem; border-radius: 4px; width: max-content; min-width: 200px; max-width: 360px; }
-  .meta-grid { display: grid; grid-template-columns: auto max-content; align-items: baseline; column-gap: 0.7rem; row-gap: 0.35rem; }
-  .meta-label { font-size: 0.55rem; font-family: sans-serif; color: var(--muted); letter-spacing: 1.5px; font-weight: 700; text-transform: uppercase; }
-  .meta-value { font-size: 0.72rem; font-family: sans-serif; color: var(--muted); font-weight: 600; }
-  .author-name { color: var(--accent); font-size: 0.78rem; font-weight: 700; }
+  /* Post prev/next nav at bottom of left page */
+  .post-nav {
+    position: absolute;
+    bottom: 36px;
+    left: 24px;
+    right: 24px;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .post-nav-link {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    text-decoration: none;
+    color: var(--muted);
+    transition: color 0.25s;
+  }
+  .post-nav-link:hover { color: var(--accent); }
+  .post-nav-right { align-items: flex-end; }
+  .nav-dir {
+    font-size: 0.52rem;
+    font-family: sans-serif;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+  .nav-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    font-family: "Noto Serif TC", serif;
+    color: var(--ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+  .post-nav-link:hover .nav-title { color: var(--accent); }
 
-  .post-content { width: 100%; line-height: 2.2; font-size: 1.15rem; text-align: justify; margin-top: 1.8rem; }
+  /* ── SPINE ── */
+  .book-spine {
+    width: 38px;
+    flex-shrink: 0;
+    background: linear-gradient(to right,
+      rgba(100,60,20,0.20) 0%,
+      rgba(139,69,19,0.28) 30%,
+      rgba(100,60,20,0.22) 60%,
+      rgba(80,45,12,0.32) 100%
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 3;
+    box-shadow:
+      inset -3px 0 8px rgba(0,0,0,0.12),
+      inset  3px 0 8px rgba(0,0,0,0.08);
+  }
+  .spine-label {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transform: rotate(180deg);
+    font-size: 0.48rem;
+    font-family: sans-serif;
+    letter-spacing: 2px;
+    color: rgba(139,69,19,0.8);
+    font-weight: 700;
+    white-space: nowrap;
+  }
 
-  /* ── 日記自訂樣式（在 .md 裡用 HTML 標籤調用） ── */
+  /* ── RIGHT PAGE ── */
+  .right-page {
+    border-radius: 0 6px 6px 0;
+    /* 32px top = one grid line; content-display lines start at 0 → first line at 32px */
+    padding: 32px 28px 0;
+  }
 
-  /* 螢光筆：<mark>文字</mark> */
-  .post-content mark {
-    background: #fff9c4;
-    padding: 0 3px;
+  /* Hide the raw source */
+  #content-source {
+    display: none !important;
+  }
+
+  /* Perspective wrapper for 3D flip */
+  .flip-outer {
+    flex: 1;
+    overflow: hidden;
+    perspective: 900px;
+    position: relative;
+    z-index: 2;
+  }
+  .flip-inner {
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transform-origin: left center;
+    transition: none;
+  }
+
+  /* Flip animations */
+  @keyframes flip-exit-l {
+    from { transform: rotateY(0deg); }
+    to   { transform: rotateY(-90deg); }
+  }
+  @keyframes flip-exit-r {
+    from { transform: rotateY(0deg); }
+    to   { transform: rotateY(90deg); }
+  }
+  @keyframes flip-enter-r {
+    from { transform: rotateY(90deg); }
+    to   { transform: rotateY(0deg); }
+  }
+  @keyframes flip-enter-l {
+    from { transform: rotateY(-90deg); }
+    to   { transform: rotateY(0deg); }
+  }
+
+  .flip-inner.flip-exit-left  { animation: flip-exit-l 0.22s ease-in  forwards; }
+  .flip-inner.flip-exit-right { animation: flip-exit-r 0.22s ease-in  forwards; }
+  .flip-inner.flip-enter-right{ animation: flip-enter-r 0.26s ease-out forwards; }
+  .flip-inner.flip-enter-left { animation: flip-enter-l 0.26s ease-out forwards; }
+
+  /* Content display area — font-size & line-height must match the JS ruler */
+  .content-display {
+    height: 100%;
+    overflow: hidden;
+    font-size: 1rem;
+    line-height: 30px;
+    color: var(--ink);
+    font-family: "Noto Serif TC", serif;
+  }
+  /* Zero margins so nothing breaks the line grid */
+  .content-display p,
+  .content-display h1, .content-display h2, .content-display h3,
+  .content-display h4, .content-display h5, .content-display h6,
+  .content-display ul, .content-display ol, .content-display li,
+  .content-display blockquote, .content-display pre {
+    margin: 0;
+    padding: 0;
+  }
+  .content-display h3 { font-size: 1rem; font-weight: 700; }
+  .content-display mark { background: #fff9c4; padding: 0 3px; border-radius: 2px; }
+  .content-display img {
+    max-width: 100%;
+    max-height: 180px;
+    height: auto;
+    display: block;
     border-radius: 2px;
-    font-style: normal;
+    object-fit: cover;
   }
-
-  /* 強調紅字：<span class="hl-red">文字</span> */
-  .post-content .hl-red {
-    color: #c0392b;
-    font-weight: 700;
-  }
-
-  /* 強調藍字：<span class="hl-blue">文字</span> */
-  .post-content .hl-blue {
-    color: #2471a3;
-    font-weight: 700;
-  }
-
-  /* 旁白補充框：<div class="note">內容</div> */
-  .post-content .note {
-    border-left: 3px solid var(--accent);
-    padding: 0.5rem 1rem;
-    margin: 1.2rem 0;
-    background: rgba(139,69,19,0.04);
-    font-size: 0.95rem;
+  .content-display figure { margin: 0; }
+  .content-display figcaption {
+    font-size: 0.68rem;
     color: var(--muted);
     font-style: italic;
+    text-align: center;
+    line-height: 30px;
   }
 
-  /* 小字說明：<span class="caption">補充說明</span> */
-  .post-content .caption {
-    font-size: 0.8rem;
-    color: var(--muted);
+  /* Tags */
+  dd.tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    align-items: center;
+  }
+  .tag {
+    font-size: 0.55rem;
     font-family: sans-serif;
     letter-spacing: 0.5px;
-  }
-  .post-footer { margin-top: 10rem; padding-top: 2rem; border-top: 1px dashed var(--border); }
-  .footer-info { display: flex; align-items: center; gap: 1rem; font-size: 0.75rem; color: var(--muted); font-family: sans-serif; }
-
-  @media (max-width: 768px) {
-    .post-header { padding-right: 0; }
-    .post-meta-card { position: static; width: 100%; margin-top: 1rem; }
+    padding: 1px 5px;
+    border: 1px solid rgba(139, 69, 19, 0.28);
+    border-radius: 2px;
+    color: var(--accent);
   }
 
-  .post-pagination { margin-top: 3rem; padding-top: 2rem; border-top: 1px dashed var(--border); }
-  .pagination-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-  .pag-link { display: flex; flex-direction: column; gap: 0.4rem; text-decoration: none; color: var(--muted); transition: color 0.3s; padding: 0.8rem 0; }
-  .pag-link:hover { color: var(--accent); }
-  .pag-dir { font-size: 0.6rem; font-family: sans-serif; letter-spacing: 2px; text-transform: uppercase; }
-  .pag-title { font-size: 0.9rem; font-weight: 700; font-family: "Noto Serif TC", serif; color: var(--ink); line-height: 1.4; }
-  .pag-link:hover .pag-title { color: var(--accent); }
-  .pag-next { text-align: right; }
+  /* Page controls */
+  .page-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.2rem;
+    height: 48px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 2;
+    border-top: 1px dashed var(--border);
+    margin: 0 -28px;
+    padding: 0 28px;
+  }
+  .pg-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--muted);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+  .pg-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  .pg-btn:disabled { opacity: 0.25; cursor: default; }
+  .sound-btn {
+    position: absolute;
+    right: 8px;
+    font-size: 0.75rem;
+  }
+  .sound-btn.sound-off { opacity: 0.3; }
+  .pg-indicator {
+    font-size: 0.6rem;
+    font-family: sans-serif;
+    color: var(--muted);
+    letter-spacing: 2px;
+    min-width: 60px;
+    text-align: center;
+  }
 
-  @media (max-width: 768px) {
-    .pagination-inner { grid-template-columns: 1fr; }
-    .pag-next { text-align: left; }
+  /* ── Mobile ── */
+  @media (max-width: 700px) {
+    .jnl-outer { padding: 0; min-height: auto; }
+    .book-spread {
+      flex-direction: column;
+      height: auto;
+      max-width: 100%;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+      border-radius: 6px;
+    }
+    .left-page {
+      height: auto;
+      min-height: 220px;
+      border-radius: 6px 6px 0 0;
+      padding: 16px 16px 32px;
+    }
+    .book-spine {
+      width: 100%;
+      height: 24px;
+      flex-shrink: 0;
+    }
+    .spine-label {
+      writing-mode: horizontal-tb;
+      transform: none;
+      letter-spacing: 3px;
+    }
+    .right-page {
+      height: 70vh;
+      border-radius: 0 0 6px 6px;
+      padding: 16px 16px 0;
+    }
+    .meta-botanical { width: 40%; opacity: 0.5; }
+    .post-nav { position: static; margin-top: 1rem; }
+    .page-controls { margin: 0 -16px; padding: 0 16px; }
   }
 </style>
