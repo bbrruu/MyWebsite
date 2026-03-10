@@ -167,7 +167,7 @@ const catCounts = allPosts.reduce((acc, p) => {
   .book-page {
     flex: 1;
     position: relative;
-    background: #fdfaf6;
+    background: var(--paper);
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -222,7 +222,7 @@ const catCounts = allPosts.reduce((acc, p) => {
   }
   .lf-fill   { fill: rgba(139,69,19,0.08); }
   .lf-fill-sm{ fill: rgba(139,69,19,0.10); }
-  .lf-hole   { fill: #fdfaf6; stroke: rgba(139,69,19,0.55); stroke-width: 1.2; }
+  .lf-hole   { fill: var(--paper); stroke: rgba(139,69,19,0.55); stroke-width: 1.2; }
   .lf-stroke { fill: none; stroke: rgba(139,69,19,0.55); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
   .lf-stroke-sm{ fill: none; stroke: rgba(139,69,19,0.40); stroke-width: 1.1; stroke-linecap: round; }
   .lf-vein   { fill: none; stroke: rgba(139,69,19,0.30); stroke-width: 0.9; stroke-linecap: round; }
@@ -404,7 +404,7 @@ const catCounts = allPosts.reduce((acc, p) => {
     transition: all 0.2s;
   }
   .cat-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .cat-btn.active { background: var(--accent); border-color: var(--accent); color: #fdfaf6; }
+  .cat-btn.active { background: var(--accent); border-color: var(--accent); color: var(--paper); }
 
   .toc-list {
     position: relative;

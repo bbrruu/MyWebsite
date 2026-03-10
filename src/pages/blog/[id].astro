@@ -159,7 +159,6 @@ const { category, tags, quote } = post.data;
           <button id="pg-prev" class="pg-btn" aria-label="上一頁" disabled>‹</button>
           <span id="pg-indicator" class="pg-indicator">— / —</span>
           <button id="pg-next" class="pg-btn" aria-label="下一頁">›</button>
-          <button id="sound-btn" class="pg-btn sound-btn" aria-label="翻頁音效" title="翻頁音效">♪</button>
         </div>
       </div>
 
@@ -169,49 +168,15 @@ const { category, tags, quote } = post.data;
 </Layout>
 
 <script>
-  // ── 翻頁音效 ──
-  let _soundOn = true;
-  function playFlip() {
-    if (!_soundOn) return;
-    try {
-      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
-      const len = Math.floor(ctx.sampleRate * 0.09);
-      const buf = ctx.createBuffer(1, len, ctx.sampleRate);
-      const d = buf.getChannelData(0);
-      for (let i = 0; i < len; i++)
-        d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 1.8);
-      const src = ctx.createBufferSource();
-      src.buffer = buf;
-      const bp = ctx.createBiquadFilter();
-      bp.type = 'bandpass'; bp.frequency.value = 2400; bp.Q.value = 0.6;
-      const g = ctx.createGain();
-      g.gain.setValueAtTime(0.22, ctx.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.09);
-      src.connect(bp); bp.connect(g); g.connect(ctx.destination);
-      src.start(); src.stop(ctx.currentTime + 0.09);
-    } catch (_) {}
-  }
-
-  function initJournal() {
+  async function initJournal() {
     const source   = document.getElementById('content-source') as HTMLElement | null;
     const display  = document.getElementById('content-display') as HTMLElement | null;
     const flipInner= document.getElementById('flip-inner') as HTMLElement | null;
     const prevBtn  = document.getElementById('pg-prev') as HTMLButtonElement | null;
     const nextBtn  = document.getElementById('pg-next') as HTMLButtonElement | null;
     const indicator= document.getElementById('pg-indicator') as HTMLElement | null;
-    const soundBtn = document.getElementById('sound-btn') as HTMLButtonElement | null;
-
     if (!source || !display || !flipInner) return;
 
-    // 音效開關
-    if (soundBtn) {
-      soundBtn.classList.toggle('sound-off', !_soundOn);
-      soundBtn.addEventListener('click', () => {
-        _soundOn = !_soundOn;
-        soundBtn.classList.toggle('sound-off', !_soundOn);
-        soundBtn.title = _soundOn ? '翻頁音效（開）' : '翻頁音效（關）';
-      });
-    }
     const d = display;
 
     // ── 1. 把 <br> 拆開成獨立行，避免單一長段落無法分頁 ──
@@ -234,16 +199,59 @@ const { category, tags, quote } = post.data;
     }
 
     const rawNodes = Array.from(source.children) as Element[];
-    const nodes = expandBr(rawNodes);
+
+    // ── 2. 把所有 img 預先包成 figure，樣式由 CSS 控制 ──
+    function wrapImages(nodeList: Element[]): Element[] {
+      return nodeList.map(el => {
+        if (!el.querySelector('img')) return el;
+        const cloned = el.cloneNode(true) as Element;
+        Array.from(cloned.querySelectorAll('img')).forEach(img => {
+          if (img.closest('figure')) return;
+          const alt = (img as HTMLImageElement).alt ?? '';
+          const fig = document.createElement('figure');
+          const imgEl = img.cloneNode(true) as HTMLImageElement;
+          fig.appendChild(imgEl);
+          if (alt) {
+            const cap = document.createElement('figcaption');
+            cap.textContent = alt;
+            fig.appendChild(cap);
+          }
+          img.replaceWith(fig);
+        });
+        return cloned;
+      });
+    }
+
+    // ── 3. 把含有 figure 和文字混在一起的節點拆開，各自獨立成節點 ──
+    function splitMixedNodes(nodeList: Element[]): Element[] {
+      const result: Element[] = [];
+      for (const el of nodeList) {
+        if (!el.querySelector('figure')) { result.push(el); continue; }
+        const tag = el.tagName.toLowerCase();
+        let textBuf = document.createElement(tag);
+        for (const child of Array.from(el.childNodes)) {
+          if (child.nodeName === 'FIGURE') {
+            if (textBuf.hasChildNodes()) { result.push(textBuf); textBuf = document.createElement(tag); }
+            result.push(child.cloneNode(true) as Element);
+          } else {
+            textBuf.appendChild(child.cloneNode(true));
+          }
+        }
+        if (textBuf.hasChildNodes()) result.push(textBuf);
+      }
+      return result;
+    }
+
+    const nodes = splitMixedNodes(wrapImages(expandBr(rawNodes)));
     if (nodes.length === 0) return;
 
-    // ── 2. 可用高度（保守估算，留足夠 buffer 避免最後一行被剪掉）──
+    // ── 3. 可用高度 ──
     const availH = () => {
       const page = d.closest('.right-page') as HTMLElement;
       return page ? page.clientHeight - 150 : 400;
     };
 
-    // ── 3. 依高度分頁 ──
+    // ── 4. 依高度分頁 ──
     function buildPages(): Element[][] {
       const pages: Element[][] = [];
       let page: Element[] = [];
@@ -251,6 +259,7 @@ const { category, tags, quote } = post.data;
       const limit = availH();
 
       const ruler = document.createElement('div');
+      ruler.className = 'content-display';
       ruler.style.cssText = `
         position: absolute; visibility: hidden; pointer-events: none;
         width: ${d.clientWidth}px;
@@ -265,7 +274,7 @@ const { category, tags, quote } = post.data;
         clone.style.padding = '0';
         clone.style.lineHeight = '30px';
         ruler.appendChild(clone);
-        const nodeH = (ruler.lastElementChild?.getBoundingClientRect().height ?? 30);
+        let nodeH = (ruler.lastElementChild?.getBoundingClientRect().height ?? 30);
         ruler.removeChild(clone);
 
         if (h + nodeH > limit && page.length > 0) {
@@ -316,7 +325,6 @@ const { category, tags, quote } = post.data;
       const exitClass = dir > 0 ? 'flip-exit-left' : 'flip-exit-right';
       const enterClass = dir > 0 ? 'flip-enter-right' : 'flip-enter-left';
 
-      playFlip();
       flipInner!.classList.add(exitClass);
       setTimeout(() => {
         flipInner!.classList.remove(exitClass);
@@ -329,13 +337,25 @@ const { category, tags, quote } = post.data;
     }
 
     // ── Init ──
-    // Wait one frame for layout to settle
-    requestAnimationFrame(() => {
-      pages = buildPages();
-      cur = 0;
-      renderPage(0);
-      updateControls();
-    });
+    // 預載所有圖片，確保量高度時尺寸正確
+    const allImgs = Array.from(source.querySelectorAll('img'));
+    if (allImgs.length > 0) {
+      await Promise.all(allImgs.map(img => {
+        if ((img as HTMLImageElement).complete) return Promise.resolve();
+        const i = new Image();
+        return new Promise<void>(resolve => {
+          i.onload = () => resolve();
+          i.onerror = () => resolve();
+          i.src = (img as HTMLImageElement).src;
+        });
+      }));
+    }
+    // 等 layout 穩定後再分頁
+    await new Promise<void>(r => requestAnimationFrame(() => r()));
+    pages = buildPages();
+    cur = 0;
+    renderPage(0);
+    updateControls();
 
     prevBtn?.addEventListener('click', () => { if (cur > 0) flipTo(cur - 1, -1); });
     nextBtn?.addEventListener('click', () => { if (cur < pages.length - 1) flipTo(cur + 1, 1); });
@@ -393,7 +413,7 @@ const { category, tags, quote } = post.data;
   .book-page {
     flex: 1;
     position: relative;
-    background: #fdfaf6;
+    background: var(--paper);
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -440,7 +460,7 @@ const { category, tags, quote } = post.data;
   }
   .mb-fill    { fill: rgba(139,69,19,0.07); }
   .mb-stroke  { fill: none; stroke: rgba(139,69,19,0.50); stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
-  .mb-hole    { fill: #fdfaf6; stroke: rgba(139,69,19,0.50); stroke-width: 1.2; }
+  .mb-hole    { fill: var(--paper); stroke: rgba(139,69,19,0.50); stroke-width: 1.2; }
   .mb-vein    { fill: none; stroke: rgba(139,69,19,0.28); stroke-width: 0.9; stroke-linecap: round; }
   .mb-berry   { fill: rgba(139,69,19,0.38); stroke: rgba(139,69,19,0.55); stroke-width: 0.8; }
   .mb-berry-sm{ fill: rgba(139,69,19,0.20); }
@@ -612,44 +632,29 @@ const { category, tags, quote } = post.data;
     display: none !important;
   }
 
-  /* Perspective wrapper for 3D flip */
+  /* Flip wrapper */
   .flip-outer {
     flex: 1;
     overflow: hidden;
-    perspective: 900px;
     position: relative;
     z-index: 2;
   }
   .flip-inner {
     width: 100%;
     height: 100%;
-    transform-style: preserve-3d;
-    transform-origin: left center;
     transition: none;
   }
 
-  /* Flip animations */
-  @keyframes flip-exit-l {
-    from { transform: rotateY(0deg); }
-    to   { transform: rotateY(-90deg); }
-  }
-  @keyframes flip-exit-r {
-    from { transform: rotateY(0deg); }
-    to   { transform: rotateY(90deg); }
-  }
-  @keyframes flip-enter-r {
-    from { transform: rotateY(90deg); }
-    to   { transform: rotateY(0deg); }
-  }
-  @keyframes flip-enter-l {
-    from { transform: rotateY(-90deg); }
-    to   { transform: rotateY(0deg); }
-  }
+  /* Flip animations — fade + horizontal drift */
+  @keyframes flip-exit-l  { to   { opacity: 0; transform: translateX(-18px); } }
+  @keyframes flip-exit-r  { to   { opacity: 0; transform: translateX(18px);  } }
+  @keyframes flip-enter-r { from { opacity: 0; transform: translateX(18px);  } }
+  @keyframes flip-enter-l { from { opacity: 0; transform: translateX(-18px); } }
 
-  .flip-inner.flip-exit-left  { animation: flip-exit-l 0.22s ease-in  forwards; }
-  .flip-inner.flip-exit-right { animation: flip-exit-r 0.22s ease-in  forwards; }
-  .flip-inner.flip-enter-right{ animation: flip-enter-r 0.26s ease-out forwards; }
-  .flip-inner.flip-enter-left { animation: flip-enter-l 0.26s ease-out forwards; }
+  .flip-inner.flip-exit-left  { animation: flip-exit-l  0.2s ease-in  forwards; }
+  .flip-inner.flip-exit-right { animation: flip-exit-r  0.2s ease-in  forwards; }
+  .flip-inner.flip-enter-right{ animation: flip-enter-r 0.25s ease-out forwards; }
+  .flip-inner.flip-enter-left { animation: flip-enter-l 0.25s ease-out forwards; }
 
   /* Content display area — font-size & line-height must match the JS ruler */
   .content-display {
@@ -671,16 +676,24 @@ const { category, tags, quote } = post.data;
   }
   .content-display h3 { font-size: 1rem; font-weight: 700; }
   .content-display mark { background: #fff9c4; padding: 0 3px; border-radius: 2px; }
-  .content-display img {
-    max-width: 100%;
-    max-height: 180px;
-    height: auto;
+  :global(.content-display figure) {
     display: block;
-    border-radius: 2px;
-    object-fit: cover;
+    margin: 6px 0;
+    text-align: center;
   }
-  .content-display figure { margin: 0; }
-  .content-display figcaption {
+  :global(.content-display figure img) {
+    display: block;
+    max-width: 92%;
+    max-height: 180px;
+    width: auto;
+    height: auto;
+    margin: 0 auto;
+    border-radius: 2px;
+    border: 1px solid #e0dcd5;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.13);
+    object-fit: contain;
+  }
+  :global(.content-display figcaption) {
     font-size: 0.68rem;
     color: var(--muted);
     font-style: italic;
@@ -737,13 +750,7 @@ const { category, tags, quote } = post.data;
   }
   .pg-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
   .pg-btn:disabled { opacity: 0.25; cursor: default; }
-  .sound-btn {
-    position: absolute;
-    right: 8px;
-    font-size: 0.75rem;
-  }
-  .sound-btn.sound-off { opacity: 0.3; }
-  .pg-indicator {
+.pg-indicator {
     font-size: 0.6rem;
     font-family: sans-serif;
     color: var(--muted);

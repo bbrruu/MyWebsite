@@ -26,6 +26,16 @@ const currentPath = pathname.slice(1).split('/')[0];
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
 		<ClientRouter />
+		<!-- 主題初始化：在 CSS 套用前執行，避免閃白 -->
+		<script is:inline>
+			(function() {
+				var saved = localStorage.getItem('theme');
+				var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+				if (saved === 'dark' || (!saved && prefersDark)) {
+					document.documentElement.setAttribute('data-theme', 'dark');
+				}
+			})();
+		</script>
 	</head>
 	<body>
 		<div id="progress-bar"></div>
@@ -264,6 +274,18 @@ const currentPath = pathname.slice(1).split('/')[0];
 			document.addEventListener('astro:page-load', measureNavH);
 			window.addEventListener('resize', measureNavH);
 		</script>
+
+		<!-- View Transition 後重新套用主題（避免換頁後主題被重置）-->
+		<script is:inline>
+			document.addEventListener('astro:after-swap', function() {
+				var saved = localStorage.getItem('theme');
+				if (saved === 'dark') {
+					document.documentElement.setAttribute('data-theme', 'dark');
+				} else {
+					document.documentElement.removeAttribute('data-theme');
+				}
+			});
+		</script>
 	</body>
 </html>
 
@@ -275,6 +297,24 @@ const currentPath = pathname.slice(1).split('/')[0];
 		--accent: #8b4513;    /* 焦糖褐色（強調色） */
 		--muted: #8e8e8e;     /* 輔助灰色 */
 		--border: #e0dcd5;    /* 邊框色 */
+	}
+
+	/* ── 深色模式 ── */
+	:root[data-theme="dark"] {
+		--ink: #e8ddd0;
+		--paper: #1c1814;
+		--accent: #c47a3a;
+		--muted: #7a7570;
+		--border: #38322c;
+	}
+	/* 主題切換平滑過渡 */
+	*, *::before, *::after {
+		transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+	}
+	/* 排除動畫類元素（避免干擾既有 transition）*/
+	.flip-inner, .mobile-menu, .search-overlay, #progress-bar,
+	::view-transition-old(root), ::view-transition-new(root) {
+		transition: none !important;
 	}
 
 	/* --- 基礎樣式重置 --- */
@@ -329,6 +369,9 @@ const currentPath = pathname.slice(1).split('/')[0];
 		backdrop-filter: blur(12px);
 		-webkit-backdrop-filter: blur(12px);
 	}
+	[data-theme="dark"] .sticky-nav {
+		background: rgba(28, 24, 20, 0.85);
+	}
 	.nav-inner {
 		max-width: 1400px;
 		margin: 0 auto;
@@ -375,6 +418,9 @@ const currentPath = pathname.slice(1).split('/')[0];
 		opacity: 0;
 		pointer-events: none;
 		transition: opacity 0.2s ease;
+	}
+	[data-theme="dark"] .search-overlay {
+		background: rgba(28, 24, 20, 0.95);
 	}
 	.search-overlay.open {
 		opacity: 1;
@@ -457,15 +503,15 @@ const currentPath = pathname.slice(1).split('/')[0];
 		transition: width 0.08s linear;
 	}
 
-	/* ── 預設頁面轉換：fade（取代移除的 transition:animate="fade"）── */
+	/* ── 預設頁面轉換：drift up + fade ── */
 	::view-transition-old(root) {
-		animation: pg-fade-out 0.18s ease forwards;
+		animation: pg-fade-out 0.2s ease forwards;
 	}
 	::view-transition-new(root) {
-		animation: pg-fade-in 0.22s ease forwards;
+		animation: pg-drift-in 0.35s ease forwards;
 	}
 	@keyframes pg-fade-out { to   { opacity: 0; } }
-	@keyframes pg-fade-in  { from { opacity: 0; } }
+	@keyframes pg-drift-in { from { opacity: 0; transform: translateY(28px); } }
 
 	/* ── 字卡點擊：JS cover 跑動畫，CSS view transition 關閉避免衝突 ── */
 	html.card-nav::view-transition-old(root) {
