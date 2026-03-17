@@ -88,7 +88,7 @@ const researchGroups = Object.entries(groupedResearch)
     }
     .archive-header h1 small {
         font-size: 0.75rem;
-        font-family: sans-serif;
+        font-family: var(--font-mono);
         letter-spacing: 4px;
         color: var(--muted);
         font-weight: 400;
@@ -121,7 +121,7 @@ const researchGroups = Object.entries(groupedResearch)
         margin-bottom: 0.8rem;
     }
     .month-title { font-size: 1.4rem; margin: 0; color: var(--ink); font-weight: 700; }
-    .note-count { font-size: 0.72rem; color: var(--accent); font-weight: 700; font-family: sans-serif; letter-spacing: 1px; }
+    .note-count { font-size: 0.72rem; color: var(--accent); font-weight: 700; font-family: var(--font-mono); letter-spacing: 1px; }
 
     /* ── Entries ── */
     .research-entry {
@@ -143,11 +143,11 @@ const researchGroups = Object.entries(groupedResearch)
         white-space: nowrap; line-height: 1.5rem;
     }
     .title-hover { position: absolute; top: 0; left: 0; opacity: 0; transform: translateY(15px); color: var(--accent); display: flex; align-items: center; gap: 1rem; }
-    .cat-tag { font-size: 0.8rem; font-weight: 700; color: var(--accent); background: rgba(139,69,19,0.1); padding: 2px 8px; border-radius: 4px; font-family: sans-serif; }
+    .cat-tag { font-size: 0.8rem; font-weight: 700; color: var(--accent); background: rgba(139,69,19,0.1); padding: 2px 8px; border-radius: 4px; font-family: var(--font-mono); }
     .research-entry:hover .title-default { opacity: 0; transform: translateY(-15px); }
     .research-entry:hover .title-hover { opacity: 1; transform: translateY(0); }
 
-    .entry-arrow { display: flex; align-items: center; gap: 1rem; font-size: 0.75rem; letter-spacing: 2px; color: var(--muted); opacity: 0.4; transition: 0.4s; font-family: sans-serif; }
+    .entry-arrow { display: flex; align-items: center; gap: 1rem; font-size: 0.75rem; letter-spacing: 2px; color: var(--muted); opacity: 0.4; transition: 0.4s; font-family: var(--font-mono); }
     .research-entry:hover .entry-arrow { opacity: 1; color: var(--accent); transform: translateX(5px); }
     .view-text { font-weight: 700; }
 

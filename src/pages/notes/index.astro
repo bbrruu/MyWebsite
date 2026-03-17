@@ -132,7 +132,7 @@ const months = Object.keys(groupedNotes);
     font-size: 1.6rem; margin: 0; font-weight: 700; letter-spacing: -1.5px;
   }
   .archive-header h1 small {
-    font-size: 0.75rem; font-family: sans-serif; letter-spacing: 4px;
+    font-size: 0.75rem; font-family: var(--font-mono); letter-spacing: 4px;
     color: var(--muted); font-weight: 400; margin-left: 0.6rem;
   }
 
@@ -146,7 +146,7 @@ const months = Object.keys(groupedNotes);
   .header-line::after { content: ''; position: absolute; left: 0; top: -1px; width: 80px; height: 3px; background: var(--accent); }
 
   .archive-filter { display: flex; align-items: center; gap: 0.6rem; padding-bottom: 0.15rem; flex-shrink: 0; }
-  .filter-label { font-size: 0.6rem; font-family: sans-serif; letter-spacing: 2px; color: var(--muted); font-weight: 700; text-transform: uppercase; white-space: nowrap; }
+  .filter-label { font-size: 0.6rem; font-family: var(--font-mono); letter-spacing: 2px; color: var(--muted); font-weight: 700; text-transform: uppercase; white-space: nowrap; }
   .select-wrapper { position: relative; display: inline-flex; align-items: center; }
   .filter-select {
     appearance: none; -webkit-appearance: none;
@@ -168,7 +168,7 @@ const months = Object.keys(groupedNotes);
     padding-bottom: 0.8rem; border-bottom: 2px solid var(--ink); margin-bottom: 0.8rem;
   }
   .month-title { font-size: 1.4rem; margin: 0; color: var(--ink); font-weight: 700; }
-  .note-count { font-size: 0.72rem; color: var(--accent); font-weight: 700; font-family: sans-serif; letter-spacing: 1px; }
+  .note-count { font-size: 0.72rem; color: var(--accent); font-weight: 700; font-family: var(--font-mono); letter-spacing: 1px; }
 
   .note-wrapper { transition: opacity 0.4s, max-height 0.4s; max-height: 200px; overflow: visible; }
   .note-wrapper.is-hidden { overflow: hidden; }
@@ -203,9 +203,9 @@ const months = Object.keys(groupedNotes);
   .cat-tag {
     font-size: 0.78rem; font-weight: 700; color: var(--accent);
     background: rgba(139,69,19,0.1); padding: 2px 8px;
-    border-radius: 4px; font-family: sans-serif;
+    border-radius: 4px; font-family: var(--font-mono);
   }
-  .sub-tag { font-size: 0.72rem; color: var(--muted); font-weight: 400; font-family: sans-serif; }
+  .sub-tag { font-size: 0.72rem; color: var(--muted); font-weight: 400; font-family: var(--font-mono); }
 
   .entry-desc {
     font-size: 0.78rem; color: var(--muted); margin: 0.2rem 0 0;
@@ -217,7 +217,7 @@ const months = Object.keys(groupedNotes);
   .entry-arrow {
     display: flex; align-items: center; gap: 1rem;
     font-size: 0.75rem; letter-spacing: 2px; color: var(--muted);
-    opacity: 0.4; transition: 0.4s; font-family: sans-serif; flex-shrink: 0;
+    opacity: 0.4; transition: 0.4s; font-family: var(--font-mono); flex-shrink: 0;
   }
   .note-entry:hover .entry-arrow { opacity: 1; color: var(--accent); transform: translateX(5px); }
   .view-text { font-weight: 700; }

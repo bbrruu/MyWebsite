@@ -263,7 +263,7 @@ const { category, tags, quote } = post.data;
       ruler.style.cssText = `
         position: absolute; visibility: hidden; pointer-events: none;
         width: ${d.clientWidth}px;
-        font-size: 1rem; line-height: 30px; font-family: "Noto Serif TC", serif;
+        font-size: 1.07rem; line-height: 30px; font-family: "Noto Serif TC", serif;
         padding: 0; margin: 0;
       `;
       document.body.appendChild(ruler);
@@ -437,7 +437,7 @@ const { category, tags, quote } = post.data;
     left: 50%;
     transform: translateX(-50%);
     font-size: 0.6rem;
-    font-family: sans-serif;
+    font-family: var(--font-mono);
     color: var(--muted);
     letter-spacing: 1px;
     z-index: 2;
@@ -473,7 +473,7 @@ const { category, tags, quote } = post.data;
     align-items: center;
     gap: 6px;
     font-size: 0.6rem;
-    font-family: sans-serif;
+    font-family: var(--font-mono);
     letter-spacing: 2px;
     color: var(--muted);
     text-decoration: none;
@@ -501,7 +501,7 @@ const { category, tags, quote } = post.data;
     z-index: 2;
   }
   .meta-title {
-    font-size: 1.25rem;
+    font-size: 1.4rem;
     font-weight: 700;
     margin: 0 0 0.6rem 0;
     line-height: 1.4;
@@ -509,7 +509,7 @@ const { category, tags, quote } = post.data;
     letter-spacing: -0.3px;
   }
   .meta-quote {
-    font-size: 0.74rem;
+    font-size: 0.86rem;
     font-style: italic;
     color: var(--muted);
     margin: 0.3rem 0 0.5rem;
@@ -531,7 +531,7 @@ const { category, tags, quote } = post.data;
   }
   .meta-dl dt {
     font-size: 0.52rem;
-    font-family: sans-serif;
+    font-family: var(--font-mono);
     letter-spacing: 1.5px;
     color: var(--muted);
     font-weight: 700;
@@ -541,9 +541,9 @@ const { category, tags, quote } = post.data;
     border-bottom: 1px solid rgba(180, 160, 130, 0.30);
   }
   .meta-dl dd {
-    font-size: 0.78rem;
+    font-size: 0.9rem;
     color: var(--ink);
-    font-family: sans-serif;
+    font-family: var(--font-mono);
     margin: 0;
     align-self: baseline;
     padding: 4px 0;
@@ -573,7 +573,7 @@ const { category, tags, quote } = post.data;
   .post-nav-right { align-items: flex-end; }
   .nav-dir {
     font-size: 0.52rem;
-    font-family: sans-serif;
+    font-family: var(--font-mono);
     letter-spacing: 1.5px;
     text-transform: uppercase;
   }
@@ -613,7 +613,7 @@ const { category, tags, quote } = post.data;
     text-orientation: mixed;
     transform: rotate(180deg);
     font-size: 0.48rem;
-    font-family: sans-serif;
+    font-family: var(--font-mono);
     letter-spacing: 2px;
     color: rgba(139,69,19,0.8);
     font-weight: 700;
@@ -660,7 +660,7 @@ const { category, tags, quote } = post.data;
   .content-display {
     height: 100%;
     overflow: hidden;
-    font-size: 1rem;
+    font-size: 1.07rem;
     line-height: 30px;
     color: var(--ink);
     font-family: "Noto Serif TC", serif;
@@ -674,8 +674,9 @@ const { category, tags, quote } = post.data;
     margin: 0;
     padding: 0;
   }
-  .content-display h3 { font-size: 1rem; font-weight: 700; }
+  .content-display h3 { font-size: 1.07rem; font-weight: 700; }
   .content-display mark { background: #fff9c4; padding: 0 3px; border-radius: 2px; }
+  [data-theme="dark"] .content-display mark { background: rgba(255,240,120,0.14); color: var(--ink); }
   :global(.content-display figure) {
     display: block;
     margin: 6px 0;
@@ -689,7 +690,7 @@ const { category, tags, quote } = post.data;
     height: auto;
     margin: 0 auto;
     border-radius: 2px;
-    border: 1px solid #e0dcd5;
+    border: 1px solid var(--border);
     box-shadow: 0 2px 10px rgba(0,0,0,0.13);
     object-fit: contain;
   }
@@ -710,7 +711,7 @@ const { category, tags, quote } = post.data;
   }
   .tag {
     font-size: 0.55rem;
-    font-family: sans-serif;
+    font-family: var(--font-mono);
     letter-spacing: 0.5px;
     padding: 1px 5px;
     border: 1px solid rgba(139, 69, 19, 0.28);
@@ -752,11 +753,26 @@ const { category, tags, quote } = post.data;
   .pg-btn:disabled { opacity: 0.25; cursor: default; }
 .pg-indicator {
     font-size: 0.6rem;
-    font-family: sans-serif;
+    font-family: var(--font-mono);
     color: var(--muted);
     letter-spacing: 2px;
     min-width: 60px;
     text-align: center;
+  }
+
+  /* ── Dark mode ── */
+  [data-theme="dark"] .book-page {
+    background: #231e16;
+  }
+  [data-theme="dark"] .meta-botanical {
+    opacity: 0.40;
+  }
+  [data-theme="dark"] .mb-hole {
+    fill: #231e16;
+  }
+  [data-theme="dark"] .meta-dl dt,
+  [data-theme="dark"] .meta-dl dd {
+    border-bottom-color: rgba(255, 220, 170, 0.10);
   }
 
   /* ── Mobile ── */

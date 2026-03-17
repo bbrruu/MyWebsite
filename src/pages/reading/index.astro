@@ -94,7 +94,7 @@ const readingGroups = Object.entries(groupedReading)
     }
     .archive-header h1 small {
         font-size: 0.75rem;
-        font-family: sans-serif;
+        font-family: var(--font-mono);
         letter-spacing: 4px;
         color: var(--muted);
         font-weight: 400;
@@ -127,7 +127,7 @@ const readingGroups = Object.entries(groupedReading)
         margin-bottom: 0.8rem;
     }
     .month-title { font-size: 1.4rem; margin: 0; color: var(--ink); font-weight: 700; }
-    .note-count { font-size: 0.72rem; color: var(--accent); font-weight: 700; font-family: sans-serif; letter-spacing: 1px; }
+    .note-count { font-size: 0.72rem; color: var(--accent); font-weight: 700; font-family: var(--font-mono); letter-spacing: 1px; }
 
     /* ── Entries ── */
     .reading-entry {
@@ -147,8 +147,8 @@ const readingGroups = Object.entries(groupedReading)
         padding: 0.4rem; gap: 0.3rem;
         border-left: 4px solid rgba(255,255,255,0.25);
     }
-    .cover-title { font-size: 0.5rem; font-family: sans-serif; color: #fff; text-align: center; line-height: 1.4; font-weight: 700; word-break: break-word; }
-    .cover-author { font-size: 0.42rem; font-family: sans-serif; color: rgba(255,255,255,0.7); text-align: center; letter-spacing: 0.5px; }
+    .cover-title { font-size: 0.5rem; font-family: var(--font-mono); color: #fff; text-align: center; line-height: 1.4; font-weight: 700; word-break: break-word; }
+    .cover-author { font-size: 0.42rem; font-family: var(--font-mono); color: rgba(255,255,255,0.7); text-align: center; letter-spacing: 0.5px; }
 
     .title-swap-container { flex: 1; position: relative; height: 1.5rem; overflow: hidden; display: flex; align-items: center; }
     .title-default, .title-hover {
@@ -161,7 +161,7 @@ const readingGroups = Object.entries(groupedReading)
 
     .reading-entry:hover .title-default { opacity: 0; transform: translateY(-15px); }
     .reading-entry:hover .title-hover { opacity: 1; transform: translateY(0); }
-    .entry-arrow { font-size: 0.75rem; letter-spacing: 2px; color: var(--muted); opacity: 0.4; transition: 0.4s; font-family: sans-serif; flex-shrink: 0; }
+    .entry-arrow { font-size: 0.75rem; letter-spacing: 2px; color: var(--muted); opacity: 0.4; transition: 0.4s; font-family: var(--font-mono); flex-shrink: 0; }
     .reading-entry:hover .entry-arrow { opacity: 1; color: var(--accent); transform: translateX(5px); }
 
     @media (max-width: 850px) {

@@ -22,7 +22,7 @@ const currentPath = pathname.slice(1).split('/')[0];
 		<meta name="description" content="曾冠瑜 Bruce 的個人網站 - 數位人文與語義分析研究者" />
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/cabbage.svg" />
-		<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
+		<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
 		<ClientRouter />
@@ -297,6 +297,7 @@ const currentPath = pathname.slice(1).split('/')[0];
 		--accent: #8b4513;    /* 焦糖褐色（強調色） */
 		--muted: #8e8e8e;     /* 輔助灰色 */
 		--border: #e0dcd5;    /* 邊框色 */
+		--font-mono: 'JetBrains Mono', monospace;
 	}
 
 	/* ── 深色模式 ── */
@@ -355,9 +356,30 @@ const currentPath = pathname.slice(1).split('/')[0];
 		position: fixed;
 		inset: 0;
 		z-index: -1;
-		opacity: 0.03;
+		opacity: 0.04;
 		background-image: url("https://www.transparenttextures.com/patterns/paper-fibers.png");
 		pointer-events: none;
+	}
+	[data-theme="dark"] .paper-texture {
+		opacity: 0.10;
+		mix-blend-mode: screen;
+	}
+
+	/* ── 全站 header-line 動畫 ── */
+	@keyframes accent-bar-expand {
+		from { transform: scaleX(0); }
+		to   { transform: scaleX(1); }
+	}
+	.header-line::after {
+		transform-origin: left center;
+		animation: accent-bar-expand 0.7s cubic-bezier(0.4, 0, 0.2, 1) both;
+	}
+
+	/* ── 全站 mono label 字體 ── */
+	.result-type,
+	.result-subtitle,
+	.search-empty {
+		font-family: var(--font-mono);
 	}
 
 	/* --- Sticky 導覽列 --- */

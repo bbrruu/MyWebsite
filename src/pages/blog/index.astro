@@ -194,7 +194,7 @@ const catCounts = allPosts.reduce((acc, p) => {
     position: absolute;
     bottom: 16px;
     font-size: 0.6rem;
-    font-family: sans-serif;
+    font-family: var(--font-mono);
     color: var(--muted);
     letter-spacing: 1px;
     z-index: 2;
@@ -248,7 +248,7 @@ const catCounts = allPosts.reduce((acc, p) => {
      so X × em = exactly X × font-size = the computed line-height when line-height: X. */
   .journal-eyebrow {
     font-size: 0.52rem;
-    font-family: sans-serif;
+    font-family: var(--font-mono);
     letter-spacing: 3px;
     color: var(--muted);
     font-weight: 700;
@@ -262,7 +262,7 @@ const catCounts = allPosts.reduce((acc, p) => {
     background-size: 100% 2.4em;
   }
   .journal-title {
-    font-size: 1.8rem;
+    font-size: 2.1rem;
     font-weight: 700;
     color: var(--ink);
     letter-spacing: -0.5px;
@@ -288,7 +288,7 @@ const catCounts = allPosts.reduce((acc, p) => {
   }
   .cover-stat {
     font-size: 0.6rem;
-    font-family: sans-serif;
+    font-family: var(--font-mono);
     color: var(--muted);
     letter-spacing: 0.5px;
   }
@@ -299,7 +299,7 @@ const catCounts = allPosts.reduce((acc, p) => {
   }
 
   .journal-tagline {
-    font-size: 0.78rem;
+    font-size: 0.92rem;
     color: var(--muted);
     font-style: italic;
     line-height: 2.0;
@@ -336,7 +336,7 @@ const catCounts = allPosts.reduce((acc, p) => {
     text-orientation: mixed;
     transform: rotate(180deg);
     font-size: 0.48rem;
-    font-family: sans-serif;
+    font-family: var(--font-mono);
     letter-spacing: 2px;
     color: rgba(139,69,19,0.8);
     font-weight: 700;
@@ -356,13 +356,13 @@ const catCounts = allPosts.reduce((acc, p) => {
   }
   .toc-eyebrow {
     font-size: 0.52rem;
-    font-family: sans-serif;
+    font-family: var(--font-mono);
     letter-spacing: 3px;
     color: var(--muted);
     font-weight: 700;
   }
   .toc-h2 {
-    font-size: 1.4rem;
+    font-size: 1.65rem;
     font-weight: 700;
     margin: 0.3rem 0 0.6rem;
     color: var(--ink);
@@ -396,7 +396,7 @@ const catCounts = allPosts.reduce((acc, p) => {
     border: 1px solid var(--border);
     border-radius: 2px;
     font-size: 0.55rem;
-    font-family: sans-serif;
+    font-family: var(--font-mono);
     letter-spacing: 1px;
     color: var(--muted);
     padding: 2px 8px;
@@ -420,12 +420,12 @@ const catCounts = allPosts.reduce((acc, p) => {
     display: flex;
     align-items: center;
     gap: 0.6rem;
-    height: 40px;
+    height: 44px;
     overflow: hidden;
     text-decoration: none;
     color: var(--ink);
     transition: all 0.25s ease;
-    font-size: 0.88rem;
+    font-size: 0.98rem;
     border-bottom: 1px solid rgba(180, 160, 130, 0.30);
     padding: 0 0 0 0;
   }
@@ -433,7 +433,7 @@ const catCounts = allPosts.reduce((acc, p) => {
 
   .toc-num {
     font-size: 0.55rem;
-    font-family: sans-serif;
+    font-family: var(--font-mono);
     color: var(--accent);
     font-weight: 700;
     letter-spacing: 1px;
@@ -456,15 +456,50 @@ const catCounts = allPosts.reduce((acc, p) => {
   }
   .toc-cat {
     font-size: 0.52rem;
-    font-family: sans-serif;
+    font-family: var(--font-mono);
     letter-spacing: 1px;
     color: var(--accent);
     font-weight: 700;
   }
   .toc-date {
     font-size: 0.58rem;
-    font-family: sans-serif;
+    font-family: var(--font-mono);
     color: var(--muted);
+  }
+
+  /* ── Dark mode ── */
+  [data-theme="dark"] .book-page {
+    background: #231e16;
+  }
+  [data-theme="dark"] .botanical {
+    opacity: 0.40;
+  }
+  [data-theme="dark"] .lf-hole {
+    fill: #231e16;
+  }
+  [data-theme="dark"] .toc-item {
+    border-bottom-color: rgba(255, 220, 170, 0.10);
+  }
+  [data-theme="dark"] .journal-eyebrow {
+    background-image: repeating-linear-gradient(
+      transparent 0, transparent calc(2.4em - 3px),
+      rgba(255,220,170,0.07) calc(2.4em - 3px),
+      rgba(255,220,170,0.07) calc(2.4em - 1px)
+    );
+  }
+  [data-theme="dark"] .journal-title {
+    background-image: repeating-linear-gradient(
+      transparent 0, transparent calc(1.4em - 3px),
+      rgba(255,220,170,0.07) calc(1.4em - 3px),
+      rgba(255,220,170,0.07) calc(1.4em - 1px)
+    );
+  }
+  [data-theme="dark"] .journal-tagline {
+    background-image: repeating-linear-gradient(
+      transparent 0, transparent calc(2.0em - 3px),
+      rgba(255,220,170,0.07) calc(2.0em - 3px),
+      rgba(255,220,170,0.07) calc(2.0em - 1px)
+    );
   }
 
   /* ── Mobile: single page ── */

@@ -100,7 +100,7 @@ const { Content } = await render(post);
   }
 
   .inner-nav { margin-bottom: 1.5rem; }
-  .back-link { display: inline-flex; align-items: center; text-decoration: none; color: var(--muted); font-size: 0.7rem; letter-spacing: 2px; font-family: sans-serif; }
+  .back-link { display: inline-flex; align-items: center; text-decoration: none; color: var(--muted); font-size: 0.7rem; letter-spacing: 2px; font-family: var(--font-mono); }
   .back-link:hover { color: var(--accent); }
   .back-link .arrow { margin-right: 8px; transition: 0.4s ease; }
 
@@ -163,7 +163,7 @@ const { Content } = await render(post);
   .pagination-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
   .pag-link { display: flex; flex-direction: column; gap: 0.4rem; text-decoration: none; color: var(--muted); transition: color 0.3s; padding: 0.8rem 0; }
   .pag-link:hover { color: var(--accent); }
-  .pag-dir { font-size: 0.6rem; font-family: sans-serif; letter-spacing: 2px; text-transform: uppercase; }
+  .pag-dir { font-size: 0.6rem; font-family: var(--font-mono); letter-spacing: 2px; text-transform: uppercase; }
   .pag-title { font-size: 0.9rem; font-weight: 700; font-family: "Noto Serif TC", serif; color: var(--ink); line-height: 1.4; }
   .pag-link:hover .pag-title { color: var(--accent); }
   .pag-next { text-align: right; }

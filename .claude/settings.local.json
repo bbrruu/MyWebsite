@@ -11,7 +11,8 @@
       "WebFetch(domain:commons.wikimedia.org)",
       "WebFetch(domain:en.wikipedia.org)",
       "Bash(curl:*)",
-      "Bash(npx expo:*)"
+      "Bash(npx expo:*)",
+      "Bash(grep -n \"font-family: sans-serif\" /Users/bbrruu0722/Desktop/mywebsite/src/pages/blog/[id].astro)"
     ]
   }
 }

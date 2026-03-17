@@ -18,9 +18,9 @@ import Layout from "../layouts/Layout.astro";
           <p class="sub-identity" data-lang="zh">研究生 / 計算語言學、AI研究者</p>
           <p class="sub-identity" data-lang="en" style="display: none;">Graduate Student / Computational Linguistics & AI Researcher</p>
           <div class="header-meta-tags">
-            <span class="meta-tag">📍 Taipei, Taiwan</span>
-            <span class="meta-tag">🎓 NTU Linguistics</span>
-            <span class="meta-tag">🎸 Music & Code</span>
+            <span class="meta-tag">TW · Taipei</span>
+            <span class="meta-tag">NTU · Linguistics</span>
+            <span class="meta-tag">Music & Code</span>
           </div>
         </div>
       </div>
@@ -306,10 +306,14 @@ import Layout from "../layouts/Layout.astro";
     margin-top: 0.5rem;
   }
   .meta-tag {
-    font-size: 0.72rem;
+    font-size: 0.65rem;
     color: var(--muted);
-    font-family: sans-serif;
-    letter-spacing: 0.5px;
+    font-family: var(--font-mono);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    border: 1px solid var(--border);
+    padding: 2px 8px;
+    border-radius: 2px;
   }
 
   /* 右欄：對話框 */
@@ -350,7 +354,7 @@ import Layout from "../layouts/Layout.astro";
   }
   .bubble-label {
     font-size: 1rem;
-    font-family: sans-serif;
+    font-family: var(--font-mono);
     letter-spacing: 3px;
     color: var(--accent);
     text-transform: uppercase;
@@ -367,7 +371,7 @@ import Layout from "../layouts/Layout.astro";
     font-size: 0.82rem;
     font-style: italic;
     color: var(--muted);
-    font-family: sans-serif;
+    font-family: var(--font-mono);
     margin-top: 1.5rem;
     padding-top: 1rem;
     border-top: 1px dashed var(--border);
@@ -396,7 +400,7 @@ import Layout from "../layouts/Layout.astro";
   }
   .section-label small {
     font-size: 0.65rem;
-    font-family: sans-serif;
+    font-family: var(--font-mono);
     opacity: 0.6;
   }
 
@@ -404,7 +408,7 @@ import Layout from "../layouts/Layout.astro";
     margin-bottom: 2.5rem;
   }
   .edu-date {
-    font-family: sans-serif;
+    font-family: var(--font-mono);
     font-size: 0.8rem;
     color: var(--accent);
     display: block;
@@ -447,7 +451,7 @@ import Layout from "../layouts/Layout.astro";
     text-decoration: none;
     color: var(--muted);
     font-size: 0.85rem;
-    font-family: sans-serif;
+    font-family: var(--font-mono);
     letter-spacing: 1px;
     transition: color 0.3s;
   }

@@ -22,6 +22,16 @@ const groupedMusic = allMusic.reduce((acc, post) => {
 const musicGroups = Object.entries(groupedMusic)
     .sort(([a], [b]) => b.localeCompare(a))
     .map(([key, val]) => ({ key, ...val }));
+
+function getExcerpt(body: string, maxLen = 120): string {
+    const text = body
+        .replace(/^#+\s+/gm, '')
+        .replace(/[*_`~>]/g, '')
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+        .replace(/\n+/g, ' ')
+        .trim();
+    return text.length > maxLen ? text.slice(0, maxLen).trimEnd() + '…' : text;
+}
 ---
 
 <Layout title="拾音集 | 樂評編目 - Bruce">
@@ -64,50 +74,77 @@ const musicGroups = Object.entries(groupedMusic)
             <div class="header-line"></div>
         </header>
 
-        <div id="music-grid">
-            {musicGroups.map((group) => (
-                <section class="date-group" data-group={group.key}>
-                    <div class="group-header">
-                        <span class="group-year">{group.year} 年</span>
-                        <span class="group-month">{group.month} 月</span>
-                        <div class="group-line"></div>
-                        <span class="group-count">{group.posts.length} TRACKS</span>
+        <div class="two-panel-layout">
+
+            <aside class="cd-panel">
+                <div class="cd-gesture-zone" id="cd-zone">
+                    <button class="cd-arrow" id="cd-arrow-up">&#8592;</button>
+                    <div class="cd-wrap">
+                        <div class="cd-disc" id="cd-disc">
+                            <div class="cd-art" id="cd-art"></div>
+                            <div class="cd-grooves"></div>
+                            <div class="cd-shine"></div>
+                            <div class="cd-spindle"></div>
+                        </div>
                     </div>
-                    <div class="mc-grid">
-                        {group.posts.map((post) => (
-                            <a
-                                href={`/music/${post.id}`}
-                                class="mc-card"
-                                data-artist={post.data.artist || "佚名"}
-                                data-language={post.data.language || "other"}
-                                data-youtube-id={post.data.youtubeId || ""}
-                                data-song-name={post.data.songName || ""}
-                            >
-                                <div class="mc-cover">
-                                    {post.data.youtubeId
-                                        ? <img class="mc-thumb" src={`https://img.youtube.com/vi/${post.data.youtubeId}/hqdefault.jpg`} alt={post.data.songName} loading="lazy" />
-                                        : <div class="mc-thumb-placeholder"><span>{post.data.artist}</span></div>
-                                    }
-                                    {post.data.youtubeId && (
-                                        <div class="mc-yt-wrapper">
-                                            <div class="mc-yt-target"></div>
+                    <button class="cd-arrow" id="cd-arrow-down">&#8594;</button>
+                </div>
+                <div class="cd-meta">
+                    <p class="cd-songname" id="cd-songname">— —</p>
+                    <p class="cd-artist" id="cd-artist">—</p>
+                </div>
+                <p class="cd-excerpt" id="cd-excerpt"></p>
+            </aside>
+
+            <section class="grid-panel">
+                <div id="music-grid">
+                    {musicGroups.map((group) => (
+                        <section class="date-group" data-group={group.key}>
+                            <div class="group-header">
+                                <span class="group-year">{group.year} 年</span>
+                                <span class="group-month">{group.month} 月</span>
+                                <div class="group-line"></div>
+                                <span class="group-count">{group.posts.length} TRACKS</span>
+                            </div>
+                            <div class="mc-grid">
+                                {group.posts.map((post) => (
+                                    <a
+                                        href={`/music/${post.id}`}
+                                        class="mc-card"
+                                        data-artist={post.data.artist || "佚名"}
+                                        data-language={post.data.language || "other"}
+                                        data-youtube-id={post.data.youtubeId || ""}
+                                        data-song-name={post.data.songName || ""}
+                                        data-desc={getExcerpt(post.body ?? '')}
+                                    >
+                                        <div class="mc-cover">
+                                            {post.data.youtubeId
+                                                ? <img class="mc-thumb" src={`https://img.youtube.com/vi/${post.data.youtubeId}/hqdefault.jpg`} alt={post.data.songName} loading="lazy" />
+                                                : <div class="mc-thumb-placeholder"><span>{post.data.artist}</span></div>
+                                            }
+                                            {post.data.youtubeId && (
+                                                <div class="mc-yt-wrapper">
+                                                    <div class="mc-yt-target"></div>
+                                                </div>
+                                            )}
+                                            <div class="mc-hover-overlay">
+                                                <span class="mc-play-icon">▶</span>
+                                                <span class="mc-hover-hint">懸停播放</span>
+                                            </div>
+                                            <span class="mc-artist-badge">{post.data.artist}</span>
                                         </div>
-                                    )}
-                                    <div class="mc-hover-overlay">
-                                        <span class="mc-play-icon">▶</span>
-                                        <span class="mc-hover-hint">懸停播放</span>
-                                    </div>
-                                    <span class="mc-artist-badge">{post.data.artist}</span>
-                                </div>
-                                <div class="mc-info">
-                                    <h3 class="mc-songname">《{post.data.songName}》</h3>
-                                    <p class="mc-desc">{post.data.title}</p>
-                                </div>
-                            </a>
-                        ))}
-                    </div>
-                </section>
-            ))}
+                                        <div class="mc-info">
+                                            <h3 class="mc-songname">《{post.data.songName}》</h3>
+                                            <p class="mc-desc">{post.data.title}</p>
+                                        </div>
+                                    </a>
+                                ))}
+                            </div>
+                        </section>
+                    ))}
+                </div>
+            </section>
+
         </div>
     </main>
 
@@ -169,6 +206,16 @@ const musicGroups = Object.entries(groupedMusic)
 
         if (!miniPlayer) return;
 
+        // ── CD 狀態 ──
+        var allCards = Array.from(document.querySelectorAll('.mc-card[data-youtube-id]'));
+        var cdIndex  = -1;
+        var cdDisc   = document.getElementById('cd-disc');
+        var cdArt    = document.getElementById('cd-art');
+        var cdZone   = document.getElementById('cd-zone');
+        var cdSongEl    = document.getElementById('cd-songname');
+        var cdArtEl     = document.getElementById('cd-artist');
+        var cdExcerptEl = document.getElementById('cd-excerpt');
+
         // ── 工具函式 ──
         function fmt(sec) {
             if (!isFinite(sec) || isNaN(sec)) return '0:00';
@@ -205,8 +252,40 @@ const musicGroups = Object.entries(groupedMusic)
             mpPlayPause.style.letterSpacing = isLong ? '0.5px' : '';
         }
 
+        // ── CD 更新 ──
+        function syncCdToCard(card) {
+            cdIndex = allCards.indexOf(card);
+            var ytId = card.dataset.youtubeId || '';
+            if (cdArt) cdArt.style.backgroundImage = ytId
+                ? 'url(https://img.youtube.com/vi/' + ytId + '/hqdefault.jpg)' : '';
+            if (cdSongEl)    cdSongEl.textContent    = card.dataset.songName ? '《' + card.dataset.songName + '》' : '— —';
+            if (cdArtEl)     cdArtEl.textContent     = card.dataset.artist || '—';
+            if (cdExcerptEl) cdExcerptEl.textContent = card.dataset.desc || '';
+            allCards.forEach(function(c) { c.classList.remove('cd-selected'); });
+            card.classList.add('cd-selected');
+        }
+
+        function setCdSpin(playing) {
+            if (cdDisc) cdDisc.classList.toggle('is-spinning', playing);
+        }
+
+        function cdCycle(dir) {
+            var visible = allCards.filter(function(c) { return c.style.display !== 'none'; });
+            if (!visible.length) return;
+            var cur  = visible.indexOf(allCards[cdIndex]);
+            var next = cur === -1 ? (dir > 0 ? 0 : visible.length - 1)
+                                  : (cur + dir + visible.length) % visible.length;
+            var target = visible[next];
+            syncCdToCard(target);
+            activateCard(target);
+            var arrowEl = dir > 0 ? document.getElementById('cd-arrow-down') : document.getElementById('cd-arrow-up');
+            if (arrowEl) { arrowEl.classList.add('flash'); setTimeout(function() { arrowEl.classList.remove('flash'); }, 300); }
+            target.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
         // ── 停止清理 ──
         function stopPlayer() {
+            setCdSpin(false);
             if (pollTimer)  { clearInterval(pollTimer); pollTimer = null; }
             if (ytPlayer)   { try { ytPlayer.destroy(); } catch (_) {} ytPlayer = null; }
             if (activeCard) { activeCard.classList.remove('active'); activeCard = null; }
@@ -259,9 +338,9 @@ const musicGroups = Object.entries(groupedMusic)
                     },
                     onStateChange: function (e) {
                         // YT.PlayerState: 1=playing, 2=paused, 0=ended
-                        if (e.data === 1)      setMpBtn('⏸');
-                        else if (e.data === 2) setMpBtn('▶');
-                        else if (e.data === 0) setMpBtn('▶');
+                        if (e.data === 1)      { setMpBtn('⏸'); setCdSpin(true); }
+                        else if (e.data === 2) { setMpBtn('▶'); setCdSpin(false); }
+                        else if (e.data === 0) { setMpBtn('▶'); setCdSpin(false); }
                     }
                 }
             });
@@ -276,6 +355,7 @@ const musicGroups = Object.entries(groupedMusic)
             if (activeCard) { activeCard.classList.remove('active'); }
 
             activeCard = card;
+            syncCdToCard(card);
             var ytId = card.dataset.youtubeId;
 
             if (window.ytApiReady) {
@@ -332,8 +412,8 @@ const musicGroups = Object.entries(groupedMusic)
                 clearTimeout(switchTimer);
                 if (activeCard === card) return;        // 已在播這首，不動作
                 if (activeCard) {
-                    // 有其他歌在播：延遲 3 秒才切換
-                    switchTimer = setTimeout(function () { activateCard(card); }, 1500);
+                    // 有其他歌在播：延遲 2 秒才切換（CD 封面也等到真正切換才更新）
+                    switchTimer = setTimeout(function () { activateCard(card); }, 2000);
                 } else {
                     // 沒有歌在播：立即開始
                     activateCard(card);
@@ -344,6 +424,41 @@ const musicGroups = Object.entries(groupedMusic)
                 clearTimeout(switchTimer);  // 離開卡片就取消預約切換
             });
         });
+
+        // ── CD 滾輪 ──
+        var wheelTimer = null;
+        if (cdZone) {
+            cdZone.addEventListener('wheel', function(e) {
+                e.preventDefault();
+                if (wheelTimer) return;
+                wheelTimer = setTimeout(function() { wheelTimer = null; }, 400);
+                cdCycle(e.deltaY > 0 ? 1 : -1);
+            }, { passive: false });
+        }
+
+        // ── CD 拖拉 / 觸控 ──
+        var dragY = null, dragMoved = false;
+        if (cdZone) {
+            cdZone.addEventListener('mousedown', function(e) { dragY = e.clientY; dragMoved = false; e.preventDefault(); });
+            window.addEventListener('mousemove', function(e) {
+                if (dragY === null) return;
+                var d = e.clientY - dragY;
+                if (Math.abs(d) > 30 && !dragMoved) { dragMoved = true; dragY = e.clientY; cdCycle(d > 0 ? 1 : -1); }
+            });
+            window.addEventListener('mouseup', function() { dragY = null; });
+            cdZone.addEventListener('touchstart', function(e) { dragY = e.touches[0].clientY; dragMoved = false; }, { passive: true });
+            cdZone.addEventListener('touchmove', function(e) {
+                if (dragY === null) return;
+                var d = e.touches[0].clientY - dragY;
+                if (Math.abs(d) > 30 && !dragMoved) { dragMoved = true; dragY = e.touches[0].clientY; cdCycle(d > 0 ? 1 : -1); }
+            }, { passive: true });
+            cdZone.addEventListener('touchend', function() { dragY = null; }, { passive: true });
+
+            // 箭頭點擊
+            var au = document.getElementById('cd-arrow-up'), ad = document.getElementById('cd-arrow-down');
+            if (au) au.addEventListener('click', function() { cdCycle(-1); });
+            if (ad) ad.addEventListener('click', function() { cdCycle(1); });
+        }
 
         // ── 播放 / 暫停 ──
         mpPlayPause.addEventListener('click', function () {
@@ -376,6 +491,9 @@ const musicGroups = Object.entries(groupedMusic)
         }
         mpBar.addEventListener('mouseup',  commitSeek);
         mpBar.addEventListener('touchend', commitSeek);
+
+        // ── 初始化：同步第一張卡片到 CD ──
+        if (allCards.length) syncCdToCard(allCards[0]);
     }
 
     document.addEventListener('astro:page-load', musicSetup);
@@ -392,7 +510,7 @@ const musicGroups = Object.entries(groupedMusic)
     /* ── Header ── */
     .header-row { display: flex; align-items: flex-end; gap: 2.5rem; }
     .archive-header h1 { font-size: 1.6rem; margin: 0; font-weight: 700; letter-spacing: -1.5px; }
-    .archive-header h1 small { font-size: 0.75rem; font-family: sans-serif; letter-spacing: 4px; color: var(--muted); font-weight: 400; margin-left: 0.6rem; }
+    .archive-header h1 small { font-size: 0.75rem; font-family: var(--font-mono); letter-spacing: 4px; color: var(--muted); font-weight: 400; margin-left: 0.6rem; }
     .header-line { width: 100%; height: 1px; background: var(--border); margin: 1rem 0 1.5rem; position: relative; }
     .header-line::after { content: ''; position: absolute; left: 0; top: -1px; width: 80px; height: 3px; background: var(--accent); }
 
@@ -412,7 +530,7 @@ const musicGroups = Object.entries(groupedMusic)
     .archive-filter { display: flex; align-items: center; gap: 1.4rem; padding-bottom: 0.15rem; flex-shrink: 0; }
     .lang-filter { display: flex; align-items: center; gap: 0.6rem; }
     .artist-filter { display: flex; align-items: center; gap: 0.6rem; }
-    .filter-label { font-size: 0.6rem; font-family: sans-serif; letter-spacing: 2px; color: var(--muted); font-weight: 700; text-transform: uppercase; white-space: nowrap; }
+    .filter-label { font-size: 0.6rem; font-family: var(--font-mono); letter-spacing: 2px; color: var(--muted); font-weight: 700; text-transform: uppercase; white-space: nowrap; }
 
     /* 語系 tabs */
     .lang-tabs { display: flex; align-items: center; gap: 0.3rem; }
@@ -428,13 +546,165 @@ const musicGroups = Object.entries(groupedMusic)
     .select-arrow { position: absolute; right: 0.5rem; font-size: 0.6rem; color: var(--muted); pointer-events: none; transition: color 0.3s; }
     .select-wrapper:hover .select-arrow { color: var(--accent); }
 
+    /* ── Two-panel layout ── */
+    .two-panel-layout {
+        display: flex;
+        gap: 2.5rem;
+        align-items: flex-start;
+    }
+    .cd-panel {
+        width: 38%;
+        flex-shrink: 0;
+        position: sticky;
+        top: calc(var(--nav-h, 60px) + 1.5rem);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.2rem;
+        padding: 1.8rem 1rem 1.2rem;
+        border-radius: 8px;
+        background: radial-gradient(ellipse 90% 55% at 50% 38%, rgba(139,69,19,0.07) 0%, transparent 70%);
+    }
+    .grid-panel { flex: 1; min-width: 0; }
+
+    /* ── CD disc ── */
+    .cd-wrap { display: flex; align-items: center; justify-content: center; }
+    .cd-disc {
+        width: 280px;
+        height: 280px;
+        border-radius: 50%;
+        position: relative;
+        overflow: hidden;
+        transform-origin: center;
+    }
+    .cd-disc.is-spinning { animation: cd-spin 4s linear infinite; }
+    @keyframes cd-spin { to { transform: rotate(360deg); } }
+    .cd-art {
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background-size: cover;
+        background-position: center;
+        background-color: #1a1410;
+        filter: brightness(0.82);
+    }
+    .cd-grooves {
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        box-shadow:
+            inset 0 0 0 14px rgba(0,0,0,.08),
+            inset 0 0 0 28px rgba(255,255,255,.04),
+            inset 0 0 0 42px rgba(0,0,0,.06),
+            inset 0 0 0 56px rgba(255,255,255,.03),
+            inset 0 0 0 70px rgba(0,0,0,.07),
+            inset 0 0 0 84px rgba(255,255,255,.03);
+        pointer-events: none;
+        z-index: 1;
+    }
+    .cd-shine {
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background: conic-gradient(
+            from 0deg,
+            rgba(255,100,100,.12),
+            rgba(255,200,50,.10) 60deg,
+            rgba(100,255,100,.08) 120deg,
+            rgba(50,200,255,.10) 180deg,
+            rgba(150,50,255,.08) 240deg,
+            rgba(255,100,200,.10) 300deg,
+            rgba(255,100,100,.12)
+        );
+        pointer-events: none;
+        z-index: 2;
+        mix-blend-mode: screen;
+    }
+    .cd-spindle {
+        position: absolute;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: var(--paper);
+        border: 2px solid rgba(0,0,0,.15);
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 4;
+    }
+
+    /* ── CD gesture zone, arrows, metadata ── */
+    .cd-gesture-zone {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 1.2rem;
+        user-select: none;
+    }
+    .cd-arrow {
+        background: none;
+        border: 1.5px solid var(--border);
+        border-radius: 50%;
+        width: 38px;
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        color: var(--muted);
+        cursor: pointer;
+        transition: all 0.2s;
+        flex-shrink: 0;
+        padding: 0;
+    }
+    .cd-arrow:hover { color: var(--ink); border-color: var(--accent); }
+    .cd-arrow.flash { color: var(--accent); border-color: var(--accent); transform: scale(1.2); }
+    .cd-meta { text-align: center; }
+    .cd-songname { font-size: 0.95rem; font-weight: 700; margin: 0; color: var(--ink); }
+    .cd-artist { font-size: 0.7rem; letter-spacing: 1.5px; color: var(--muted); text-transform: uppercase; margin: 0.15rem 0 0; }
+    .cd-excerpt {
+        font-size: 0.97rem;
+        font-style: italic;
+        color: var(--muted);
+        line-height: 1.75;
+        text-align: left;
+        margin: 0;
+        padding: 0.8rem 1.2rem;
+        border-top: 1px solid var(--border);
+        width: 100%;
+        min-height: 2.8em;
+        position: relative;
+        box-sizing: border-box;
+    }
+    .cd-excerpt:not(:empty)::before {
+        content: '"';
+        font-size: 1.4rem;
+        color: var(--accent);
+        line-height: 0;
+        vertical-align: -0.35em;
+        margin-right: 0.2em;
+        font-style: normal;
+    }
+    .cd-excerpt:not(:empty)::after {
+        content: '"';
+        font-size: 1.4rem;
+        color: var(--accent);
+        line-height: 0;
+        vertical-align: -0.35em;
+        margin-left: 0.2em;
+        font-style: normal;
+    }
+
+    /* ── CD selected card highlight ── */
+    .mc-card.cd-selected { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+
     /* ── Date group ── */
     .date-group { margin-bottom: 3rem; }
     .group-header { display: flex; align-items: baseline; gap: 0.6rem; margin-bottom: 1.2rem; }
-    .group-year { font-size: 0.62rem; font-family: sans-serif; letter-spacing: 2px; color: var(--muted); }
+    .group-year { font-size: 0.62rem; font-family: var(--font-mono); letter-spacing: 2px; color: var(--muted); }
     .group-month { font-size: 1.15rem; font-weight: 700; color: var(--ink); letter-spacing: -0.5px; }
     .group-line { flex: 1; height: 1px; background: var(--border); align-self: center; }
-    .group-count { font-size: 0.58rem; font-family: sans-serif; letter-spacing: 2px; color: var(--accent); font-weight: 700; }
+    .group-count { font-size: 0.58rem; font-family: var(--font-mono); letter-spacing: 2px; color: var(--accent); font-weight: 700; }
 
     /* ── Grid ── */
     .mc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; }
@@ -449,7 +719,7 @@ const musicGroups = Object.entries(groupedMusic)
     .mc-thumb { width: 100%; height: 100%; object-fit: cover; display: block; transition: opacity 0.4s; }
     .mc-card.active .mc-thumb { opacity: 0; }
     .mc-thumb-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(139,69,19,0.08), rgba(139,69,19,0.18)); }
-    .mc-thumb-placeholder span { font-family: sans-serif; font-size: 0.75rem; letter-spacing: 3px; color: var(--accent); text-transform: uppercase; font-weight: 700; }
+    .mc-thumb-placeholder span { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 3px; color: var(--accent); text-transform: uppercase; font-weight: 700; }
 
     /* ── YouTube wrapper（YT.Player 的目標容器）── */
     .mc-yt-wrapper { position: absolute; inset: 0; opacity: 0; transition: opacity 0.45s; z-index: 1; overflow: hidden; }
@@ -458,13 +728,13 @@ const musicGroups = Object.entries(groupedMusic)
     /* ── Hover overlay ── */
     .mc-hover-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; background: transparent; transition: background 0.3s; z-index: 2; pointer-events: none; }
     .mc-play-icon { font-size: 2rem; color: #fff; opacity: 0; transform: scale(0.8); transition: opacity 0.25s, transform 0.25s; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
-    .mc-hover-hint { font-size: 0.6rem; font-family: sans-serif; letter-spacing: 2px; color: #fff; opacity: 0; transition: opacity 0.25s; text-shadow: 0 1px 6px rgba(0,0,0,0.5); }
+    .mc-hover-hint { font-size: 0.6rem; font-family: var(--font-mono); letter-spacing: 2px; color: #fff; opacity: 0; transition: opacity 0.25s; text-shadow: 0 1px 6px rgba(0,0,0,0.5); }
     .mc-card:hover:not(.active) .mc-hover-overlay { background: rgba(0,0,0,0.18); }
     .mc-card:hover:not(.active) .mc-play-icon { opacity: 1; transform: scale(1); }
     .mc-card:hover:not(.active) .mc-hover-hint { opacity: 1; }
 
     /* ── Artist badge ── */
-    .mc-artist-badge { position: absolute; top: 0.6rem; right: 0.6rem; font-size: 0.72rem; font-family: sans-serif; letter-spacing: 0.5px; padding: 3px 10px; border-radius: 20px; font-weight: 700; background: rgba(20,10,5,0.68); color: #fff; z-index: 3; pointer-events: none; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+    .mc-artist-badge { position: absolute; top: 0.6rem; right: 0.6rem; font-size: 0.72rem; font-family: var(--font-mono); letter-spacing: 0.5px; padding: 3px 10px; border-radius: 20px; font-weight: 700; background: rgba(20,10,5,0.68); color: #fff; z-index: 3; pointer-events: none; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
 
     /* ── Info ── */
     .mc-info { padding: 0.9rem; display: flex; flex-direction: column; gap: 0.3rem; flex: 1; }
@@ -492,7 +762,7 @@ const musicGroups = Object.entries(groupedMusic)
 
     .mp-info { min-width: 140px; display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
     .mp-song { font-size: 0.82rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .mp-artist { font-size: 0.6rem; color: rgba(255,255,255,0.55); font-family: sans-serif; letter-spacing: 1.5px; text-transform: uppercase; }
+    .mp-artist { font-size: 0.6rem; color: rgba(255,255,255,0.55); font-family: var(--font-mono); letter-spacing: 1.5px; text-transform: uppercase; }
 
     .mp-controls { flex: 1; display: flex; align-items: center; gap: 1rem; min-width: 0; }
 
@@ -530,6 +800,17 @@ const musicGroups = Object.entries(groupedMusic)
     .mp-bar::-moz-range-thumb { width: 13px; height: 13px; border: none; border-radius: 50%; background: var(--accent); cursor: pointer; }
     .mp-bar::-moz-range-track { height: 3px; background: rgba(255,255,255,0.18); border-radius: 3px; }
 
+    /* ── Mini Player dark mode ── */
+    [data-theme="dark"] .mini-player {
+        background: #110e0a;
+        color: #e8ddd0;
+    }
+    [data-theme="dark"] .mp-btn        { color: #e8ddd0; }
+    [data-theme="dark"] .mp-close-btn  { color: rgba(232,221,208,0.45); }
+    [data-theme="dark"] .mp-close-btn:hover { color: #e8ddd0; }
+    [data-theme="dark"] .mp-artist     { color: rgba(232,221,208,0.55); }
+    [data-theme="dark"] .mp-time       { color: rgba(232,221,208,0.50); }
+
     /* ── Responsive ── */
     @media (max-width: 850px) {
         .mc-grid { grid-template-columns: repeat(2, 1fr); }
@@ -537,6 +818,12 @@ const musicGroups = Object.entries(groupedMusic)
         .page-desc { border-left: none; padding-left: 0; }
         .archive-header h1 { font-size: 2.5rem; }
         .archive-filter { flex-direction: column; align-items: flex-start; gap: 0.8rem; }
+    }
+    @media (max-width: 768px) {
+        .two-panel-layout { flex-direction: column; gap: 1.5rem; }
+        .cd-panel { width: 100%; position: static; }
+        .cd-wrap, .cd-disc { width: 180px; height: 180px; }
+        .cd-spindle { width: 18px; height: 18px; }
     }
     @media (max-width: 500px) {
         .mc-grid { grid-template-columns: 1fr; }

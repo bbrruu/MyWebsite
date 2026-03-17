@@ -74,7 +74,7 @@ const dateStr = note.data.pubDate.toLocaleDateString("zh-TW", {
   .note-article { width: 100%; padding: 0; font-family: "Noto Serif TC", serif; color: var(--ink); }
 
   .inner-nav { margin-bottom: 1.5rem; }
-  .back-link { display: inline-flex; align-items: center; text-decoration: none; color: var(--muted); font-size: 0.7rem; letter-spacing: 2px; font-family: sans-serif; }
+  .back-link { display: inline-flex; align-items: center; text-decoration: none; color: var(--muted); font-size: 0.7rem; letter-spacing: 2px; font-family: var(--font-mono); }
   .back-link:hover { color: var(--accent); }
   .back-link .arrow { margin-right: 8px; transition: 0.4s; }
   .back-link:hover .arrow { transform: translateX(-4px); }
@@ -86,24 +86,24 @@ const dateStr = note.data.pubDate.toLocaleDateString("zh-TW", {
     margin-bottom: 0.6rem;
   }
   .note-category {
-    font-size: 0.62rem; font-family: sans-serif; letter-spacing: 3px;
+    font-size: 0.62rem; font-family: var(--font-mono); letter-spacing: 3px;
     color: var(--accent); text-transform: uppercase; font-weight: 700;
     background: rgba(139,69,19,0.08); padding: 2px 10px; border-radius: 3px;
   }
-  .note-date { font-size: 0.7rem; font-family: sans-serif; color: var(--muted); }
+  .note-date { font-size: 0.7rem; font-family: var(--font-mono); color: var(--muted); }
 
-  .note-desc { font-size: 0.85rem; color: var(--muted); margin: 0 0 0.5rem; font-family: sans-serif; letter-spacing: 1px; }
+  .note-desc { font-size: 0.85rem; color: var(--muted); margin: 0 0 0.5rem; font-family: var(--font-mono); letter-spacing: 1px; }
   .note-title { font-size: 2rem; margin: 0 0 1rem; font-weight: 700; letter-spacing: -1.5px; line-height: 1.4; }
 
   .note-footer-meta { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
   .note-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; }
   .tag {
-    font-size: 0.65rem; font-family: sans-serif; letter-spacing: 1px;
+    font-size: 0.65rem; font-family: var(--font-mono); letter-spacing: 1px;
     padding: 3px 9px; border: 1px solid var(--border); border-radius: 3px; color: var(--muted);
   }
 
   .demo-btn {
-    font-size: 0.7rem; font-family: sans-serif; letter-spacing: 1.5px; font-weight: 700;
+    font-size: 0.7rem; font-family: var(--font-mono); letter-spacing: 1.5px; font-weight: 700;
     color: var(--paper); background: var(--accent); text-decoration: none;
     padding: 5px 14px; border-radius: 3px; transition: 0.3s;
     box-shadow: 2px 2px 0 rgba(0,0,0,0.12);
@@ -115,7 +115,7 @@ const dateStr = note.data.pubDate.toLocaleDateString("zh-TW", {
   .note-content { width: 100%; line-height: 2.2; font-size: 1.05rem; text-align: justify; margin-top: 2rem; }
 
   .note-foot { margin-top: 5rem; padding-top: 2rem; border-top: 1px dashed var(--border); }
-  .foot-info { display: flex; align-items: center; gap: 0.8rem; font-size: 0.75rem; color: var(--muted); font-family: sans-serif; }
+  .foot-info { display: flex; align-items: center; gap: 0.8rem; font-size: 0.75rem; color: var(--muted); font-family: var(--font-mono); }
   .dot { color: var(--border); }
 
   @media (max-width: 768px) {
@@ -144,7 +144,7 @@ const dateStr = note.data.pubDate.toLocaleDateString("zh-TW", {
   }
   .note-content th {
     text-align: left; padding: 0.5rem 0.75rem; border-bottom: 2px solid var(--border);
-    font-size: 0.75rem; letter-spacing: 0.08em; color: var(--muted); font-family: sans-serif;
+    font-size: 0.75rem; letter-spacing: 0.08em; color: var(--muted); font-family: var(--font-mono);
   }
   .note-content td {
     padding: 0.45rem 0.75rem; border-bottom: 1px solid var(--border); vertical-align: top;

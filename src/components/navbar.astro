@@ -158,15 +158,31 @@ const { currentPath } = Astro.props;
   .nav-links a {
     text-decoration: none;
     color: var(--muted);
-    transition: 0.3s;
+    transition: color 0.3s;
     font-size: 0.85rem;
     letter-spacing: 1px;
     font-family: "Noto Serif TC", serif;
+    position: relative;
+    padding-bottom: 2px;
   }
-
-  .nav-links a:hover, .nav-links a.active {
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1.5px;
+    background: var(--accent);
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .nav-links a:hover,
+  .nav-links a.active {
     color: var(--ink);
     font-weight: 700;
+  }
+  .nav-links a:hover::after,
+  .nav-links a.active::after {
+    width: 100%;
   }
 
   .nav-right {
@@ -178,8 +194,9 @@ const { currentPath } = Astro.props;
 
   .current-time {
     color: var(--accent);
-    font-family: monospace;
-    font-size: 0.8rem;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.5px;
   }
 
   .lang-toggle-btn {
@@ -189,7 +206,7 @@ const { currentPath } = Astro.props;
     background: none;
     border: none;
     cursor: pointer;
-    font-family: sans-serif;
+    font-family: var(--font-mono);
     font-size: 0.75rem;
     padding: 0;
     transition: 0.3s;

@@ -668,7 +668,7 @@ const slides = [
     .banner-slogan { font-size: 0.9rem; margin-top: 0.7rem; color: var(--muted); font-style: italic; letter-spacing: 0.1rem; transition: opacity 0.5s; }
 
     .profile-cta  { margin-top: 1.5rem; position: relative; padding-bottom: 6px; font-weight: bold; }
-    .cta-text     { font-size: 0.7rem; font-family: sans-serif; color: var(--muted); letter-spacing: 2px; transition: color 0.4s; }
+    .cta-text     { font-size: 0.7rem; font-family: var(--font-mono); color: var(--muted); letter-spacing: 2px; transition: color 0.4s; }
     .cta-line     { position: absolute; bottom: 0; left: 50%; width: 30px; height: 1px; background: var(--border); transform: translateX(-50%); transition: width 0.4s, background 0.4s; }
     .banner-link-wrapper:hover .cta-text { color: var(--accent); }
     .banner-link-wrapper:hover .cta-line { width: 120px; background: var(--accent); }
@@ -756,7 +756,7 @@ const slides = [
     }
     .cs-en {
         font-size: 0.72rem;
-        font-family: sans-serif;
+        font-family: var(--font-mono);
         letter-spacing: 3px;
         color: var(--accent);
         font-weight: 700;
@@ -777,7 +777,7 @@ const slides = [
     .cs-count {
         font-size: clamp(2.2rem, 4vw, 3.4rem);
         font-weight: 700;
-        font-family: sans-serif;
+        font-family: var(--font-mono);
         color: var(--accent);
         line-height: 1;
         letter-spacing: -2px;
@@ -799,7 +799,7 @@ const slides = [
     .cs-label {
         flex-shrink: 0;
         font-size: 0.66rem;
-        font-family: sans-serif;
+        font-family: var(--font-mono);
         letter-spacing: 2px;
         color: var(--muted);
         font-weight: 700;
@@ -848,10 +848,10 @@ const slides = [
     /* ══ Content Section（以下沿用既有樣式）════════════════════ */
     .featured-projects { margin-bottom: 3rem; }
     .fp-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.2rem; padding-bottom: 0.7rem; border-bottom: 1px solid var(--border); }
-    .fp-label  { font-size: 0.6rem; font-family: sans-serif; letter-spacing: 4px; color: var(--accent); display: block; margin-bottom: 0.3rem; text-transform: uppercase; }
+    .fp-label  { font-size: 0.6rem; font-family: var(--font-mono); letter-spacing: 4px; color: var(--accent); display: block; margin-bottom: 0.3rem; text-transform: uppercase; }
     .fp-title  { font-size: 1.4rem; margin: 0; font-weight: 700; }
-    .fp-sub    { font-size: 0.7rem; font-family: sans-serif; letter-spacing: 3px; color: var(--muted); font-weight: 400; margin-left: 0.5rem; }
-    .fp-view-all { font-size: 0.75rem; font-family: sans-serif; letter-spacing: 2px; color: var(--muted); text-decoration: none; transition: color 0.3s; }
+    .fp-sub    { font-size: 0.7rem; font-family: var(--font-mono); letter-spacing: 3px; color: var(--muted); font-weight: 400; margin-left: 0.5rem; }
+    .fp-view-all { font-size: 0.75rem; font-family: var(--font-mono); letter-spacing: 2px; color: var(--muted); text-decoration: none; transition: color 0.3s; }
     .fp-view-all:hover { color: var(--accent); }
 
     .fp-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; }
@@ -862,8 +862,8 @@ const slides = [
     .fp-cover img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
     .fp-card:hover .fp-cover img { transform: scale(1.04); }
     .fp-cover-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg,rgba(139,69,19,.08),rgba(139,69,19,.18)); }
-    .fp-cover-placeholder span { font-family: sans-serif; font-size: 0.75rem; letter-spacing: 3px; color: var(--accent); text-transform: uppercase; font-weight: 700; }
-    .fp-status { position: absolute; top: 0.6rem; right: 0.6rem; font-size: 0.6rem; font-family: sans-serif; letter-spacing: 1px; padding: 2px 7px; border-radius: 20px; font-weight: 700; }
+    .fp-cover-placeholder span { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 3px; color: var(--accent); text-transform: uppercase; font-weight: 700; }
+    .fp-status { position: absolute; top: 0.6rem; right: 0.6rem; font-size: 0.6rem; font-family: var(--font-mono); letter-spacing: 1px; padding: 2px 7px; border-radius: 20px; font-weight: 700; }
     .fp-status--active   { background: rgba(34,197,94,.15);  color: #16a34a; }
     .fp-status--wip      { background: rgba(249,115,22,.15); color: #ea580c; }
     .fp-status--archived { background: rgba(100,116,139,.15);color: #64748b; }
@@ -871,9 +871,9 @@ const slides = [
     .fp-name { font-size: 1rem; font-weight: 700; margin: 0; }
     .fp-desc { font-size: 0.78rem; color: var(--muted); margin: 0; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     .fp-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: auto; }
-    .fp-tag  { font-size: 0.62rem; font-family: sans-serif; letter-spacing: 1px; padding: 2px 7px; border: 1px solid var(--border); border-radius: 3px; color: var(--muted); }
+    .fp-tag  { font-size: 0.62rem; font-family: var(--font-mono); letter-spacing: 1px; padding: 2px 7px; border: 1px solid var(--border); border-radius: 3px; color: var(--muted); }
     .fp-links { display: flex; gap: 0.5rem; }
-    .fp-link-badge { font-size: 0.6rem; font-family: sans-serif; letter-spacing: 1px; padding: 2px 7px; background: rgba(139,69,19,.08); color: var(--accent); border-radius: 3px; }
+    .fp-link-badge { font-size: 0.6rem; font-family: var(--font-mono); letter-spacing: 1px; padding: 2px 7px; background: rgba(139,69,19,.08); color: var(--accent); border-radius: 3px; }
 
     .featured-music { margin-bottom: 3rem; }
     .fm-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; }
@@ -883,8 +883,8 @@ const slides = [
     .fm-cover img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
     .fm-card:hover .fm-cover img { transform: scale(1.04); }
     .fm-cover-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg,rgba(139,69,19,.08),rgba(139,69,19,.18)); }
-    .fm-cover-placeholder span { font-family: sans-serif; font-size: 0.75rem; letter-spacing: 3px; color: var(--accent); text-transform: uppercase; font-weight: 700; }
-    .fm-artist { position: absolute; top: 0.6rem; right: 0.6rem; font-size: 0.6rem; font-family: sans-serif; letter-spacing: 1px; padding: 2px 8px; border-radius: 20px; font-weight: 700; background: rgba(139,69,19,.18); color: var(--accent); }
+    .fm-cover-placeholder span { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 3px; color: var(--accent); text-transform: uppercase; font-weight: 700; }
+    .fm-artist { position: absolute; top: 0.6rem; right: 0.6rem; font-size: 0.6rem; font-family: var(--font-mono); letter-spacing: 1px; padding: 2px 8px; border-radius: 20px; font-weight: 700; background: rgba(139,69,19,.18); color: var(--accent); }
     .fm-info { padding: 0.9rem; display: flex; flex-direction: column; gap: 0.3rem; flex: 1; }
     .fm-songname { font-size: 1rem; font-weight: 700; margin: 0; }
     .fm-desc { font-size: 0.78rem; color: var(--muted); margin: 0; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
@@ -990,7 +990,7 @@ const slides = [
     }
     .cs-about-sub {
         font-size: 0.62rem;
-        font-family: sans-serif;
+        font-family: var(--font-mono);
         color: var(--muted);
         letter-spacing: 2px;
     }
