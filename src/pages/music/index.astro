@@ -28,7 +28,9 @@ function getExcerpt(body: string, maxLen = 120): string {
         .replace(/^#+\s+/gm, '')
         .replace(/[*_`~>]/g, '')
         .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-        .replace(/\n+/g, ' ')
+        .replace(/\n{2,}/g, '|||')    // paragraph breaks → placeholder
+        .replace(/\n/g, ' ')          // soft line-wraps → space (matches MD render)
+        .replace(/\|\|\|/g, '\n')     // placeholder → real newline
         .trim();
     return text.length > maxLen ? text.slice(0, maxLen).trimEnd() + '…' : text;
 }
@@ -260,7 +262,14 @@ function getExcerpt(body: string, maxLen = 120): string {
                 ? 'url(https://img.youtube.com/vi/' + ytId + '/hqdefault.jpg)' : '';
             if (cdSongEl)    cdSongEl.textContent    = card.dataset.songName ? '《' + card.dataset.songName + '》' : '— —';
             if (cdArtEl)     cdArtEl.textContent     = card.dataset.artist || '—';
-            if (cdExcerptEl) cdExcerptEl.textContent = card.dataset.desc || '';
+            if (cdExcerptEl) {
+                var desc = (card.dataset.desc || '')
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/\n/g, '<br>');
+                cdExcerptEl.innerHTML = desc;
+            }
             allCards.forEach(function(c) { c.classList.remove('cd-selected'); });
             card.classList.add('cd-selected');
         }
@@ -672,9 +681,8 @@ function getExcerpt(body: string, maxLen = 120): string {
         padding: 0.8rem 1.2rem;
         border-top: 1px solid var(--border);
         width: 100%;
-        min-height: 2.8em;
-        position: relative;
         box-sizing: border-box;
+        white-space: pre-line;
     }
     .cd-excerpt:not(:empty)::before {
         content: '"';
