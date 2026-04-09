@@ -33,8 +33,6 @@ import Layout from "../layouts/Layout.astro";
           <p data-lang="zh">
             哈囉你好我是曾冠瑜 Bruce，或是你可以叫我逼逼。<br />
             目前就讀於國立臺灣大學語言學研究所碩士班，在LOPE實驗室裡面做些計算語言學、NLP、AI相關的研究！<br />
-            
-            
           </p>
           <p data-lang="en" style="display: none;">
             Write your self-introduction here.
@@ -44,10 +42,92 @@ import Layout from "../layouts/Layout.astro";
       </div>
     </header>
 
+    <!-- Fun Facts Strip -->
+    <div class="fun-facts-strip">
+      <div class="fact-item">
+        <span class="fact-num">4</span>
+        <span class="fact-label" data-lang="zh">口說語言</span>
+        <span class="fact-label" data-lang="en" style="display:none">Languages</span>
+      </div>
+      <div class="fact-divider"></div>
+      <div class="fact-item">
+        <span class="fact-num">LOPE</span>
+        <span class="fact-label" data-lang="zh">研究實驗室</span>
+        <span class="fact-label" data-lang="en" style="display:none">Research Lab</span>
+      </div>
+      <div class="fact-divider"></div>
+      <div class="fact-item">
+        <span class="fact-num">∞</span>
+        <span class="fact-label" data-lang="zh">杯咖啡</span>
+        <span class="fact-label" data-lang="en" style="display:none">Cups of Coffee</span>
+      </div>
+      <div class="fact-divider"></div>
+      <div class="fact-item">
+        <span class="fact-num">6+</span>
+        <span class="fact-label" data-lang="zh">年的吉他</span>
+        <span class="fact-label" data-lang="en" style="display:none">Yrs of Guitar</span>
+      </div>
+      <div class="fact-divider"></div>
+      <div class="fact-item">
+        <span class="fact-num">NTU</span>
+        <span class="fact-label" data-lang="zh">國立臺灣大學</span>
+        <span class="fact-label" data-lang="en" style="display:none">Natl Taiwan Univ.</span>
+      </div>
+    </div>
+
     <div class="about-grid">
+
+      <!-- ── LEFT COLUMN ── -->
       <div class="grid-column left-col">
+
+        <!-- Research Interests -->
         <section class="info-section">
-          <h2 class="section-label"><span data-lang="zh">學歷清單</span><span data-lang="en" style="display: none;">Education</span> <small data-lang="zh">Education</small><small data-lang="en" style="display: none;">學歷清單</small></h2>
+          <h2 class="section-label">
+            <span data-lang="zh">研究興趣</span><span data-lang="en" style="display: none;">Research Interests</span>
+            <small data-lang="zh">Research Interests</small><small data-lang="en" style="display: none;">研究興趣</small>
+          </h2>
+          <div class="research-tags">
+            <span class="r-tag" data-lang="zh">自然語言處理</span>
+            <span class="r-tag" data-lang="en" style="display:none">Natural Language Processing</span>
+            <span class="r-tag" data-lang="zh">語言模型</span>
+            <span class="r-tag" data-lang="en" style="display:none">Language Models</span>
+            <span class="r-tag" data-lang="zh">計算語言學</span>
+            <span class="r-tag" data-lang="en" style="display:none">Computational Linguistics</span>
+            <span class="r-tag" data-lang="zh">句法學</span>
+            <span class="r-tag" data-lang="en" style="display:none">Syntax</span>
+            <span class="r-tag" data-lang="zh">語意學</span>
+            <span class="r-tag" data-lang="en" style="display:none">Semantics</span>
+            <span class="r-tag" data-lang="zh">語料庫語言學</span>
+            <span class="r-tag" data-lang="en" style="display:none">Corpus Linguistics</span>
+            <span class="r-tag" data-lang="zh">語用學</span>
+            <span class="r-tag" data-lang="en" style="display:none">Pragmatics</span>
+          </div>
+        </section>
+
+        <!-- Publications -->
+        <section class="info-section">
+          <h2 class="section-label">
+            <span data-lang="zh">發表著作</span><span data-lang="en" style="display: none;">Publications</span>
+            <small data-lang="zh">Publications</small><small data-lang="en" style="display: none;">發表著作</small>
+          </h2>
+          <div class="pub-list">
+            <div class="pub-item">
+              <div class="pub-status-row">
+                <span class="pub-badge" data-lang="zh">即將發表</span>
+                <span class="pub-badge" data-lang="en" style="display:none">Forthcoming</span>
+              </div>
+              <p class="pub-placeholder" data-lang="zh">著作資訊即將更新，敬請期待。</p>
+              <p class="pub-placeholder" data-lang="en" style="display:none">Publication details coming soon.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Education -->
+        <section class="info-section">
+          <h2 class="section-label">
+            <span data-lang="zh">學歷清單</span><span data-lang="en" style="display: none;">Education</span>
+            <small data-lang="zh">Education</small><small data-lang="en" style="display: none;">學歷清單</small>
+          </h2>
           <div class="education-list">
             <div class="edu-item">
               <span class="edu-date">2025/09 - Present</span>
@@ -84,34 +164,176 @@ import Layout from "../layouts/Layout.astro";
 
       </div>
 
+      <!-- ── RIGHT COLUMN ── -->
       <div class="grid-column right-col">
+
+        <!-- Language Proficiency -->
         <section class="info-section">
-          <h2 class="section-label"><span data-lang="zh">聯繫我</span><span data-lang="en" style="display: none;">Contact</span> <small data-lang="zh">CONTACT</small><small data-lang="en" style="display: none;">聯繫我</small></h2>
-          <div class="contact-links">
-            <a href="mailto:r14142007@ntu.edu.tw" class="contact-item">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
-              Email
-            </a>
-            <a href="https://github.com/bbrruu" class="contact-item">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
-              GitHub
-            </a>
-            <a href="https://www.instagram.com/bbrruubruce/" class="contact-item">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-              Instagram
-            </a>
-            <a href="https://www.facebook.com/bruce.bbrruu" class="contact-item">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-              Facebook
-            </a>
-            <a href="https://line.me/ti/p/a970094" class="contact-item">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.105.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
-              LINE
-            </a>
+          <h2 class="section-label">
+            <span data-lang="zh">語言能力</span><span data-lang="en" style="display: none;">Languages</span>
+            <small data-lang="zh">Language Proficiency</small><small data-lang="en" style="display: none;">語言能力</small>
+          </h2>
+          <div class="lang-list">
+            <div class="lang-item">
+              <div class="lang-info">
+                <span class="lang-name" data-lang="zh">中文（普通話）</span>
+                <span class="lang-name" data-lang="en" style="display:none">Mandarin Chinese</span>
+                <span class="lang-level" data-lang="zh">母語</span>
+                <span class="lang-level" data-lang="en" style="display:none">Native</span>
+              </div>
+              <div class="lang-dots" aria-label="5 of 5">
+                <span class="dot filled"></span>
+                <span class="dot filled"></span>
+                <span class="dot filled"></span>
+                <span class="dot filled"></span>
+                <span class="dot filled"></span>
+              </div>
+            </div>
+            <div class="lang-item">
+              <div class="lang-info">
+                <span class="lang-name" data-lang="zh">臺語</span>
+                <span class="lang-name" data-lang="en" style="display:none">Taiwanese (Hokkien)</span>
+                <span class="lang-level" data-lang="zh">母語</span>
+                <span class="lang-level" data-lang="en" style="display:none">Native</span>
+              </div>
+              <div class="lang-dots" aria-label="5 of 5">
+                <span class="dot filled"></span>
+                <span class="dot filled"></span>
+                <span class="dot filled"></span>
+                <span class="dot filled"></span>
+                <span class="dot filled"></span>
+              </div>
+            </div>
+            <div class="lang-item">
+              <div class="lang-info">
+                <span class="lang-name" data-lang="zh">英語</span>
+                <span class="lang-name" data-lang="en" style="display:none">English</span>
+                <span class="lang-level" data-lang="zh">流利</span>
+                <span class="lang-level" data-lang="en" style="display:none">Fluent</span>
+              </div>
+              <div class="lang-dots" aria-label="4 of 5">
+                <span class="dot filled"></span>
+                <span class="dot filled"></span>
+                <span class="dot filled"></span>
+                <span class="dot filled"></span>
+                <span class="dot"></span>
+              </div>
+            </div>
+            <div class="lang-item">
+              <div class="lang-info">
+                <span class="lang-name" data-lang="zh">西班牙語</span>
+                <span class="lang-name" data-lang="en" style="display:none">Spanish</span>
+                <span class="lang-level" data-lang="zh">中級</span>
+                <span class="lang-level" data-lang="en" style="display:none">Intermediate</span>
+              </div>
+              <div class="lang-dots" aria-label="3 of 5">
+                <span class="dot filled"></span>
+                <span class="dot filled"></span>
+                <span class="dot filled"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+              </div>
+            </div>
           </div>
         </section>
+
+        <!-- Interests -->
+        <section class="info-section">
+          <h2 class="section-label">
+            <span data-lang="zh">興趣喜好</span><span data-lang="en" style="display: none;">Interests</span>
+            <small data-lang="zh">Interests & Hobbies</small><small data-lang="en" style="display: none;">興趣喜好</small>
+          </h2>
+          <div class="interest-grid">
+            <div class="interest-item">
+              <span class="interest-glyph">樂</span>
+              <span class="interest-name" data-lang="zh">吉他</span>
+              <span class="interest-name" data-lang="en" style="display:none">Guitar</span>
+            </div>
+            <div class="interest-item">
+              <span class="interest-glyph">音</span>
+              <span class="interest-name" data-lang="zh">音樂</span>
+              <span class="interest-name" data-lang="en" style="display:none">Music</span>
+            </div>
+            <div class="interest-item">
+              <span class="interest-glyph">遊</span>
+              <span class="interest-name" data-lang="zh">遊戲</span>
+              <span class="interest-name" data-lang="en" style="display:none">Gaming</span>
+            </div>
+            <div class="interest-item">
+              <span class="interest-glyph">影</span>
+              <span class="interest-name" data-lang="zh">動漫</span>
+              <span class="interest-name" data-lang="en" style="display:none">Anime</span>
+            </div>
+            <div class="interest-item">
+              <span class="interest-glyph">競</span>
+              <span class="interest-name" data-lang="zh">運動</span>
+              <span class="interest-name" data-lang="en" style="display:none">Sports</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- NOW -->
+        <section class="info-section">
+          <h2 class="section-label">
+            <span data-lang="zh">現在進行式</span><span data-lang="en" style="display: none;">Now</span>
+            <small data-lang="zh">NOW</small><small data-lang="en" style="display: none;">現在進行式</small>
+          </h2>
+          <div class="now-card">
+            <div class="now-header">
+              <span class="now-pulse"></span>
+              <span class="now-datestamp">2026.03 — Taipei</span>
+            </div>
+            <ul class="now-list">
+              <li>
+                <span data-lang="zh">在 LOPE 實驗室進行 NLP 相關研究</span>
+                <span data-lang="en" style="display:none">Conducting NLP research at LOPE Lab</span>
+              </li>
+              <li>
+                <span data-lang="zh">修習語言學碩士課程</span>
+                <span data-lang="en" style="display:none">Taking graduate courses in linguistics</span>
+              </li>
+              <li>
+                <span data-lang="zh">練習吉他、探索新音樂</span>
+                <span data-lang="en" style="display:none">Playing guitar & exploring new sounds</span>
+              </li>
+            </ul>
+          </div>
+        </section>
+
+
       </div>
     </div>
+
+    <!-- Contact — full width, independent section -->
+    <section class="info-section contact-section">
+      <h2 class="section-label">
+        <span data-lang="zh">聯繫我</span><span data-lang="en" style="display: none;">Contact</span>
+        <small data-lang="zh">CONTACT</small><small data-lang="en" style="display: none;">聯繫我</small>
+      </h2>
+      <div class="contact-links">
+        <a href="mailto:r14142007@ntu.edu.tw" class="contact-item">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
+          Email
+        </a>
+        <a href="https://github.com/bbrruu" class="contact-item">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+          GitHub
+        </a>
+        <a href="https://www.instagram.com/bbrruubruce/" class="contact-item">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+          Instagram
+        </a>
+        <a href="https://www.facebook.com/bruce.bbrruu" class="contact-item">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          Facebook
+        </a>
+        <a href="https://line.me/ti/p/a970094" class="contact-item">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.105.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
+          LINE
+        </a>
+      </div>
+    </section>
+
   </main>
 </Layout>
 
@@ -202,60 +424,21 @@ import Layout from "../layouts/Layout.astro";
     --border: #e0dcd5;
   }
   .about-container {
-    max-width: 1400px; /* 增加寬度讓版面更寬敞 */
-    margin: 2rem 0; /* 移除 auto，改為 0 代表靠左；2rem 讓頂部保留一點呼吸空間 */
+    max-width: 1400px;
+    margin: 2rem 0;
     padding: 0;
-    font-family: "Noto Serif TC", serif;
+    font-family: "LXGW WenKai TC", serif;
     color: var(--ink);
   }
 
-  .inner-nav {
-    margin-bottom: 4rem;
-  }
-  .back-link {
-    display: inline-flex;
-    align-items: center;
-    text-decoration: none;
-    color: var(--muted);
-    font-size: 0.8rem;
-    letter-spacing: 2px;
-    transition: 0.4s;
-    position: relative;
-    padding-bottom: 5px;
-  }
-  .back-link:hover {
-    color: var(--accent);
-  }
-  .back-link .arrow {
-    margin-right: 10px;
-    transition: 0.4s ease;
-  }
-  .back-link:hover .arrow {
-    transform: translateX(-8px);
-  }
-  .back-link::after {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 0;
-    height: 1px;
-    background: var(--accent);
-    transition: 0.4s ease;
-  }
-  .back-link:hover::after {
-    width: 100%;
-  }
-
-  /* --- 標頭：照片靠左 + 對話框靠右 --- */
+  /* ── HEADER ── */
   .about-header {
     display: flex;
     align-items: flex-start;
     gap: 3.5rem;
-    margin-bottom: 3.5rem;
+    margin-bottom: 3rem;
   }
 
-  /* 左欄：照片 + 名字 */
   .header-photo-col {
     flex-shrink: 0;
     width: 350px;
@@ -275,6 +458,9 @@ import Layout from "../layouts/Layout.astro";
     outline: 1px solid var(--border);
     box-shadow: 0 12px 36px rgba(139, 69, 19, 0.12);
     transition: 0.5s;
+  }
+  .profile-image-wrapper:hover {
+    cursor: url('/images/cursor_2-removebg-preview.png') 0 0, pointer;
   }
   .profile-image-wrapper:hover .profile-img {
     transform: scale(1.02);
@@ -316,7 +502,6 @@ import Layout from "../layouts/Layout.astro";
     border-radius: 2px;
   }
 
-  /* 右欄：對話框 */
   .bio-bubble {
     flex: 1;
     position: relative;
@@ -327,7 +512,6 @@ import Layout from "../layouts/Layout.astro";
     padding: 2rem 2.2rem;
     box-shadow: 4px 4px 0 rgba(139, 69, 19, 0.12);
   }
-  /* 左側三角形指針（指向照片） */
   .bio-bubble::before {
     content: '';
     position: absolute;
@@ -343,14 +527,6 @@ import Layout from "../layouts/Layout.astro";
     top: 38px;
     border: 6px solid transparent;
     border-right-color: var(--paper);
-  }
-  /* 四個角的裝飾點 */
-  .bio-bubble .bubble-corner {
-    position: absolute;
-    width: 6px;
-    height: 6px;
-    background: var(--accent);
-    border-radius: 50%;
   }
   .bubble-label {
     font-size: 1rem;
@@ -378,13 +554,59 @@ import Layout from "../layouts/Layout.astro";
     opacity: 0.8;
   }
 
+  /* ── FUN FACTS STRIP ── */
+  .fun-facts-strip {
+    display: flex;
+    align-items: center;
+    background: rgba(139, 69, 19, 0.05);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.4rem 2rem;
+    margin-bottom: 3.5rem;
+    gap: 0;
+  }
+  .fact-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    text-align: center;
+  }
+  .fact-num {
+    font-family: var(--font-mono);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+    line-height: 1;
+  }
+  .fact-label {
+    font-size: 0.6rem;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-family: var(--font-mono);
+  }
+  .fact-divider {
+    width: 1px;
+    height: 36px;
+    background: var(--border);
+    flex-shrink: 0;
+    margin: 0 0.5rem;
+  }
 
-  /* --- 單欄排版 --- */
+  /* ── GRID ── */
   .about-grid {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 3rem;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
     align-items: start;
+  }
+
+  /* ── SECTION LABELS ── */
+  .info-section {
+    margin-bottom: 3rem;
   }
   .section-label {
     font-size: 0.75rem;
@@ -393,7 +615,7 @@ import Layout from "../layouts/Layout.astro";
     text-transform: uppercase;
     border-bottom: 1px solid var(--border);
     padding-bottom: 0.5rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
     display: flex;
     justify-content: space-between;
     align-items: baseline;
@@ -404,30 +626,97 @@ import Layout from "../layouts/Layout.astro";
     opacity: 0.6;
   }
 
+  /* ── RESEARCH INTERESTS ── */
+  .research-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 0.55rem;
+  }
+  .r-tag {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.5px;
+    padding: 0.3rem 0.8rem;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    color: var(--ink);
+    transition: border-color 0.25s, color 0.25s, background 0.25s;
+  }
+  .r-tag:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(139, 69, 19, 0.04);
+    cursor: url('/images/cursor_2-removebg-preview.png') 0 0, pointer;
+  }
+  .r-tag.primary {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(139, 69, 19, 0.06);
+    font-weight: 600;
+  }
+  .r-tag.primary:hover {
+    background: rgba(139, 69, 19, 0.12);
+  }
+
+  /* ── PUBLICATIONS ── */
+  .pub-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .pub-item {
+    border: 1px dashed var(--border);
+    border-radius: 4px;
+    padding: 1.2rem 1.4rem;
+    background: rgba(139, 69, 19, 0.02);
+  }
+  .pub-status-row {
+    margin-bottom: 0.6rem;
+  }
+  .pub-badge {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 2px 7px;
+    border-radius: 2px;
+  }
+  .pub-placeholder {
+    font-size: 0.85rem;
+    color: var(--muted);
+    font-style: italic;
+    margin: 0;
+    line-height: 1.7;
+  }
+
+  /* ── EDUCATION ── */
   .edu-item {
-    margin-bottom: 2.5rem;
+    margin-bottom: 2.2rem;
   }
   .edu-date {
     font-family: var(--font-mono);
     font-size: 0.8rem;
     color: var(--accent);
     display: block;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.4rem;
   }
   .edu-school {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: 700;
     color: var(--ink);
     display: block;
     margin-bottom: 0.2rem;
   }
   .edu-dept {
-    font-size: 1rem;
+    font-size: 0.95rem;
     color: var(--ink);
     margin-right: 0.8rem;
   }
   .edu-degree {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: var(--muted);
     position: relative;
     padding-left: 0.8rem;
@@ -439,6 +728,174 @@ import Layout from "../layouts/Layout.astro";
     color: var(--border);
   }
 
+  /* ── LANGUAGE PROFICIENCY ── */
+  .lang-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .lang-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.9rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .lang-item:last-child {
+    border-bottom: none;
+  }
+  .lang-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+  .lang-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .lang-level {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .lang-dots {
+    display: flex;
+    gap: 5px;
+  }
+  .dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    transition: transform 0.2s;
+  }
+  .dot.filled {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .lang-item:hover .dot.filled {
+    transform: scale(1.15);
+  }
+
+  /* ── INTERESTS ── */
+  .interest-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.6rem;
+  }
+  .interest-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 0.4rem 0.8rem;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    transition: border-color 0.25s, background 0.25s, transform 0.25s;
+  }
+  .interest-item:hover {
+    border-color: var(--accent);
+    background: rgba(139, 69, 19, 0.04);
+    transform: translateY(-3px);
+    cursor: url('/images/cursor_2-removebg-preview.png') 0 0, pointer;
+  }
+  .interest-glyph {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--accent);
+    opacity: 0.75;
+    line-height: 1;
+    font-family: "LXGW WenKai TC", serif;
+    transition: opacity 0.25s;
+  }
+  .interest-item:hover .interest-glyph {
+    opacity: 1;
+  }
+  .interest-name {
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ── NOW ── */
+  .now-card {
+    border-left: 2px solid var(--accent);
+    padding: 1rem 1.4rem;
+    background: rgba(139, 69, 19, 0.025);
+    border-radius: 0 4px 4px 0;
+  }
+  .now-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+  }
+  .now-pulse {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    position: relative;
+    flex-shrink: 0;
+  }
+  .now-pulse::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    border: 1.5px solid var(--accent);
+    opacity: 0.4;
+    animation: pulse-ring 2s ease-out infinite;
+  }
+  @keyframes pulse-ring {
+    0%   { transform: scale(0.8); opacity: 0.5; }
+    70%  { transform: scale(1.5); opacity: 0; }
+    100% { transform: scale(1.5); opacity: 0; }
+  }
+  .now-datestamp {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 2px;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+  .now-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+  }
+  .now-list li {
+    font-size: 0.88rem;
+    color: var(--ink);
+    padding-left: 1.1rem;
+    position: relative;
+    line-height: 1.65;
+  }
+  .now-list li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-size: 0.75rem;
+    top: 0.1em;
+    font-family: var(--font-mono);
+  }
+
+  /* ── CONTACT ── */
+  .contact-section {
+    margin-top: 1rem;
+    padding-top: 0;
+  }
   .contact-links {
     display: flex;
     flex-wrap: wrap;
@@ -464,6 +921,13 @@ import Layout from "../layouts/Layout.astro";
     color: var(--accent);
   }
 
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .about-grid {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+  }
 
   @media (max-width: 768px) {
     .about-header {
@@ -483,6 +947,30 @@ import Layout from "../layouts/Layout.astro";
     .bio-bubble::before,
     .bio-bubble::after {
       display: none;
+    }
+    .fun-facts-strip {
+      padding: 1.2rem;
+      gap: 0;
+      flex-wrap: wrap;
+    }
+    .fact-item {
+      min-width: 30%;
+      padding: 0.5rem 0;
+    }
+    .fact-divider {
+      display: none;
+    }
+    .interest-grid {
+      grid-template-columns: repeat(5, 1fr);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .interest-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .fact-item {
+      min-width: 45%;
     }
   }
 </style>

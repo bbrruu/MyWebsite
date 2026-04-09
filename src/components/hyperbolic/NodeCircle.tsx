@@ -80,7 +80,7 @@ export function NodeCircle({
           textAnchor="middle"
           fontSize={fontSize}
           fill={textFill}
-          style={{ userSelect: 'none', pointerEvents: 'none', fontFamily: 'Noto Serif TC, serif' }}
+          style={{ userSelect: 'none', pointerEvents: 'none', fontFamily: 'LXGW WenKai TC, serif' }}
         >
           {node.label}
         </text>
