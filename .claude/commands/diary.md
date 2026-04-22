@@ -31,11 +31,12 @@ Never ask the user to fill in metadata. Infer everything:
 
 ## Step 4 — Format the body
 
-- Use `###` section headers to break up the content naturally
-- Use `<br/>` for line breaks within paragraphs (matches site style)
-- Use `---` horizontal rule between sections if there are multiple parts
-- Keep the user's casual, personal voice — don't over-edit
-- Preserve Chinese punctuation style (em-dashes `——`, etc.)
+**CRITICAL: Never change a single character of the user's diary text. No rewording, no fixing typos, no rephrasing — not even one word. The user's writing must be preserved exactly as written.**
+
+You may only:
+- Add `###` section headers above paragraphs
+- Add `<br/>` for line breaks within paragraphs (matches site style)
+- Add `---` horizontal rule between sections if there are multiple parts
 
 ## Step 5 — Handle photos
 
