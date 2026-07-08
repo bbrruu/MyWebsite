@@ -75,3 +75,15 @@ The `/about` page supports bilingual (Traditional Chinese / English) content via
 - `useSplitState.ts`, `SplitApp.tsx` (root), `StepIndicator.tsx`, `MembersStep.tsx`, `ExpenseForm.tsx`, `ExpensesStep.tsx`, `SettlementStep.tsx`
 - localStorage key: `split-state-v1`
 - Settlement: greedy max-creditor/max-debtor matching for minimum transactions
+
+### Diary Menu Bar App (`diary-menubar/`)
+
+A standalone macOS menu bar utility (Swift/SwiftUI, `MenuBarExtra`) — **not** part of the Astro site or its build/deploy. Lives in this repo only because it writes directly into `src/content/blog/`.
+
+- `Package.swift` — SwiftPM executable target, macOS 13+
+- `Sources/DiaryMenuBar/App.swift` — `@main` entry, mounts the menu bar icon
+- `Sources/DiaryMenuBar/DiaryPopoverView.swift` — popup form (raw text + date)
+- `Sources/DiaryMenuBar/DiaryService.swift` — calls `claude -p` (pure text generation, no tool access) to turn raw text into structured fields (title/mood/category/location/tags/quote/content), then writes the `.md` file and runs `git add` + `git commit -m "上傳<date>日記"` + `git push` itself
+- `Sources/DiaryMenuBar/Config.swift` — hardcoded repo path + executable discovery (GUI apps don't inherit shell `PATH`)
+- `build.sh` — `swift build -c release` + wraps into `DiaryMenuBar.app` (LSUIElement, no Dock icon); build output is gitignored
+- Run with `open diary-menubar/DiaryMenuBar.app` after building

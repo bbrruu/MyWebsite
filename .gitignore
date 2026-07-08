@@ -22,3 +22,7 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# diary menu bar app build output
+diary-menubar/.build/
+diary-menubar/DiaryMenuBar.app/
