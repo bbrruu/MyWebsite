@@ -37,36 +37,6 @@ enum DiaryError: LocalizedError {
     }
 }
 
-private struct ProcessResult {
-    var stdout: String
-    var stderr: String
-    var exitCode: Int32
-}
-
-private func runProcess(_ executable: String, _ arguments: [String], cwd: String? = nil) throws -> ProcessResult {
-    let process = Process()
-    process.executableURL = URL(fileURLWithPath: executable)
-    process.arguments = arguments
-    if let cwd { process.currentDirectoryURL = URL(fileURLWithPath: cwd) }
-
-    let stdoutPipe = Pipe()
-    let stderrPipe = Pipe()
-    process.standardOutput = stdoutPipe
-    process.standardError = stderrPipe
-
-    try process.run()
-    process.waitUntilExit()
-
-    let stdoutData = stdoutPipe.fileHandleForReading.readDataToEndOfFile()
-    let stderrData = stderrPipe.fileHandleForReading.readDataToEndOfFile()
-
-    return ProcessResult(
-        stdout: String(data: stdoutData, encoding: .utf8) ?? "",
-        stderr: String(data: stderrData, encoding: .utf8) ?? "",
-        exitCode: process.terminationStatus
-    )
-}
-
 enum DiaryService {
     /// 把使用者隨手寫的原文交給 claude -p 整理成結構化欄位。
     /// claude 這一步只做純文字生成，不給任何工具權限，所以不會去動檔案或執行指令。
@@ -125,16 +95,16 @@ enum DiaryService {
         return fields
     }
 
-    private static func yamlStr(_ value: String) -> String {
+    static func yamlStr(_ value: String) -> String {
         "'" + value.replacingOccurrences(of: "'", with: "''") + "'"
     }
 
-    private static func yamlArr(_ values: [String]) -> String {
+    static func yamlArr(_ values: [String]) -> String {
         "[" + values.map(yamlStr).joined(separator: ", ") + "]"
     }
 
-    /// 同一個日期永遠對應同一個檔案——同一天的多篇會合併進同一篇，而不是分成好幾個檔案。
-    private static func diaryFilePath(dateStr: String) -> String {
+    /// 同一個日期永遠對應同一個檔案——同一天的多篇（文字或照片）會合併進同一篇。
+    static func diaryFilePath(dateStr: String) -> String {
         let base = dateStr.replacingOccurrences(of: "-", with: "")
         return "\(Config.blogDir)/\(base).md"
     }
@@ -144,7 +114,7 @@ enum DiaryService {
         FileManager.default.fileExists(atPath: diaryFilePath(dateStr: dateStr))
     }
 
-    private static let timeFormatter: DateFormatter = {
+    static let timeFormatter: DateFormatter = {
         let f = DateFormatter()
         f.dateFormat = "HH:mm"
         f.locale = Locale(identifier: "en_US_POSIX")
@@ -166,7 +136,7 @@ enum DiaryService {
     }
 
     /// 把已存在檔案切成 (frontmatter 行陣列, 內文) 兩部分；格式不符則回傳 nil。
-    private static func splitFrontmatter(_ text: String) -> (frontmatter: [String], body: String)? {
+    static func splitFrontmatter(_ text: String) -> (frontmatter: [String], body: String)? {
         var lines = text.components(separatedBy: "\n")
         guard lines.first == "---" else { return nil }
         lines.removeFirst()
@@ -234,29 +204,9 @@ enum DiaryService {
             markdown = buildFullMarkdown(fields: fields, dateStr: dateStr)
         }
         try markdown.write(toFile: path, atomically: true, encoding: .utf8)
-        let filePath = path
 
-        guard let gitPath = findExecutable("git") else {
-            throw DiaryError.executableNotFound("git")
-        }
-
-        let addResult = try runProcess(gitPath, ["add", filePath], cwd: Config.repoRoot)
-        guard addResult.exitCode == 0 else {
-            throw DiaryError.gitFailed(addResult.stderr)
-        }
-
-        let commitMessage = "上傳\(dateStr)日記"
-        let commitResult = try runProcess(gitPath, ["commit", "-m", commitMessage], cwd: Config.repoRoot)
-        guard commitResult.exitCode == 0 else {
-            throw DiaryError.gitFailed(commitResult.stderr.isEmpty ? commitResult.stdout : commitResult.stderr)
-        }
-
-        let pushResult = try runProcess(gitPath, ["push"], cwd: Config.repoRoot)
-        let relPath = String(filePath.dropFirst(Config.repoRoot.count + 1))
-        if pushResult.exitCode == 0 {
-            return SaveOutcome(filePath: relPath, committed: true, pushed: true, pushError: nil)
-        } else {
-            return SaveOutcome(filePath: relPath, committed: true, pushed: false, pushError: pushResult.stderr)
-        }
+        let outcome = try GitService.commitAndPush(paths: [path], message: "上傳\(dateStr)日記")
+        let relPath = Config.relativePath(path)
+        return SaveOutcome(filePath: relPath, committed: outcome.committed, pushed: outcome.pushed, pushError: outcome.pushError)
     }
 }

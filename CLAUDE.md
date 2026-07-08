@@ -84,6 +84,10 @@ A standalone macOS menu bar utility (Swift/SwiftUI, `MenuBarExtra`) — **not** 
 - `Sources/DiaryMenuBar/App.swift` — `@main` entry, mounts the menu bar icon
 - `Sources/DiaryMenuBar/DiaryPopoverView.swift` — popup form (raw text + date)
 - `Sources/DiaryMenuBar/DiaryService.swift` — calls `claude -p` (pure text generation, no tool access) to turn raw text into structured fields (title/mood/category/location/tags/quote/content), then writes the `.md` file and runs `git add` + `git commit -m "上傳<date>日記"` + `git push` itself
-- `Sources/DiaryMenuBar/Config.swift` — hardcoded repo path + executable discovery (GUI apps don't inherit shell `PATH`)
+- `Sources/DiaryMenuBar/Config.swift` — hardcoded repo path + executable discovery (GUI apps don't inherit shell `PATH`) + dynamic Google Drive root discovery
+- `Sources/DiaryMenuBar/ProcessRunner.swift` / `GitService.swift` — shared `Process` runner + `git add/commit/push` helper, used by both text and photo flows
+- `Sources/DiaryMenuBar/PhotoWatcher.swift` — watches Google Drive's `DiaryPhotos/Inbox` folder (`~/Library/CloudStorage/GoogleDrive-*/My Drive/DiaryPhotos/Inbox`, path resolved at runtime since the account name varies) via `DispatchSource`, debounces + waits for file size to stabilize before queuing a photo. Android phone shares a photo into that Drive folder; no server, no listener, no exposed endpoint anywhere
+- `Sources/DiaryMenuBar/PhotoService.swift` — HEIC→JPEG via `sips`, then `claude -p` with `--allowedTools "Read(<image path>)"` (vision via the Read tool, scoped to that one file) to generate a caption, then appends `![caption](/images/<file>)` into the day's blog file and commits+pushes both files
 - `build.sh` — `swift build -c release` + wraps into `DiaryMenuBar.app` (LSUIElement, no Dock icon); build output is gitignored
-- Run with `open diary-menubar/DiaryMenuBar.app` after building
+- `install-autostart.sh` — registers a `~/Library/LaunchAgents` LaunchAgent so the app starts at login
+- Run with `open diary-menubar/DiaryMenuBar.app` after building, or `launchctl kickstart -k gui/$(id -u)/com.bruce.diarymenubar` to restart the LaunchAgent-managed instance after a rebuild
