@@ -117,6 +117,12 @@ struct DiaryPopoverView: View {
                 .font(.caption)
                 .foregroundColor(.secondary)
 
+            if DiaryService.entryExists(dateStr: dateStr) {
+                Text("這天已經有日記了，會用時間分段附加到同一篇，不會另外開新檔案。")
+                    .font(.caption)
+                    .foregroundColor(.orange)
+            }
+
             ScrollView {
                 VStack(alignment: .leading, spacing: 6) {
                     metaRow("標題", fields.title)

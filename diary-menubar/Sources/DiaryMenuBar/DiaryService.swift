@@ -133,21 +133,26 @@ enum DiaryService {
         "[" + values.map(yamlStr).joined(separator: ", ") + "]"
     }
 
-    private static func resolveFilePath(dateStr: String) -> String {
+    /// 同一個日期永遠對應同一個檔案——同一天的多篇會合併進同一篇，而不是分成好幾個檔案。
+    private static func diaryFilePath(dateStr: String) -> String {
         let base = dateStr.replacingOccurrences(of: "-", with: "")
-        let fm = FileManager.default
-        var candidate = "\(Config.blogDir)/\(base).md"
-        if !fm.fileExists(atPath: candidate) { return candidate }
-        var n = 2
-        while fm.fileExists(atPath: "\(Config.blogDir)/\(base)-\(n).md") { n += 1 }
-        candidate = "\(Config.blogDir)/\(base)-\(n).md"
-        return candidate
+        return "\(Config.blogDir)/\(base).md"
     }
 
-    /// 寫入 markdown 檔並自動 git add + commit + push。
-    static func save(fields: DiaryFields, dateStr: String) throws -> SaveOutcome {
-        let category = Config.allowedCategories.contains(fields.category) ? fields.category : "日常"
+    /// 給 UI 判斷「今天是否已經寫過」，以便在預覽畫面提示會附加而非新建。
+    static func entryExists(dateStr: String) -> Bool {
+        FileManager.default.fileExists(atPath: diaryFilePath(dateStr: dateStr))
+    }
 
+    private static let timeFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "HH:mm"
+        f.locale = Locale(identifier: "en_US_POSIX")
+        return f
+    }()
+
+    private static func buildFullMarkdown(fields: DiaryFields, dateStr: String) -> String {
+        let category = Config.allowedCategories.contains(fields.category) ? fields.category : "日常"
         var lines = ["---"]
         lines.append("title: \(yamlStr(fields.title))")
         lines.append("pubDate: \(dateStr)")
@@ -157,11 +162,79 @@ enum DiaryService {
         if !fields.tags.isEmpty { lines.append("tags: \(yamlArr(fields.tags))") }
         if !fields.quote.isEmpty { lines.append("quote: \(yamlStr(fields.quote))") }
         lines.append("---")
-        let markdown = lines.joined(separator: "\n") + "\n" + fields.content.trimmingCharacters(in: .whitespacesAndNewlines) + "\n"
+        return lines.joined(separator: "\n") + "\n" + fields.content.trimmingCharacters(in: .whitespacesAndNewlines) + "\n"
+    }
 
+    /// 把已存在檔案切成 (frontmatter 行陣列, 內文) 兩部分；格式不符則回傳 nil。
+    private static func splitFrontmatter(_ text: String) -> (frontmatter: [String], body: String)? {
+        var lines = text.components(separatedBy: "\n")
+        guard lines.first == "---" else { return nil }
+        lines.removeFirst()
+        guard let endIndex = lines.firstIndex(of: "---") else { return nil }
+        let frontmatter = Array(lines[0..<endIndex])
+        let body = lines[(endIndex + 1)...].joined(separator: "\n")
+        return (frontmatter, body)
+    }
+
+    private static func parseYamlArray(_ line: String) -> [String] {
+        guard let start = line.firstIndex(of: "["), let end = line.firstIndex(of: "]") else { return [] }
+        let inner = line[line.index(after: start)..<end]
+        return inner.split(separator: ",").map {
+            $0.trimmingCharacters(in: .whitespaces).trimmingCharacters(in: CharacterSet(charactersIn: "'"))
+        }.filter { !$0.isEmpty }
+    }
+
+    private static func mergeUniqueTags(_ existing: [String], _ new: [String]) -> [String] {
+        var seen = Set<String>()
+        var result: [String] = []
+        for tag in existing + new where !seen.contains(tag) {
+            seen.insert(tag)
+            result.append(tag)
+        }
+        return result
+    }
+
+    /// 附加到既有檔案：frontmatter 維持當天第一篇的內容，只合併 tags；內文用時間分段附加在後面。
+    private static func appendMarkdown(existingText: String, fields: DiaryFields) -> String {
+        guard let (frontmatter, body) = splitFrontmatter(existingText) else {
+            // 既有檔案格式跟預期不同，保守處理：不動 frontmatter，直接把新內容接在檔案最後面
+            let trimmedExisting = existingText.trimmingCharacters(in: .whitespacesAndNewlines)
+            let newSection = fields.content.trimmingCharacters(in: .whitespacesAndNewlines)
+            return trimmedExisting + "\n\n---\n\n" + newSection + "\n"
+        }
+
+        var mergedFrontmatter = frontmatter
+        if !fields.tags.isEmpty {
+            if let idx = mergedFrontmatter.firstIndex(where: { $0.hasPrefix("tags:") }) {
+                let existingTags = parseYamlArray(mergedFrontmatter[idx])
+                mergedFrontmatter[idx] = "tags: \(yamlArr(mergeUniqueTags(existingTags, fields.tags)))"
+            } else {
+                mergedFrontmatter.append("tags: \(yamlArr(fields.tags))")
+            }
+        }
+
+        let timeLabel = timeFormatter.string(from: Date())
+        let newSection = fields.content.trimmingCharacters(in: .whitespacesAndNewlines)
+        let mergedBody = body.trimmingCharacters(in: .whitespacesAndNewlines)
+            + "\n\n---\n\n### \(timeLabel)\n\n" + newSection + "\n"
+
+        return (["---"] + mergedFrontmatter + ["---"]).joined(separator: "\n") + "\n" + mergedBody
+    }
+
+    /// 寫入 markdown 檔並自動 git add + commit + push。同一天已有日記時會附加到同一篇。
+    static func save(fields: DiaryFields, dateStr: String) throws -> SaveOutcome {
         try FileManager.default.createDirectory(atPath: Config.blogDir, withIntermediateDirectories: true)
-        let filePath = resolveFilePath(dateStr: dateStr)
-        try markdown.write(toFile: filePath, atomically: true, encoding: .utf8)
+        let path = diaryFilePath(dateStr: dateStr)
+
+        let markdown: String
+        if FileManager.default.fileExists(atPath: path) {
+            let existingText = try String(contentsOfFile: path, encoding: .utf8)
+            markdown = appendMarkdown(existingText: existingText, fields: fields)
+        } else {
+            markdown = buildFullMarkdown(fields: fields, dateStr: dateStr)
+        }
+        try markdown.write(toFile: path, atomically: true, encoding: .utf8)
+        let filePath = path
 
         guard let gitPath = findExecutable("git") else {
             throw DiaryError.executableNotFound("git")
