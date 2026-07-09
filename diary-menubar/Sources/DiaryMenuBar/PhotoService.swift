@@ -80,9 +80,20 @@ enum PhotoService {
         日期：\(dateStr)
         """
 
+        // 照片通常放在 Google Drive 資料夾（HEIC 轉檔後則在系統暫存目錄），兩者都在
+        // repo 之外，claude 預設的工作區信任範圍不包含這裡，即使 --allowedTools 允許
+        // 這個 Read 呼叫也會被擋下（非互動模式下沒辦法跳出來問），要額外用 --add-dir
+        // 明確把圖片所在的資料夾加入信任範圍才會真的放行。
+        let imageDir = (imagePath as NSString).deletingLastPathComponent
+
         let result = try runProcess(
             claudePath,
-            ["-p", prompt, "--output-format", "json", "--model", "sonnet", "--allowedTools", allowedTools]
+            [
+                "-p", prompt, "--output-format", "json", "--model", "sonnet",
+                "--allowedTools", allowedTools,
+                "--add-dir", imageDir,
+            ],
+            cwd: Config.repoRoot
         )
 
         guard result.exitCode == 0 else {

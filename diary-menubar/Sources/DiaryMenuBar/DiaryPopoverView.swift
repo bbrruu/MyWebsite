@@ -9,84 +9,87 @@ enum Phase {
     case failure(String)
 }
 
-enum PhotoPhase {
-    case idle
-    case describing
-    case reviewing(PhotoFields)
-    case saving(PhotoFields)
-    case success(String)
-    case failure(String)
+enum DiaryTab {
+    case diary
+    case photo
 }
 
 struct DiaryPopoverView: View {
     @EnvironmentObject private var photoWatcher: PhotoWatcher
+    @EnvironmentObject private var photoProcessor: PhotoProcessor
+    @EnvironmentObject private var draftState: DiaryDraftState
 
-    @State private var rawText: String = ""
-    @State private var date: Date = Date()
-    @State private var phase: Phase = .editing
-
-    @State private var photoPhase: PhotoPhase = .idle
-    @State private var photoDate: Date = Date()
-    @State private var normalizedImagePath: String = ""
-    @State private var editedCaption: String = ""
-
-    private static let dateFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.dateFormat = "yyyy-MM-dd"
-        f.locale = Locale(identifier: "en_US_POSIX")
-        return f
-    }()
+    @State private var selectedTab: DiaryTab = .diary
 
     private var isOrganizing: Bool {
-        if case .organizing = phase { return true }
+        if case .organizing = draftState.phase { return true }
         return false
     }
     private var isSaving: Bool {
-        if case .saving = phase { return true }
+        if case .saving = draftState.phase { return true }
         return false
     }
     private var canOrganize: Bool {
-        !rawText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !isOrganizing
+        !draftState.rawText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !isOrganizing
     }
     private var pendingPhotoPath: String? { photoWatcher.queue.first }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Text(pendingPhotoPath != nil ? "新照片" : "寫日記").font(.headline)
-                Spacer()
-                if pendingPhotoPath == nil, case .editing = phase {
-                    DatePicker("", selection: $date, displayedComponents: .date)
+            Picker("", selection: $selectedTab) {
+                Text("日記").tag(DiaryTab.diary)
+                Text(pendingPhotoPath != nil ? "圖片 ●" : "圖片").tag(DiaryTab.photo)
+            }
+            .pickerStyle(.segmented)
+            .labelsHidden()
+
+            switch selectedTab {
+            case .diary:
+                diaryTabView
+            case .photo:
+                photoTabView
+            }
+        }
+        .padding(14)
+        .frame(width: 360)
+        .onAppear {
+            // 有照片在等的時候先幫忙切過去，但使用者隨時可以自己切回「日記」，不會被鎖住。
+            if pendingPhotoPath != nil {
+                selectedTab = .photo
+            }
+        }
+    }
+
+    // MARK: - Diary tab (文字)
+
+    private var diaryTabView: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            if case .editing = draftState.phase {
+                HStack {
+                    Text("日期").font(.caption.bold()).foregroundColor(.secondary)
+                    DatePicker("", selection: $draftState.date, displayedComponents: .date)
                         .labelsHidden()
                         .datePickerStyle(.field)
                 }
             }
 
-            if let path = pendingPhotoPath {
-                photoFlowView(path: path)
-            } else {
-                switch phase {
-                case .editing, .organizing:
-                    editingView
-                case .reviewing(let fields, let dateStr), .saving(let fields, let dateStr):
-                    reviewView(fields: fields, dateStr: dateStr)
-                case .success(let message):
-                    resultView(message: message, isError: false)
-                case .failure(let message):
-                    resultView(message: message, isError: true)
-                }
+            switch draftState.phase {
+            case .editing, .organizing:
+                editingView
+            case .reviewing(let fields, let dateStr), .saving(let fields, let dateStr):
+                reviewView(fields: fields, dateStr: dateStr)
+            case .success(let message):
+                resultView(message: message, isError: false)
+            case .failure(let message):
+                resultView(message: message, isError: true)
             }
         }
-        .padding(14)
-        .frame(width: 360)
     }
-
-    // MARK: - Editing (文字)
 
     private var editingView: some View {
         VStack(alignment: .leading, spacing: 10) {
             ZStack(alignment: .topLeading) {
-                TextEditor(text: $rawText)
+                TextEditor(text: $draftState.rawText)
                     .font(.system(size: 13))
                     .frame(height: 160)
                     .padding(4)
@@ -94,7 +97,7 @@ struct DiaryPopoverView: View {
                     .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.gray.opacity(0.3)))
                     .disabled(isOrganizing)
 
-                if rawText.isEmpty {
+                if draftState.rawText.isEmpty {
                     Text("今天想寫點什麼？想到什麼寫什麼，交給 Claude 整理成日記，內容不會被改寫。")
                         .foregroundColor(.secondary)
                         .font(.system(size: 13))
@@ -115,22 +118,20 @@ struct DiaryPopoverView: View {
 
             HStack {
                 Button("清空") {
-                    rawText = ""
+                    draftState.rawText = ""
                 }
                 .disabled(isOrganizing)
 
                 Spacer()
 
                 Button(isOrganizing ? "整理中..." : "整理") {
-                    organize()
+                    draftState.organize()
                 }
                 .keyboardShortcut(.return, modifiers: .command)
                 .disabled(!canOrganize)
             }
         }
     }
-
-    // MARK: - Review (文字)
 
     private func reviewView(fields: DiaryFields, dateStr: String) -> some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -179,14 +180,14 @@ struct DiaryPopoverView: View {
 
             HStack {
                 Button("重新編輯") {
-                    phase = .editing
+                    draftState.phase = .editing
                 }
                 .disabled(isSaving)
 
                 Spacer()
 
                 Button(isSaving ? "上傳中..." : "確認上傳") {
-                    confirmSave(fields: fields, dateStr: dateStr)
+                    draftState.confirmSave(fields: fields, dateStr: dateStr)
                 }
                 .keyboardShortcut(.return, modifiers: .command)
                 .disabled(isSaving)
@@ -206,8 +207,6 @@ struct DiaryPopoverView: View {
         }
     }
 
-    // MARK: - Result (文字)
-
     private func resultView(message: String, isError: Bool) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             Text(message)
@@ -218,24 +217,42 @@ struct DiaryPopoverView: View {
             HStack {
                 Spacer()
                 Button("寫下一篇") {
-                    rawText = ""
-                    phase = .editing
+                    draftState.clear()
                 }
             }
         }
     }
 
-    // MARK: - Photo flow
+    // MARK: - Photo tab
+    // 處理狀態全部來自 photoProcessor（跟 App 生命週期綁在一起的 singleton），
+    // 這裡純粹是顯示，關掉再打開這個彈出視窗不會影響、也不會重複觸發背景處理。
+    // claude 只會在使用者按下「整理」（startDescribing）時才被呼叫。
+
+    private var photoTabView: some View {
+        Group {
+            if let path = pendingPhotoPath {
+                photoFlowView(path: path)
+            } else {
+                Text("目前沒有待處理的照片。手機分享照片到 Google Drive 的 DiaryPhotos/Inbox 後，會自動出現在這裡。")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+        }
+    }
 
     private func photoFlowView(path: String) -> some View {
         Group {
-            switch photoPhase {
-            case .idle, .describing:
+            switch photoProcessor.phase {
+            case .idle:
+                EmptyView()
+            case .waiting:
+                photoWaitingView(path: path)
+            case .describing:
                 VStack(spacing: 10) {
                     photoThumbnail(path: path)
                     HStack(spacing: 6) {
                         ProgressView().controlSize(.small)
-                        Text("Claude 看圖中，並判斷要放進哪篇日記...")
+                        Text("Claude 看圖中，並產生圖說...")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
@@ -245,24 +262,63 @@ struct DiaryPopoverView: View {
             case .saving(let fields):
                 photoReviewView(path: path, fields: fields, saving: true)
             case .success(let message):
-                photoResultView(path: path, message: message, isError: false)
+                photoResultView(message: message, isError: false)
             case .failure(let message):
-                photoResultView(path: path, message: message, isError: true)
+                photoResultView(message: message, isError: true)
             }
-        }
-        .task(id: path) {
-            await describePhoto(path: path)
         }
     }
 
     private func photoThumbnail(path: String) -> some View {
         Group {
-            if let nsImage = NSImage(contentsOfFile: normalizedImagePath.isEmpty ? path : normalizedImagePath) {
+            let imgPath = photoProcessor.normalizedImagePath.isEmpty ? path : photoProcessor.normalizedImagePath
+            if let nsImage = NSImage(contentsOfFile: imgPath) {
                 Image(nsImage: nsImage)
                     .resizable()
                     .scaledToFit()
                     .frame(maxHeight: 150)
                     .cornerRadius(6)
+            }
+        }
+    }
+
+    /// 照片已經轉檔+讀完 EXIF，等使用者確認日期、按下「整理」才會真的呼叫 claude。
+    /// 這天沒有日記的話「整理」會被鎖住——照片只能附加在已經有日記的日子。
+    private func photoWaitingView(path: String) -> some View {
+        let diaryExists = DiaryService.entryExists(dateStr: photoProcessor.dateStr)
+
+        return VStack(alignment: .leading, spacing: 8) {
+            photoThumbnail(path: path)
+
+            HStack {
+                Text("日期").font(.caption.bold()).foregroundColor(.secondary)
+                DatePicker("", selection: $photoProcessor.photoDate, displayedComponents: .date)
+                    .labelsHidden()
+                    .datePickerStyle(.field)
+            }
+
+            if diaryExists {
+                Text("這天已經有日記了，整理後會附加到同一篇。")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            } else {
+                Text("這天（\(photoProcessor.dateStr)）還沒有日記，請先切到「日記」分頁寫一篇，才能替這天加照片。")
+                    .font(.caption)
+                    .foregroundColor(.red)
+            }
+
+            HStack {
+                Button("跳過這張") {
+                    photoProcessor.dismissCurrent()
+                }
+
+                Spacer()
+
+                Button("整理") {
+                    photoProcessor.startDescribing()
+                }
+                .keyboardShortcut(.return, modifiers: .command)
+                .disabled(!diaryExists)
             }
         }
     }
@@ -273,20 +329,14 @@ struct DiaryPopoverView: View {
 
             HStack {
                 Text("日期").font(.caption.bold()).foregroundColor(.secondary)
-                DatePicker("", selection: $photoDate, displayedComponents: .date)
+                DatePicker("", selection: $photoProcessor.photoDate, displayedComponents: .date)
                     .labelsHidden()
                     .datePickerStyle(.field)
                     .disabled(saving)
             }
 
-            if DiaryService.entryExists(dateStr: Self.dateFormatter.string(from: photoDate)) {
-                Text("這天已經有日記了，照片會附加到同一篇。")
-                    .font(.caption)
-                    .foregroundColor(.orange)
-            }
-
             Text("圖說（可自行修改）").font(.caption.bold()).foregroundColor(.secondary)
-            TextField("圖說", text: $editedCaption)
+            TextField("圖說", text: $photoProcessor.editedCaption)
                 .textFieldStyle(.roundedBorder)
                 .disabled(saving)
 
@@ -301,23 +351,22 @@ struct DiaryPopoverView: View {
 
             HStack {
                 Button("跳過這張") {
-                    photoWatcher.markHandled(path: path)
-                    resetPhotoState()
+                    photoProcessor.dismissCurrent()
                 }
                 .disabled(saving)
 
                 Spacer()
 
                 Button(saving ? "上傳中..." : "確認上傳") {
-                    confirmSavePhoto(path: path, fields: fields)
+                    photoProcessor.confirmSave(fields: fields)
                 }
                 .keyboardShortcut(.return, modifiers: .command)
-                .disabled(saving || editedCaption.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                .disabled(saving || photoProcessor.editedCaption.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
         }
     }
 
-    private func photoResultView(path: String, message: String, isError: Bool) -> some View {
+    private func photoResultView(message: String, isError: Bool) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             Text(message)
                 .font(.caption)
@@ -325,129 +374,9 @@ struct DiaryPopoverView: View {
                 .fixedSize(horizontal: false, vertical: true)
 
             HStack {
-                if isError {
-                    Button("跳過這張") {
-                        photoWatcher.markHandled(path: path)
-                        resetPhotoState()
-                    }
-                }
                 Spacer()
                 Button("繼續") {
-                    if !isError { photoWatcher.markHandled(path: path) }
-                    resetPhotoState()
-                }
-            }
-        }
-    }
-
-    private func resetPhotoState() {
-        photoPhase = .idle
-        normalizedImagePath = ""
-        editedCaption = ""
-    }
-
-    // MARK: - Actions (文字)
-
-    private func organize() {
-        guard canOrganize else { return }
-        let text = rawText
-        let dateStr = Self.dateFormatter.string(from: date)
-        phase = .organizing
-
-        Task {
-            do {
-                let fields = try await Task.detached(priority: .userInitiated) {
-                    try DiaryService.organize(rawText: text, dateStr: dateStr)
-                }.value
-                await MainActor.run {
-                    phase = .reviewing(fields, dateStr: dateStr)
-                }
-            } catch {
-                await MainActor.run {
-                    phase = .failure(error.localizedDescription)
-                }
-            }
-        }
-    }
-
-    private func confirmSave(fields: DiaryFields, dateStr: String) {
-        phase = .saving(fields, dateStr: dateStr)
-
-        Task {
-            do {
-                let outcome = try await Task.detached(priority: .userInitiated) {
-                    try DiaryService.save(fields: fields, dateStr: dateStr)
-                }.value
-                await MainActor.run {
-                    if outcome.pushed {
-                        phase = .success("已儲存並推送：\(outcome.filePath)")
-                    } else {
-                        phase = .failure("已儲存＋commit，但 push 失敗（\(outcome.filePath)）：\(outcome.pushError ?? "未知錯誤")")
-                    }
-                    rawText = ""
-                }
-            } catch {
-                await MainActor.run {
-                    phase = .failure(error.localizedDescription)
-                }
-            }
-        }
-    }
-
-    // MARK: - Actions (照片)
-
-    private func describePhoto(path: String) async {
-        photoPhase = .describing
-
-        do {
-            let normalizedPath = try await Task.detached(priority: .userInitiated) {
-                try PhotoService.normalizeToJPEG(sourcePath: path, workDir: NSTemporaryDirectory())
-            }.value
-
-            // 日期預設用照片的 EXIF 拍攝時間，讀不到才 fallback 回今天；使用者仍可在畫面上手動改。
-            let capturedDate = PhotoService.exifCaptureDate(imagePath: normalizedPath) ?? Date()
-            let dateStr = Self.dateFormatter.string(from: capturedDate)
-
-            await MainActor.run {
-                normalizedImagePath = normalizedPath
-                photoDate = capturedDate
-            }
-
-            let fields = try await Task.detached(priority: .userInitiated) {
-                try PhotoService.describe(imagePath: normalizedPath, dateStr: dateStr)
-            }.value
-            await MainActor.run {
-                editedCaption = fields.caption
-                photoPhase = .reviewing(fields)
-            }
-        } catch {
-            await MainActor.run {
-                photoPhase = .failure(error.localizedDescription)
-            }
-        }
-    }
-
-    private func confirmSavePhoto(path: String, fields: PhotoFields) {
-        photoPhase = .saving(fields)
-        let dateStr = Self.dateFormatter.string(from: photoDate)
-        let imagePath = normalizedImagePath.isEmpty ? path : normalizedImagePath
-        let caption = editedCaption
-
-        Task {
-            do {
-                let outcome = try await Task.detached(priority: .userInitiated) {
-                    try PhotoService.save(imagePath: imagePath, caption: caption, title: fields.title, dateStr: dateStr)
-                }.value
-                await MainActor.run {
-                    if outcome.pushed {
-                        photoPhase = .success("已儲存並推送：\(outcome.filePath)")
-                    } else {
-                        photoPhase = .failure("已儲存＋commit，但 push 失敗（\(outcome.filePath)）：\(outcome.pushError ?? "未知錯誤")")
-                    }
-                }
-            } catch {
-                await MainActor.run {
-                    photoPhase = .failure(error.localizedDescription)
+                    photoProcessor.dismissCurrent()
                 }
             }
         }
