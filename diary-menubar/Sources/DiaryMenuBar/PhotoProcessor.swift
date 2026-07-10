@@ -71,6 +71,8 @@ final class PhotoProcessor: ObservableObject {
     var dateStr: String { Self.dateFormatter.string(from: photoDate) }
 
     /// 使用者確認日期沒問題（且當天已有日記）後手動觸發，這一步才會真的呼叫 claude。
+    /// Google Drive 同步中的檔案偶爾還是會在這一步才第一次被鎖住（isStable 那關過了不代表
+    /// 之後不會再被鎖），失敗時自動重試幾次，比直接丟錯誤給使用者更穩。
     func startDescribing() {
         guard let path = currentPath, case .waiting = phase else { return }
         phase = .describing
@@ -78,18 +80,34 @@ final class PhotoProcessor: ObservableObject {
         let imagePath = normalizedImagePath.isEmpty ? path : normalizedImagePath
 
         Task {
-            do {
-                let fields = try await Task.detached(priority: .userInitiated) {
-                    try PhotoService.describe(imagePath: imagePath, dateStr: dateStrAtStart)
-                }.value
-                guard currentPath == path else { return }
-                editedCaption = fields.caption
-                phase = .reviewing(fields)
-            } catch {
-                guard currentPath == path else { return }
-                phase = .failure(error.localizedDescription)
-            }
+            await attemptDescribe(path: path, imagePath: imagePath, dateStr: dateStrAtStart, retriesLeft: 3)
         }
+    }
+
+    private func attemptDescribe(path: String, imagePath: String, dateStr: String, retriesLeft: Int) async {
+        do {
+            let fields = try await Task.detached(priority: .userInitiated) {
+                try PhotoService.describe(imagePath: imagePath, dateStr: dateStr)
+            }.value
+            guard currentPath == path else { return }
+            editedCaption = fields.caption
+            phase = .reviewing(fields)
+        } catch {
+            guard currentPath == path else { return }
+            guard retriesLeft > 0 else {
+                phase = .failure(error.localizedDescription)
+                return
+            }
+            try? await Task.sleep(nanoseconds: 4_000_000_000)
+            guard currentPath == path else { return }
+            await attemptDescribe(path: path, imagePath: imagePath, dateStr: dateStr, retriesLeft: retriesLeft - 1)
+        }
+    }
+
+    /// 失敗後想重試：回到 waiting，讓使用者可以再按一次「整理」（也會再走一次自動重試）。
+    func retryFromFailure() {
+        guard currentPath != nil else { return }
+        phase = .waiting
     }
 
     func confirmSave(fields: PhotoFields) {

@@ -10,6 +10,7 @@ final class PhotoWatcher: ObservableObject {
     @Published var queue: [String] = []
 
     private var source: DispatchSourceFileSystemObject?
+    private var pollTimer: DispatchSourceTimer?
     private var fileDescriptor: CInt = -1
     private var debounceWorkItem: DispatchWorkItem?
     private var notifiedPaths = Set<String>()
@@ -53,11 +54,22 @@ final class PhotoWatcher: ObservableObject {
         source = src
 
         scheduleScan() // App 沒開的時候進來的照片，啟動時補掃一次
+
+        // Google Drive 同步中的檔案就算大小已經穩定，還是可能被同步行程鎖住
+        // （open() 會丟 Resource deadlock avoided）。目錄本身在鎖釋放前不會再
+        // 觸發變更事件，所以額外用一個定時器每 5 秒重掃一次，直到鎖真的放開。
+        let timer = DispatchSource.makeTimerSource(queue: DispatchQueue.global(qos: .utility))
+        timer.schedule(deadline: .now() + 5, repeating: 5)
+        timer.setEventHandler { [weak self] in self?.scan() }
+        timer.resume()
+        pollTimer = timer
     }
 
     func stop() {
         source?.cancel()
         source = nil
+        pollTimer?.cancel()
+        pollTimer = nil
     }
 
     private func scheduleScan() {
@@ -91,13 +103,24 @@ final class PhotoWatcher: ObservableObject {
         }
     }
 
-    /// 等檔案大小穩定下來，避免同步到一半就被當成「新照片」處理。
+    /// 等檔案大小穩定下來，且真的能打開讀取，才算「新照片」就緒。
+    /// Google Drive 同步中的檔案大小可能已經穩定，但同步行程還握著檔案鎖，
+    /// 這時候 open() 會丟 Resource deadlock avoided——只看大小穩定會誤判成可讀。
     private func isStable(path: String) -> Bool {
         let fm = FileManager.default
-        guard let size1 = try? fm.attributesOfItem(atPath: path)[.size] as? Int else { return false }
+        guard let size1 = try? fm.attributesOfItem(atPath: path)[.size] as? Int, size1 > 0 else { return false }
         Thread.sleep(forTimeInterval: 1.0)
-        guard let size2 = try? fm.attributesOfItem(atPath: path)[.size] as? Int else { return false }
-        return size1 == size2 && size1 > 0
+        guard let size2 = try? fm.attributesOfItem(atPath: path)[.size] as? Int, size1 == size2 else { return false }
+
+        // 刻意不用 FileHandle：它讀取失敗時丟的是 Objective-C exception，Swift 的
+        // try/catch 接不住，遇到檔案鎖住會直接讓整個 App crash。改用底層 POSIX
+        // open()/read()，失敗只會回傳錯誤碼，不會拋例外。
+        let fd = open(path, O_RDONLY)
+        guard fd >= 0 else { return false }
+        defer { close(fd) }
+        var buffer = [UInt8](repeating: 0, count: 16)
+        let bytesRead = read(fd, &buffer, buffer.count)
+        return bytesRead > 0
     }
 
     /// 使用者確認處理完（存檔成功或選擇跳過）後，把照片從 Inbox 移到 Processed，避免重複偵測。

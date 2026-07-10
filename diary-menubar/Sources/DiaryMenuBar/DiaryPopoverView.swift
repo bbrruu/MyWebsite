@@ -264,7 +264,7 @@ struct DiaryPopoverView: View {
             case .success(let message):
                 photoResultView(message: message, isError: false)
             case .failure(let message):
-                photoResultView(message: message, isError: true)
+                photoFailureView(message: message)
             }
         }
     }
@@ -378,6 +378,28 @@ struct DiaryPopoverView: View {
                 Button("繼續") {
                     photoProcessor.dismissCurrent()
                 }
+            }
+        }
+    }
+
+    /// claude 呼叫失敗（自動重試 3 次後仍失敗，常見原因是 Google Drive 同步鎖遲遲沒放）：
+    /// 除了「跳過這張」，也給「重試」，不用把照片丟到 Processed 才能再試一次。
+    private func photoFailureView(message: String) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(message)
+                .font(.caption)
+                .foregroundColor(.red)
+                .fixedSize(horizontal: false, vertical: true)
+
+            HStack {
+                Button("跳過這張") {
+                    photoProcessor.dismissCurrent()
+                }
+                Spacer()
+                Button("重試") {
+                    photoProcessor.retryFromFailure()
+                }
+                .keyboardShortcut(.return, modifiers: .command)
             }
         }
     }
