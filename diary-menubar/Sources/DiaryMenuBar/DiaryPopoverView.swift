@@ -57,6 +57,7 @@ struct DiaryPopoverView: View {
             if pendingPhotoPath != nil {
                 selectedTab = .photo
             }
+            draftState.refreshDateIfFresh()
         }
     }
 

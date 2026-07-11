@@ -28,6 +28,15 @@ final class DiaryDraftState: ObservableObject {
     func clear() {
         rawText = ""
         phase = .editing
+        date = Date()
+    }
+
+    /// App 是常駐跑好幾天的（LaunchAgent），date 若只在 App 啟動當下算一次 Date()，
+    /// 跨過午夜後就會停在舊的那天。只有在草稿是空的（還沒開始寫）時才自動校正，
+    /// 已經在寫、甚至刻意選了補寫的舊日期時絕對不能動它。
+    func refreshDateIfFresh() {
+        guard rawText.isEmpty, case .editing = phase else { return }
+        date = Date()
     }
 
     func organize() {
