@@ -1,4 +1,5 @@
 ---
+import { existsSync } from "node:fs";
 import Layout from "../layouts/Layout.astro";
 import { getCollection } from "astro:content";
 import type { CollectionEntry } from "astro:content";
@@ -97,6 +98,41 @@ const skyPosts = recentCandidates.map((r) => ({
     k: r.title,
 }));
 
+// ── 分類模板圖 ─────────────────────────────────────────────
+// 沒有任何實際圖片時，用該分類的模板圖；連模板圖都沒有才退回星空。
+// 用 existsSync 在 build 時檢查，所以之後把檔案丟進 public/images/fallback/
+// 就會自動生效，不需要再改這裡。
+const fallbackSlug: Record<string, string> = {
+    JOURNAL: "journal", NOTES: "notes", RESEARCH: "research",
+    READING: "reading", MUSIC: "music", PROJECTS: "projects",
+};
+
+function sectionFallback(kindEn: string | undefined): string | undefined {
+    if (!kindEn) return undefined;
+    const slug = fallbackSlug[kindEn];
+    if (!slug) return undefined;
+    for (const ext of ["jpg", "jpeg", "png", "webp"]) {
+        const rel = `images/fallback/${slug}.${ext}`;
+        if (existsSync(new URL(`../../public/${rel}`, import.meta.url))) {
+            return `/${rel}`;
+        }
+    }
+    return undefined;
+}
+
+const heroImage = recent?.image ?? sectionFallback(recent?.kindEn);
+const heroIsYouTube = Boolean(recent?.image) && recent?.imageKind === "youtube";
+
+// 角落的說明用時間跨度，不重複下方儀表板已經說過的總篇數
+const skyTimes = skyPosts.map((p) => p.t);
+const fmtSpan = (t: number) => {
+    const d = new Date(t);
+    return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}`;
+};
+const skySpan = skyTimes.length
+    ? `${fmtSpan(Math.min(...skyTimes))} — ${fmtSpan(Math.max(...skyTimes))}`
+    : "";
+
 const slogans = [
     "想買一桶冰淇淋暴挖起來吃",
     "有一隻貓咪叫做高麗菜",
@@ -182,88 +218,81 @@ const slides = [
         <div class="hero-top">
 
             <!-- 左：原本的標題與標語，改成靠左 -->
-            <a href="/about" class="hero-id">
-                <h1 class="banner-title" style="font-style: italic;">Bruce's Website</h1>
-                <div id="slogan" class="banner-slogan">{randomSlogan}</div>
-                <div class="hero-id-rule"></div>
-                <div class="profile-cta">
-                    <span class="cta-text">查看個人簡介</span>
-                    <span class="cta-line"></span>
-                </div>
-            </a>
-
-            <!-- 右：最近更新。圖片走退路階梯，最後一定有星空接住 -->
-            <a href={recent?.href ?? "/blog"} class="hero-recent">
-                <div class="hr-k">
-                    <b>最近更新</b>
-                    <span>{recent?.kind} · {recentDateStr}</span>
+            <div class="hero-id">
+                <div class="hero-id-top">
+                    <h1 class="banner-title" style="font-style: italic;">Bruce's Website</h1>
+                    <div id="slogan" class="banner-slogan">{randomSlogan}</div>
+                    <div class="hero-id-rule"></div>
                 </div>
 
-                {recent?.image && recent.imageKind === "youtube" ? (
-                    <div class="hr-media small">
-                        <span class="hr-thumb">
-                            <img
-                                src={recent.image}
-                                data-fallback={`https://img.youtube.com/vi/${recent.youtubeId}/hqdefault.jpg`}
-                                alt=""
-                                width="480" height="360"
-                                loading="eager" fetchpriority="high"
-                            />
-                        </span>
-                        <span class="hr-thumb-note">{recent.desc}</span>
-                    </div>
-                ) : recent?.image ? (
-                    <div class="hr-media">
+                <!-- 關於我：整組移到左欄右下，跟標題共用同一塊區域 -->
+                <a href="/about" class="hero-about">
+                    <span class="ha-text">
+                        <span class="ha-nm">曾冠瑜</span>
+                        <span class="ha-en">Bruce Tseng</span>
+                        <span class="ha-go">查看個人簡介 <span class="ar">&#8594;</span></span>
+                    </span>
+                    <span class="ha-frame">
+                        <img src="/images/profile.jpg" alt="曾冠瑜" width="960" height="1705" loading="lazy" transition:name="profile-photo" />
+                    </span>
+                </a>
+            </div>
+
+            <!-- 右：最近更新。媒體滿版當底，文字浮在上面。
+                 退路：實際圖片 → 該分類的模板圖 → 星空 -->
+            <a href={recent?.href ?? "/blog"} class:list={["hero-recent", { "has-photo": Boolean(heroImage) }]}>
+
+                <div class="hr-bg">
+                    {heroImage ? (
                         <img
-                            src={recent.image}
+                            src={heroImage}
+                            data-fallback={heroIsYouTube
+                                ? `https://img.youtube.com/vi/${recent?.youtubeId}/hqdefault.jpg`
+                                : undefined}
                             alt=""
-                            width="1800" height="1013"
-                            loading="eager" fetchpriority="high"
+                            loading="eager"
+                            fetchpriority="high"
+                            class:list={["hr-img", { blurup: heroIsYouTube }]}
                         />
-                    </div>
-                ) : (
-                    <div class="hr-sky">
-                        <canvas id="sky-canvas"></canvas>
-                        <span class="hr-sky-cap">{skyPosts.length} POSTS</span>
-                        <script
-                            type="application/json"
-                            id="sky-data"
-                            is:inline
-                            set:html={JSON.stringify(skyPosts)}
-                        />
-                    </div>
-                )}
-
-                <div class="hr-body">
-                    <div class="hr-title">{recent?.title}</div>
-                    {recent?.desc && recent.imageKind !== "youtube" && (
-                        <div class="hr-desc">{recent.desc}</div>
+                        <span class="hr-tint"></span>
+                    ) : (
+                        <>
+                            <canvas id="sky-canvas" class="hr-sky"></canvas>
+                            <span class="hr-span">{skySpan}</span>
+                            <script
+                                type="application/json"
+                                id="sky-data"
+                                is:inline
+                                set:html={JSON.stringify(skyPosts)}
+                            />
+                        </>
                     )}
                 </div>
 
-                <div class="hr-go">
-                    <span class="t">閱讀全文</span>
-                    <span class="ar">&#8594;</span>
+                <!-- 遮罩：讓浮在上面的字在任何一張圖上都讀得到 -->
+                <div class="hr-scrim"></div>
+
+                <div class="hr-over">
+                    <div class="hr-k">
+                        <span class="hr-kt">What's New</span>
+                        <span class="hr-kr"></span>
+                        <span class="hr-km">{recent?.kind} · {recentDateStr}</span>
+                    </div>
+
+                    <div class="hr-body">
+                        <div class="hr-title">{recent?.title}</div>
+                        {recent?.desc && <div class="hr-desc">{recent.desc}</div>}
+                        <div class="hr-go">
+                            <span class="t">閱讀全文</span>
+                            <span class="ar">&#8594;</span>
+                        </div>
+                    </div>
                 </div>
             </a>
         </div>
 
-        <!-- 下半：關於我 ＋ 各分類篇數長條 -->
+        <!-- 下半：各分類篇數長條（關於我已移到上半左欄） -->
         <div class="hero-bottom">
-
-            <!-- 左：關於我 -->
-            <a href="/about" class="db-about">
-                <span class="db-hd">About · 關於我</span>
-                <span class="db-frame">
-                    <img src="/images/profile.jpg" alt="曾冠瑜" width="960" height="1705" loading="lazy" transition:name="profile-photo" />
-                </span>
-                <span class="db-nm">曾冠瑜</span>
-                <span class="db-en">Bruce Tseng</span>
-                <span class="db-go"><span>查看 個人簡介</span><span>&#8594;</span></span>
-            </a>
-
-            <!-- 右：長條。軌道等寬滿高可點，填充按篇數等比（最矮保底 14%）。
-                 比例壓過了所以刻意不畫刻度線——格線對不上長條頂端，留著就是在騙人。 -->
             <div class="db-chart">
                 <div class="db-head">
                     <b>{totalPosts}</b>
@@ -273,13 +302,16 @@ const slides = [
 
                 <div class="db-plot">
                     <div class="db-cols">
-                        {bars.map((b) => (
+                        {bars.map((b, i) => (
                             <a
                                 href={b.href}
                                 class:list={["db-col", { newest: b.newest }]}
                                 data-latest={b.latest ? `〈${b.latest}〉` : "尚無內容"}
                             >
-                                <span class="db-fill" style={`height:${b.pct}%`}></span>
+                                <span
+                                    class="db-fill"
+                                    style={`--h:${b.pct}%; --d:${i * 90}ms`}
+                                ></span>
                             </a>
                         ))}
                     </div>
@@ -598,141 +630,157 @@ const slides = [
         background: var(--paper);
     }
 
-    /* ── 左欄：原本的內容，改成靠左（不再置中）── */
+    /* ── 左欄：標題在左上、關於我在右下 ── */
     .hero-id {
         position: relative;
+        background: var(--paper);
         z-index: 3;
         min-height: 0;
         display: flex;
         flex-direction: column;
-        /* 內容垂直置中：區塊變高之後靠上會在下方留一個洞，
-           置中則讓留白變成上下對稱的邊界。水平仍然靠左。 */
-        justify-content: center;
-        /* 4rem = 容器與 .nav-inner 的側邊距。hero 用 -4rem 突破容器，
-           所以這裡補回 4rem，標題的 B 才會對齊導覽列的「首頁 / INDEX」。 */
+        justify-content: space-between;
         padding: 2.2rem 1.8rem 2.2rem 4rem;
-        text-decoration: none;
-        color: inherit;
+    }
+    /* 用 clamp 綁視窗寬度：窄螢幕自己縮，不會撐破 38% 的左欄 */
+    .banner-title {
+        font-size: clamp(2.2rem, 3.2vw, 3.3rem);
+        margin: 0; font-weight: 700; letter-spacing: -1px; line-height: 1.15;
+    }
+    .banner-slogan {
+        font-size: 1.25rem; margin-top: 1rem; color: var(--muted);
+        font-style: italic; letter-spacing: 0.08rem; transition: opacity 0.5s;
     }
     .hero-id-rule {
         width: 46px; height: 2px;
         background: var(--sand);
-        margin-top: 1.3rem;
+        margin-top: 1.4rem;
     }
 
-    /* ── 四角相框 ── */
-    .frame-corner {
-        position: absolute;
-        width: 40px;
-        height: 40px;
-        border-color: var(--ink);
-        border-style: solid;
-        border-width: 0;
-        z-index: 2;
-        transition: width 0.4s ease, height 0.4s ease, border-color 0.4s;
+    /* 關於我：整組靠右下，跟標題共用左欄 */
+    .hero-about {
+        align-self: flex-end;
+        display: flex; align-items: flex-end; gap: 1.2rem;
+        text-decoration: none; color: inherit;
+        max-width: 100%;
     }
-    .fc-tl { top: 1.4rem; left: 1.4rem;  border-top-width: 2px; border-left-width: 2px; }
-    .fc-tr { top: 1.4rem; right: 1.4rem; border-top-width: 2px; border-right-width: 2px; }
-    .fc-bl { bottom: 1.4rem; left: 1.4rem;  border-bottom-width: 2px; border-left-width: 2px; }
-    .fc-br { bottom: 1.4rem; right: 1.4rem; border-bottom-width: 2px; border-right-width: 2px; }
-    .banner-link-wrapper:hover .frame-corner { width: 56px; height: 56px; border-color: var(--accent); }
-
-    /* ── 水印 ── */
-    .banner-watermark {
-        position: absolute;
-        right: 6%;
-        top: 50%;
-        transform: translateY(-50%);
-        font-family: "LXGW WenKai TC", serif;
-        font-size: clamp(4rem, 10vw, 8rem);
-        font-weight: 700;
-        color: var(--ink);
-        opacity: 0.05;
-        letter-spacing: -4px;
-        user-select: none;
-        pointer-events: none;
-        z-index: 1;
-        white-space: nowrap;
+    .ha-text { display: flex; flex-direction: column; align-items: flex-end; text-align: right; min-width: 0; }
+    .ha-nm { font-size: 1.75rem; }
+    .ha-en { font-family: var(--font-mono); font-size: 0.88rem; letter-spacing: 3px; color: var(--muted); margin-top: 0.35rem; }
+    .ha-go {
+        margin-top: 1rem; font-family: var(--font-mono); font-size: 0.86rem;
+        letter-spacing: 2px; color: var(--accent-deep); white-space: nowrap;
     }
+    .ha-go .ar { display: inline-block; transition: transform 0.3s; }
+    .hero-about:hover .ha-go .ar { transform: translateX(4px); }
+    /* 相框比例鎖死 3:4：照片是 960×1705 直式，框一變橫臉就會被裁掉 */
+    .ha-frame {
+        flex: none; aspect-ratio: 3 / 4; height: clamp(130px, 23vh, 215px); width: auto;
+        padding: 4px; background: var(--paper-lift); border: 1px solid var(--border);
+        transform: rotate(-1.5deg);
+        transition: transform 0.35s ease;
+        box-shadow: 3px 3px 0 color-mix(in srgb, var(--accent) 8%, transparent),
+                    0 8px 22px color-mix(in srgb, var(--accent) 12%, transparent);
+    }
+    .hero-about:hover .ha-frame { transform: rotate(0deg) scale(1.03); }
+    .ha-frame img { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
 
-    .banner-title  { font-size: 2.6rem; margin: 0; font-weight: 700; letter-spacing: -1px; }
-    .banner-slogan { font-size: 1.1rem; margin-top: 0.95rem; color: var(--muted); font-style: italic; letter-spacing: 0.08rem; transition: opacity 0.5s; }
-
-    .profile-cta  { margin-top: 1.5rem; position: relative; padding-bottom: 7px; width: max-content; font-weight: bold; }
-    .cta-text     { font-size: 0.78rem; font-family: var(--font-mono); color: var(--muted); letter-spacing: 2px; transition: color 0.4s; }
-    .cta-line     { position: absolute; bottom: 0; left: 0; width: 34px; height: 1px; background: var(--sand); transition: width 0.4s; }
-    .hero-id:hover .cta-text { color: var(--accent-deep); }
-    .hero-id:hover .cta-line { width: 110px; }
-
-    /* ── 右欄：最近更新 ── */
+    /* ── 右欄：最近更新。媒體滿版當底，文字浮在上面 ── */
     .hero-recent {
         position: relative;
         z-index: 3;
         min-height: 0;
         overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        padding: 1.7rem 2.2rem 1.6rem;
+        display: block;
         border-left: 1px solid var(--hair);
         text-decoration: none;
         color: inherit;
-        min-width: 0;
     }
-    .hr-k {
-        font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 2px;
-        text-transform: uppercase; color: var(--muted);
-        display: flex; gap: 0.9rem; align-items: baseline; flex-wrap: wrap;
-    }
-    .hr-k b { color: var(--accent-deep); font-weight: 500; }
-
-    /* 照片給固定 16:9 的框，不滿版流血——面板 2.4:1、照片 1.78:1，
-       滿版 cover 會切掉約 26% 的高度，而且沒辦法逐張調重心。 */
-    .hr-media {
-        margin-top: 0.75rem;
-        aspect-ratio: 16 / 9;
-        width: 100%;
-        min-height: 0;
-        flex: 0 1 auto;
-        border: 1px solid var(--border);
-        overflow: hidden;
-        background: var(--paper-lift);
-    }
-    .hr-media img {
+    .hr-bg { position: absolute; inset: 0; background: var(--paper-lift); }
+    /* 照片往霧裡退：去飽和、降對比、透出底下的紙色。
+       KV 本身就是把攝影層洗到接近白，硬留成一塊深色板會變成外來物。 */
+    .hr-img {
         width: 100%; height: 100%; object-fit: cover; display: block;
-        filter: saturate(0.62) contrast(0.96) brightness(1.04);
-        transition: filter 0.4s ease;
+        opacity: 0.42;
+        filter: saturate(0.18) contrast(0.82) brightness(1.28);
+        transition: opacity 0.5s ease, filter 0.5s ease, transform 0.6s ease;
     }
-    .hero-recent:hover .hr-media img { filter: none; }
+    /* 染上主色調的藍：blend color 只換色相與彩度，保留照片自己的明暗結構 */
+    .hr-tint {
+        position: absolute; inset: 0; pointer-events: none;
+        background: var(--haze);
+        mix-blend-mode: color;
+        opacity: 0.55;
+    }
+    /* hover 才讓照片回到比較清楚的樣子——當作「靠近看」的獎勵 */
+    .hero-recent:hover .hr-img {
+        opacity: 0.72;
+        filter: saturate(0.5) contrast(0.94) brightness(1.06);
+        transform: scale(1.02);
+    }
+    /* YouTube 縮圖只有 480×360，滿版一定會糊，所以直接承認並柔化 */
+    .hr-img.blurup { filter: saturate(0.62) contrast(0.94) brightness(1.05) blur(1.5px); transform: scale(1.06); }
+    .hero-recent:hover .hr-img.blurup { filter: saturate(0.8) blur(1px); }
 
-    /* 解析度不夠的圖不要放大：YouTube hqdefault 只有 480×360 */
-    .hr-media.small {
-        aspect-ratio: auto; height: 104px;
-        display: flex; align-items: center; gap: 1rem;
-        padding: 0.85rem 1rem;
-    }
-    .hr-thumb { width: 148px; height: 76px; flex: none; overflow: hidden; border: 1px solid var(--hair); }
-    .hr-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .hr-thumb-note { font-size: 0.88rem; color: var(--muted); line-height: 1.6; }
-
-    /* 沒有任何圖時的退路：星空 */
-    .hr-sky {
-        margin-top: 0.75rem; flex: 1 1 0; min-height: 48px; position: relative;
-        border: 1px solid var(--border); background: var(--paper-lift); overflow: hidden;
-    }
-    .hr-sky canvas { display: block; width: 100%; height: 100%; }
-    .hr-sky-cap {
-        position: absolute; left: 0.75rem; bottom: 0.6rem;
+    .hr-sky { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+    /* 浮動文字集中在左側，所以時間跨度放右下角，兩者不會撞在一起 */
+    .hr-span {
+        position: absolute; right: 2rem; bottom: 1.2rem; z-index: 3;
         font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 2px;
         color: var(--muted);
     }
 
-    .hr-body { margin-top: 0.85rem; }
-    .hr-title { font-size: 1.3rem; line-height: 1.45; }
+    /* 遮罩：讓浮在上面的字在任何一張圖上都讀得到 */
+    .hr-scrim {
+        position: absolute; inset: 0; pointer-events: none;
+        background:
+            linear-gradient(to top, color-mix(in srgb, var(--paper) 88%, transparent) 0%,
+                                     color-mix(in srgb, var(--paper) 52%, transparent) 34%,
+                                     transparent 62%),
+            linear-gradient(to right, color-mix(in srgb, var(--paper) 62%, transparent) 0%,
+                                      transparent 46%);
+    }
+
+    /* 有照片時只加強遮罩，文字仍然用全站的墨色——
+       照片已經退到霧裡，不需要另一套暗底淺字。 */
+    .hero-recent.has-photo .hr-scrim {
+        background:
+            linear-gradient(to top, color-mix(in srgb, var(--paper) 92%, transparent) 0%,
+                                     color-mix(in srgb, var(--paper) 62%, transparent) 40%,
+                                     transparent 74%),
+            linear-gradient(to right, color-mix(in srgb, var(--paper) 78%, transparent) 0%,
+                                      color-mix(in srgb, var(--paper) 24%, transparent) 52%,
+                                      transparent 80%);
+    }
+
+    .hr-over {
+        position: relative; z-index: 2; height: 100%;
+        display: flex; flex-direction: column; justify-content: space-between;
+        padding: 1.6rem 2rem 1.5rem;
+    }
+    .hr-k { display: flex; flex-direction: column; align-items: flex-start; }
+    /* 斜體 display 字，跟左邊的「Bruce's Website」同一種處理——
+       全站兩個英文標語就這樣互相呼應 */
+    .hr-kt {
+        font-size: 1.6rem; font-style: italic; font-weight: 700;
+        letter-spacing: -0.5px; color: var(--ink); line-height: 1.1;
+    }
+    /* 短沙色線，呼應左欄那條 .hero-id-rule */
+    .hr-kr {
+        display: block; width: 34px; height: 2px;
+        background: var(--sand); margin-top: 0.55rem;
+    }
+    .hr-km {
+        margin-top: 0.6rem;
+        font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 2px;
+        text-transform: uppercase; color: var(--muted);
+    }
+    .hr-body { max-width: 30ch; }
+    .hr-title { font-size: 1.5rem; line-height: 1.4; }
     .hr-desc {
-        font-size: 0.92rem; color: var(--muted); margin-top: 0.45rem; line-height: 1.7;
+        font-size: 0.92rem; color: var(--muted); margin-top: 0.5rem; line-height: 1.7;
         display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
     }
-    .hr-go { margin-top: auto; padding-top: 0.8rem; display: flex; align-items: baseline; gap: 0.6rem; }
+    .hr-go { margin-top: 0.9rem; display: flex; align-items: baseline; gap: 0.6rem; }
     .hr-go .t {
         font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 2px;
         text-transform: uppercase; color: var(--accent-deep);
@@ -740,55 +788,36 @@ const slides = [
     .hr-go .ar { color: var(--accent-deep); font-size: 0.85rem; transition: transform 0.3s; }
     .hero-recent:hover .hr-go .ar { transform: translateX(5px); }
 
+
     /* ══ Hero Bottom：關於我 ＋ 篇數長條 ═══════════════════════ */
     .hero-bottom {
         flex: 0 0 46%;
         min-height: 0;
-        display: grid;
-        grid-template-columns: 25% 1fr;
-        background: var(--paper);
-        border-top: 1px solid var(--border);
+        display: block;
+        /* 下半用 --paper-lift 抬起來，跟上半分成兩個平面。
+           滿版照片會一路流到邊緣，只靠 1px 淡邊框撐不住分界。 */
+        background: var(--paper-lift);
+        border-top: 1px solid var(--ink);
         overflow: hidden;
-    }
-
-    /* ── 左：關於我 ── */
-    .db-about {
-        border-right: 1px solid var(--hair);
-        padding: 1.3rem 1.4rem 1.2rem 4rem;
-        display: flex; flex-direction: column; align-items: center; text-align: center;
-        text-decoration: none; color: inherit;
-        min-width: 0; min-height: 0; overflow: hidden;
-    }
-    .db-hd {
-        font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 2px;
-        text-transform: uppercase; color: var(--muted); align-self: flex-start;
-    }
-    /* 相框比例鎖死 3:4：照片是 960×1705 直式，框一旦變橫臉就會被裁掉 */
-    .db-frame {
-        margin-top: auto; aspect-ratio: 3 / 4; height: 50%; width: auto;
-        padding: 5px; background: var(--paper-lift); border: 1px solid var(--border);
-        transform: rotate(-1.5deg); position: relative;
-        transition: transform 0.35s ease, box-shadow 0.35s ease;
-        box-shadow: 3px 3px 0 color-mix(in srgb, var(--accent) 8%, transparent),
-                    0 8px 22px color-mix(in srgb, var(--accent) 12%, transparent);
-    }
-    .db-about:hover .db-frame { transform: rotate(0deg) scale(1.03); }
-    .db-frame img { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
-    .db-nm { margin-top: 0.75rem; font-size: 1.05rem; }
-    .db-en { font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 3px; color: var(--muted); margin-top: 0.25rem; }
-    .db-go {
-        margin-top: auto; padding-top: 0.75rem; align-self: stretch;
-        display: flex; align-items: baseline; justify-content: space-between;
-        font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 2px;
-        text-transform: uppercase; color: var(--accent-deep);
-    }
-    .db-go span:last-child { transition: transform 0.3s; }
-    .db-about:hover .db-go span:last-child { transform: translateX(4px); }
-
-    /* ── 右：長條 ── */
-    .db-chart {
         position: relative;
-        padding: 1.25rem 2rem 1rem;
+    }
+    /* 深色模式：兩塊已經靠明度分開（--paper-lift 比 --paper 亮），
+       再用 --ink 畫線會變成一條刺眼的白線，所以降成柔和的灰藍。 */
+    [data-theme="dark"] .hero-bottom {
+        border-top-color: color-mix(in srgb, var(--muted-soft) 55%, transparent);
+    }
+
+    /* 上半投下來的陰影，讓照片那塊讀起來是「疊在上面」 */
+    .hero-bottom::before {
+        content: '';
+        position: absolute; left: 0; right: 0; top: 0; height: 14px;
+        background: linear-gradient(to bottom, rgba(8, 13, 15, 0.07), transparent);
+        pointer-events: none;
+    }
+
+    .db-chart {
+        position: relative; height: 100%;
+        padding: 1.25rem 4rem 1.1rem;
         /* grid 的 minmax(0,1fr) 不會像 flex:1 那樣被內容撐開 */
         display: grid; grid-template-rows: auto minmax(0, 1fr);
         min-width: 0; min-height: 0;
@@ -819,10 +848,25 @@ const slides = [
         transition: background 0.25s;
     }
     .db-col:hover { background: color-mix(in srgb, var(--haze) 55%, transparent); }
+    /* 長條由 0 長到實際高度，尾段明顯減速。
+       用 height 而不是 scaleY：scaleY 會把 2px 的頂線一起縮放，
+       動畫過程中那條線的粗細會變。 */
+    @keyframes db-grow {
+        from { height: 0; }
+        to   { height: var(--h); }
+    }
     .db-fill {
+        height: var(--h);
         background: color-mix(in srgb, var(--accent) 26%, transparent);
         border-top: 2px solid var(--accent);
         position: relative;
+        /* easeOutCubic：整段都在減速，但不會像 expo 那樣前 1/3 就長完，
+           讀起來才是「慢慢長上去」而不是「彈一下就停」 */
+        animation: db-grow 1.5s cubic-bezier(0.33, 1, 0.68, 1) both;
+        animation-delay: var(--d, 0ms);
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .db-fill { animation: none; }
     }
     .db-col.newest .db-fill { border-top-color: var(--sand); }
     .db-col.newest .db-fill::after {
@@ -917,30 +961,27 @@ const slides = [
         .hero-top      { grid-template-columns: 1fr; grid-template-rows: auto 1fr; flex-basis: 62%; }
         .hero-id       { padding: 1.4rem 1.4rem 1rem 4rem; }
         .hero-id-rule  { margin-top: 0.9rem; }
-        .profile-cta   { margin-top: 0.9rem; }
         .hero-bottom   { flex-basis: 38%; }
         .hero-recent   { border-left: 0; border-top: 1px solid var(--hair); padding: 1rem 1.4rem 1.2rem; }
         .hr-desc       { -webkit-line-clamp: 1; }
-        /* 下半：關於我改成橫向一列，長條在下 */
-        .hero-bottom   { grid-template-columns: 1fr; grid-template-rows: auto 1fr; flex-basis: 38%; }
-        .db-about      { flex-direction: row; align-items: center; gap: 1rem;
-                         text-align: left; border-right: 0; border-bottom: 1px solid var(--hair);
-                         padding: 0.8rem 1.4rem 0.8rem 4rem; }
-        .db-hd         { display: none; }
-        .db-frame      { margin: 0; height: 62px; }
-        .db-nm         { margin-top: 0; }
-        .db-go         { margin-left: auto; align-self: center; padding-top: 0; width: auto; gap: 0.6rem; }
-        .db-chart      { padding: 0.9rem 1.4rem 0.8rem; }
+        /* 上半堆疊；關於我縮小並回到靠左，避免右下擠在窄欄裡 */
+        .hero-id       { padding: 1.4rem 1.4rem 1.2rem 4rem; }
+        .hero-about    { align-self: flex-start; gap: 0.75rem; margin-top: 1.2rem; }
+        .ha-text       { align-items: flex-start; text-align: left; order: 2; }
+        .ha-frame      { height: 118px; order: 1; }
+        .hero-bottom   { flex-basis: 38%; }
+        .db-chart      { padding: 0.9rem 4rem 0.8rem; }
     }
     @media (max-width: 768px) {
         .hero-section  { margin-left: -1rem; margin-right: -1rem; width: calc(100% + 2rem); }
         .fp-grid       { grid-template-columns: 1fr; }
         .fm-grid       { grid-template-columns: 1fr; }
-        .banner-title  { font-size: 1.9rem; }
+        .banner-title  { font-size: 2.1rem; }
         .hero-id       { padding-left: 1rem; }
         .hero-recent   { padding-left: 1rem; padding-right: 1rem; }
-        .db-about      { padding-left: 1rem; }
+        .hero-id       { padding-left: 1rem; }
         .db-chart      { padding-left: 1rem; padding-right: 1rem; }
+        .ha-frame      { height: 96px; }
         .db-lab .zh    { font-size: 0.62rem; }
         .db-lab .num   { font-size: 0.88rem; margin-left: 3px; }
         .db-lab .en    { display: none; }
