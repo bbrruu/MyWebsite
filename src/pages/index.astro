@@ -283,6 +283,7 @@ const slides = [
                             class:list={["hr-img", { blurup: heroIsYouTube }]}
                         />
                         <span class="hr-tint"></span>
+                        <span class="hr-veil"></span>
                     ) : (
                         <>
                             <canvas id="sky-canvas" class="hr-sky"></canvas>
@@ -728,10 +729,11 @@ const slides = [
        KV 本身就是把攝影層洗到接近白，硬留成一塊深色板會變成外來物。 */
     .hr-img {
         width: 100%; height: 100%; object-fit: cover; display: block;
-        /* 不要再提亮：brightness > 1 會把本來就亮的圖（例如 YouTube 縮圖）
-           推向純白，暗圖和亮圖的落差會被放大。密度交給 opacity 控制。 */
+        /* 密度由 opacity 給，調子由 brightness + contrast 一起給：
+           單獨拉 brightness 會把亮圖推向純白（上一版就是這樣壞的），
+           同時把 contrast 降下來，暗部才會跟著浮起來而亮部不爆。 */
         opacity: 0.66;
-        filter: saturate(0.3) contrast(0.95) brightness(0.98);
+        filter: saturate(0.3) contrast(0.86) brightness(1.12);
         transition: opacity 0.5s ease, filter 0.5s ease, transform 0.6s ease;
     }
     /* 染上主色調的藍：blend color 只換色相與彩度，保留照片自己的明暗結構 */
@@ -741,10 +743,19 @@ const slides = [
         mix-blend-mode: color;
         opacity: 0.55;
     }
+    /* 均勻的紙色薄紗。遮罩只提亮左下與底部，右上那塊是全密度的，
+       整體「偏暗」的感覺來自那裡——這層把全區一起往紙色拉。 */
+    .hr-veil {
+        position: absolute; inset: 0; pointer-events: none;
+        background: var(--paper);
+        opacity: 0.22;
+        transition: opacity 0.5s ease;
+    }
+    .hero-recent:hover .hr-veil { opacity: 0.06; }
     /* hover 才讓照片回到比較清楚的樣子——當作「靠近看」的獎勵 */
     .hero-recent:hover .hr-img {
         opacity: 0.88;
-        filter: saturate(0.62) contrast(1) brightness(1);
+        filter: saturate(0.62) contrast(0.96) brightness(1.04);
         transform: scale(1.02);
     }
     /* YouTube 縮圖只有 480×360，滿版一定會糊，所以直接承認並柔化 */
