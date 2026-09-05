@@ -14,6 +14,9 @@ const blogCollection = defineCollection({
     category: z.enum(['旅行', '日常', '省思']).default('日常'),
     tags: z.array(z.string()).default([]),
     quote: z.string().optional(),
+    // 首頁「最近更新」用的代表圖。留空時會退而去內文找第一張圖，
+    // 所以舊文章不用回頭補；PhotoService.swift 之後附加照片時可以順手寫進來。
+    heroImage: z.string().optional(),
   }),
 });
 

@@ -25,6 +25,78 @@ const featuredProjects = allProjects
     .filter((p: CollectionEntry<"projects">) => p.data.featured)
     .slice(0, 3);
 
+// ══ 首頁右上「最近更新」：跨全部 collection 找最新的一筆 ═══════════
+// 圖片走退路階梯：heroImage → 內文第一張圖 → coverImage → YouTube → 星空。
+// 每一層都可能是空的，所以最後一定要有星空接住，不會開天窗。
+function firstBodyImage(body: string | undefined): string | undefined {
+    if (!body) return undefined;
+    const m = body.match(/!\[[^\]]*\]\(([^)]+)\)/);
+    return m ? m[1] : undefined;
+}
+
+type Recent = {
+    href: string; kind: string; kindEn: string;
+    date: Date; title: string; desc: string;
+    image?: string; imageKind?: "photo" | "cover" | "youtube";
+    youtubeId?: string;
+};
+
+const recentCandidates: Recent[] = [
+    ...allJournalPosts.map((p) => ({
+        href: `/blog/${p.id}`, kind: "生活隨筆", kindEn: "JOURNAL",
+        date: p.data.pubDate, title: p.data.title,
+        desc: p.data.quote ?? "",
+        image: p.data.heroImage ?? firstBodyImage(p.body),
+        imageKind: "photo" as const,
+    })),
+    ...allNotesPosts.map((p) => ({
+        href: `/notes/${p.id}`, kind: "學習筆記", kindEn: "NOTES",
+        date: p.data.pubDate, title: p.data.title,
+        desc: p.data.description ?? "",
+    })),
+    ...allResearchPosts.map((p) => ({
+        href: `/research/${p.id}`, kind: "讀讀文獻", kindEn: "RESEARCH",
+        date: p.data.pubDate, title: p.data.title,
+        desc: p.data.abstract ?? "",
+    })),
+    ...allReadingPosts.map((p) => ({
+        href: `/reading/${p.id}`, kind: "看看書籍", kindEn: "READING",
+        date: p.data.pubDate, title: p.data.title,
+        desc: `${p.data.bookTitle} · ${p.data.author}`,
+        image: p.data.coverImage, imageKind: "cover" as const,
+    })),
+    ...allMusicPosts.map((p) => ({
+        href: `/music/${p.id}`, kind: "聽聽音樂", kindEn: "MUSIC",
+        date: p.data.pubDate, title: p.data.songName,
+        desc: p.data.artist,
+        image: p.data.youtubeId
+            ? `https://img.youtube.com/vi/${p.data.youtubeId}/maxresdefault.jpg`
+            : undefined,
+        imageKind: "youtube" as const,
+        youtubeId: p.data.youtubeId,
+    })),
+    ...allProjects.map((p) => ({
+        href: `/projects/${p.id}`, kind: "作品集", kindEn: "PROJECTS",
+        date: p.data.pubDate, title: p.data.title,
+        desc: p.data.description,
+        image: p.data.coverImage, imageKind: "cover" as const,
+    })),
+];
+
+const recent = recentCandidates
+    .sort((a, b) => b.date.valueOf() - a.date.valueOf())[0];
+
+const recentDateStr = recent
+    ? recent.date.toLocaleDateString("zh-TW", { year: "numeric", month: "2-digit", day: "2-digit" })
+    : "";
+
+// 星空：一顆星 = 一篇文章。只需要分類和日期，標題用來決定位置。
+const skyPosts = recentCandidates.map((r) => ({
+    c: r.kindEn,
+    t: r.date.valueOf(),
+    k: r.title,
+}));
+
 const slogans = [
     "想買一桶冰淇淋暴挖起來吃",
     "有一隻貓咪叫做高麗菜",
@@ -32,6 +104,38 @@ const slogans = [
     "蛋餅蛋餅九層塔蛋餅",
 ];
 const randomSlogan = slogans[Math.floor(Math.random() * slogans.length)];
+
+// ══ 下半儀表板：各分類篇數 ═══════════════════════════════════════
+// 資料落差很大（17:1），所以「軌道」等寬滿高可點、「填充」才按篇數等比，
+// 並給最矮的保底 14%，讓 2 篇和 1 篇分得出來。比例既然壓過了就不畫刻度線。
+const BAR_FLOOR = 14;   // 最矮的百分比
+const BAR_TOP = 86;     // 最高的百分比（留空間給頂端讀數，不頂到天花板）
+
+const barSource = [
+    { name: "生活隨筆", en: "JOURNAL",  unit: "篇", href: "/blog",     items: allJournalPosts,  latest: allJournalPosts[0]?.data.title },
+    { name: "聽聽音樂", en: "MUSIC",    unit: "首", href: "/music",    items: allMusicPosts,    latest: allMusicPosts[0]?.data.songName },
+    { name: "作品集",   en: "PROJECTS", unit: "個", href: "/projects", items: allProjects,      latest: allProjects[0]?.data.title },
+    { name: "讀讀文獻", en: "RESEARCH", unit: "篇", href: "/research", items: allResearchPosts, latest: allResearchPosts[0]?.data.title },
+    { name: "看看書籍", en: "READING",  unit: "本", href: "/reading",  items: allReadingPosts,  latest: allReadingPosts[0]?.data.title },
+    { name: "學習筆記", en: "NOTES",    unit: "篇", href: "/notes",    items: allNotesPosts,    latest: allNotesPosts[0]?.data.title },
+];
+
+const barMax = Math.max(1, ...barSource.map((b) => b.items.length));
+const totalPosts = barSource.reduce((n, b) => n + b.items.length, 0);
+
+const bars = barSource
+    .map((b) => {
+        const count = b.items.length;
+        const ratio = barMax > 1 ? (count - 1) / (barMax - 1) : 1;
+        return {
+            name: b.name, en: b.en, unit: b.unit, href: b.href,
+            count, latest: b.latest,
+            // 含有全站最新一篇的那一欄用沙色標記，跟上方「最近更新」呼應
+            newest: recent ? b.href.startsWith(`/${recent.kindEn.toLowerCase()}`) || recent.href.startsWith(b.href) : false,
+            pct: count === 0 ? 0 : ((BAR_FLOOR + ratio * (100 - BAR_FLOOR)) * BAR_TOP) / 100,
+        };
+    })
+    .sort((a, b) => b.count - a.count);
 
 const slides = [
     {
@@ -74,88 +178,121 @@ const slides = [
     <!-- ══ HERO：上下各半，整頁高 ══ -->
     <section id="hero-section" class="hero-section">
 
-        <!-- 上半：相框 banner -->
+        <!-- 上半：左邊身分、右邊最近更新 -->
         <div class="hero-top">
-            <a href="/about" class="banner-link-wrapper">
-                <div class="banner-content">
-                    <h1 class="banner-title" style="font-style: italic;">Bruce's Website</h1>
-                    <div id="slogan" class="banner-slogan">{randomSlogan}</div>
+
+            <!-- 左：原本的標題與標語，改成靠左 -->
+            <a href="/about" class="hero-id">
+                <h1 class="banner-title" style="font-style: italic;">Bruce's Website</h1>
+                <div id="slogan" class="banner-slogan">{randomSlogan}</div>
+                <div class="hero-id-rule"></div>
+                <div class="profile-cta">
+                    <span class="cta-text">查看個人簡介</span>
+                    <span class="cta-line"></span>
+                </div>
+            </a>
+
+            <!-- 右：最近更新。圖片走退路階梯，最後一定有星空接住 -->
+            <a href={recent?.href ?? "/blog"} class="hero-recent">
+                <div class="hr-k">
+                    <b>最近更新</b>
+                    <span>{recent?.kind} · {recentDateStr}</span>
+                </div>
+
+                {recent?.image && recent.imageKind === "youtube" ? (
+                    <div class="hr-media small">
+                        <span class="hr-thumb">
+                            <img
+                                src={recent.image}
+                                data-fallback={`https://img.youtube.com/vi/${recent.youtubeId}/hqdefault.jpg`}
+                                alt=""
+                                width="480" height="360"
+                                loading="eager" fetchpriority="high"
+                            />
+                        </span>
+                        <span class="hr-thumb-note">{recent.desc}</span>
+                    </div>
+                ) : recent?.image ? (
+                    <div class="hr-media">
+                        <img
+                            src={recent.image}
+                            alt=""
+                            width="1800" height="1013"
+                            loading="eager" fetchpriority="high"
+                        />
+                    </div>
+                ) : (
+                    <div class="hr-sky">
+                        <canvas id="sky-canvas"></canvas>
+                        <span class="hr-sky-cap">{skyPosts.length} POSTS</span>
+                        <script
+                            type="application/json"
+                            id="sky-data"
+                            is:inline
+                            set:html={JSON.stringify(skyPosts)}
+                        />
+                    </div>
+                )}
+
+                <div class="hr-body">
+                    <div class="hr-title">{recent?.title}</div>
+                    {recent?.desc && recent.imageKind !== "youtube" && (
+                        <div class="hr-desc">{recent.desc}</div>
+                    )}
+                </div>
+
+                <div class="hr-go">
+                    <span class="t">閱讀全文</span>
+                    <span class="ar">&#8594;</span>
                 </div>
             </a>
         </div>
 
-        <!-- 下半：Carousel -->
+        <!-- 下半：關於我 ＋ 各分類篇數長條 -->
         <div class="hero-bottom">
-            <div class="c-layout">
-                <button id="c-prev" class="c-arrow" aria-label="上一個">←</button>
 
-                <div class="c-track" id="c-track">
-                    <!-- About card (index 0) -->
-                    <a href="/about" class="c-slide c-slide--active" data-idx="0">
-                        <div class="cs-header">
-                            <span class="cs-en">ABOUT</span>
-                            <span class="cs-sep">·</span>
-                            <span class="cs-name">關於我</span>
-                        </div>
-                        <div class="cs-about-body">
-                            <div class="cs-about-photo">
-                                <img src="/images/profile.jpg" alt="Bruce" transition:name="profile-photo" />
-                            </div>
-                            <span class="cs-about-name">曾冠瑜</span>
-                            <span class="cs-about-sub">Bruce Tseng</span>
-                        </div>
-                        <div class="cs-footer">
-                            <span class="cs-label">查看</span>
-                            <span class="cs-latest">個人簡介</span>
-                            <span class="cs-go">→</span>
-                        </div>
-                    </a>
+            <!-- 左：關於我 -->
+            <a href="/about" class="db-about">
+                <span class="db-hd">About · 關於我</span>
+                <span class="db-frame">
+                    <img src="/images/profile.jpg" alt="曾冠瑜" width="960" height="1705" loading="lazy" transition:name="profile-photo" />
+                </span>
+                <span class="db-nm">曾冠瑜</span>
+                <span class="db-en">Bruce Tseng</span>
+                <span class="db-go"><span>查看 個人簡介</span><span>&#8594;</span></span>
+            </a>
 
-                    {slides.map((slide, i) => (
-                        <a
-                            href={slide.href}
-                            class="c-slide"
-                            data-idx={i + 1}
-                        >
-                            <!-- 頂部：英文 + 中文 -->
-                            <div class="cs-header">
-                                <span class="cs-en">{slide.en}</span>
-                                <span class="cs-sep">·</span>
-                                <span class="cs-name">{slide.name}</span>
-                            </div>
-
-                            <!-- 中央：數字 -->
-                            <div class="cs-body">
-                                <span class="cs-count">{slide.count}</span>
-                                <span class="cs-unit">{slide.unit}</span>
-                            </div>
-
-                            <!-- 底部：最新一篇 -->
-                            <div class="cs-footer">
-                                <span class="cs-label">最新</span>
-                                <span class="cs-latest">
-                                    {slide.latest ? `〈${slide.latest}〉` : "尚無內容"}
-                                </span>
-                                <span class="cs-go">→</span>
-                            </div>
-                        </a>
-                    ))}
+            <!-- 右：長條。軌道等寬滿高可點，填充按篇數等比（最矮保底 14%）。
+                 比例壓過了所以刻意不畫刻度線——格線對不上長條頂端，留著就是在騙人。 -->
+            <div class="db-chart">
+                <div class="db-head">
+                    <b>{totalPosts}</b>
+                    <span>posts across {bars.length} sections</span>
+                    <span class="db-read" id="db-read"></span>
                 </div>
 
-                <button id="c-next" class="c-arrow" aria-label="下一個">→</button>
-            </div>
-
-            <!-- Dots -->
-            <div class="c-dots" id="c-dots">
-                <!-- About dot (index 0) -->
-                <button class="c-dot active" data-idx="0" aria-label="第 1 項"></button>
-                {slides.map((_, i) => (
-                    <button
-                        class="c-dot"
-                        data-idx={i + 1}
-                        aria-label={`第 ${i + 2} 項`}
-                    ></button>
-                ))}
+                <div class="db-plot">
+                    <div class="db-cols">
+                        {bars.map((b) => (
+                            <a
+                                href={b.href}
+                                class:list={["db-col", { newest: b.newest }]}
+                                data-latest={b.latest ? `〈${b.latest}〉` : "尚無內容"}
+                            >
+                                <span class="db-fill" style={`height:${b.pct}%`}></span>
+                            </a>
+                        ))}
+                    </div>
+                    <div class="db-axis"></div>
+                    <div class="db-labels">
+                        {bars.map((b) => (
+                            <span class="db-lab">
+                                <span class="zh">{b.name}<span class="num">{b.count}<i>{b.unit}</i></span></span>
+                                <span class="en">{b.en}</span>
+                            </span>
+                        ))}
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -390,166 +527,6 @@ const slides = [
     }
 
     // ── Carousel（撲克疊牌）────────────────────────────────────
-    function initCarousel() {
-        var track   = document.getElementById("c-track");
-        var prevBtn = document.getElementById("c-prev");
-        var nextBtn = document.getElementById("c-next");
-        var dots    = Array.from(document.querySelectorAll(".c-dot"));
-        var slides  = Array.from(document.querySelectorAll(".c-slide"));
-
-        if (!track || !slides.length) return;
-
-        var TOTAL     = slides.length;
-        var cur       = 0;
-        var dragMoved = false;
-
-        // 每個 offset 層的設定
-        // offset 0 = 正中央, ±1 = 第一層疊牌, ±2 = 第二層疊牌
-        var CFG = [
-            { xFrac: 0,    rot: 0,  scale: 1,    opacity: 1,    z: 10 },
-            { xFrac: 0.26, rot: 10, scale: 0.86, opacity: 0.85, z: 7  },
-            { xFrac: 0.40, rot: 18, scale: 0.76, opacity: 0.70, z: 5  },
-        ];
-        // offset ±3 以上：預備位置，opacity 0（seamless 出現用）
-        var GHOST = { xFrac: 0.50, rot: 22, scale: 0.68, opacity: 0, z: 1 };
-
-        function applyPos(slide, offset) {
-            var abs  = Math.abs(offset);
-            var sign = offset >= 0 ? 1 : -1;
-            var cfg  = abs <= 2 ? CFG[abs] : GHOST;
-            var x    = sign * track.offsetWidth * cfg.xFrac;
-
-            slide.style.transform     = "translateX(calc(-50% + " + x + "px)) translateY(-50%) rotate(" + (sign * cfg.rot) + "deg) scale(" + cfg.scale + ")";
-            slide.style.opacity       = String(cfg.opacity);
-            slide.style.zIndex        = String(cfg.z);
-            // 只有 active 可點擊觸發連結，側牌點擊切換
-            slide.style.pointerEvents = "";
-        }
-
-        // ── 牌尺寸計算 ──
-        function updateLayout() {
-            var h  = track.offsetHeight;
-            var w  = track.offsetWidth;
-            var cH = Math.round(h * 0.84);
-            var isMobile = w < 500;
-            var cW = isMobile
-                ? Math.round(Math.min(w * 0.68, 240))
-                : Math.round(Math.min(w * 0.36, 260));
-            slides.forEach(function (s) {
-                s.style.height = cH + "px";
-                s.style.width  = cW + "px";
-            });
-            posAll();
-        }
-
-        function posAll() {
-            slides.forEach(function (s, i) { applyPos(s, i - cur); });
-        }
-
-        var resizeH = function () { updateLayout(); };
-        window.addEventListener("resize", resizeH);
-        _cleanups.push(function () { window.removeEventListener("resize", resizeH); });
-
-        // ── 切換到指定 index ──
-        function goTo(i) {
-            cur = Math.max(0, Math.min(TOTAL - 1, i));
-            posAll();
-            dots.forEach(function (d, idx) { d.classList.toggle("active", idx === cur); });
-            if (prevBtn) prevBtn.disabled = cur === 0;
-            if (nextBtn) nextBtn.disabled = cur === TOTAL - 1;
-        }
-
-        // 初始化
-        updateLayout();
-        goTo(0);
-
-        // 側牌點擊 → 切換；active 牌點擊 → JS cover 展開動畫
-        slides.forEach(function (s, i) {
-            s.addEventListener("click", function (e) {
-                if (dragMoved) { e.preventDefault(); dragMoved = false; return; }
-                if (i !== cur) { e.preventDefault(); goTo(i); return; }
-
-                // Active card：建立 cover div，從卡片位置展開到全螢幕
-                var rect = s.getBoundingClientRect();
-                var cover = document.createElement("div");
-                cover.style.cssText =
-                    "position:fixed;z-index:9990;pointer-events:none;" +
-                    "background:var(--paper);border-radius:6px;" +
-                    "top:" + rect.top + "px;" +
-                    "left:" + rect.left + "px;" +
-                    "width:" + rect.width + "px;" +
-                    "height:" + rect.height + "px;" +
-                    "transition:" +
-                    "top .32s cubic-bezier(.4,0,.2,1)," +
-                    "left .32s cubic-bezier(.4,0,.2,1)," +
-                    "width .32s cubic-bezier(.4,0,.2,1)," +
-                    "height .32s cubic-bezier(.4,0,.2,1)," +
-                    "border-radius .32s;";
-                document.body.appendChild(cover);
-
-                // 標記 card-nav（讓 loader 延遲 + 讓 CSS 關閉 view transition）
-                document.documentElement.classList.add("card-nav");
-
-                // 展開到全螢幕
-                requestAnimationFrame(function () {
-                    requestAnimationFrame(function () {
-                        cover.style.top = "0px";
-                        cover.style.left = "0px";
-                        cover.style.width = "100vw";
-                        cover.style.height = "100vh";
-                        cover.style.borderRadius = "0px";
-                    });
-                });
-                // 讓連結正常導航（不 preventDefault），loader delay 會等動畫跑完
-            });
-        });
-
-        // ── 箭頭 ──
-        prevBtn && prevBtn.addEventListener("click", function () { goTo(cur - 1); });
-        nextBtn && nextBtn.addEventListener("click", function () { goTo(cur + 1); });
-
-        // ── Dots ──
-        dots.forEach(function (d, i) { d.addEventListener("click", function () { goTo(i); }); });
-
-        // ── Touch ──
-        var touchStartX = 0;
-        track.addEventListener("touchstart", function (e) {
-            touchStartX = e.touches[0].clientX;
-        }, { passive: true });
-        track.addEventListener("touchend", function (e) {
-            var diff = touchStartX - e.changedTouches[0].clientX;
-            if (diff >  55 && cur < TOTAL - 1) goTo(cur + 1);
-            else if (diff < -55 && cur > 0)    goTo(cur - 1);
-        }, { passive: true });
-
-        // ── Mouse drag ──
-        var isDragging = false, dragStartX = 0;
-
-        track.addEventListener("mousedown", function (e) {
-            isDragging = true;
-            dragMoved  = false;
-            dragStartX = e.clientX;
-            e.preventDefault();
-        });
-
-        var mmH = function (e) {
-            if (!isDragging) return;
-            if (Math.abs(e.clientX - dragStartX) > 8) dragMoved = true;
-        };
-        var muH = function (e) {
-            if (!isDragging) return;
-            isDragging = false;
-            var diff = dragStartX - e.clientX;
-            if (diff >  55 && cur < TOTAL - 1) goTo(cur + 1);
-            else if (diff < -55 && cur > 0)    goTo(cur - 1);
-        };
-        window.addEventListener("mousemove", mmH);
-        window.addEventListener("mouseup",   muH);
-        _cleanups.push(function () {
-            window.removeEventListener("mousemove", mmH);
-            window.removeEventListener("mouseup",   muH);
-        });
-    }
 
     // ── 標語輪播 ──────────────────────────────────────────────
     function initSlogan() {
@@ -573,7 +550,6 @@ const slides = [
     document.addEventListener("astro:page-load", function () {
         if (window.location.pathname !== "/") return;
         initScrollSnap();
-        initCarousel();
         initSlogan();
     });
 </script>
@@ -609,18 +585,39 @@ const slides = [
         padding-top: 2.5rem;
     }
 
-    /* ══ Hero Top（Banner）════════════════════════════════════ */
+    /* ══ Hero Top：左身分 / 右最近更新 ═══════════════════════ */
     .hero-top {
-        flex: 0 0 40%;
+        flex: 0 0 54%;
+        /* flex item 預設 min-height: auto，內容比 40% 高時不會縮，
+           底部就會被 overflow: hidden 切掉。必須明確歸零。 */
+        min-height: 0;
         position: relative;
         overflow: hidden;
+        display: grid;
+        grid-template-columns: 38% 1fr;
+        background: var(--paper);
     }
 
-    .banner-link-wrapper {
-        display: block; width: 100%; height: 100%;
-        text-decoration: none; color: inherit;
+    /* ── 左欄：原本的內容，改成靠左（不再置中）── */
+    .hero-id {
         position: relative;
-        background: var(--paper);
+        z-index: 3;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        /* 內容垂直置中：區塊變高之後靠上會在下方留一個洞，
+           置中則讓留白變成上下對稱的邊界。水平仍然靠左。 */
+        justify-content: center;
+        /* 4rem = 容器與 .nav-inner 的側邊距。hero 用 -4rem 突破容器，
+           所以這裡補回 4rem，標題的 B 才會對齊導覽列的「首頁 / INDEX」。 */
+        padding: 2.2rem 1.8rem 2.2rem 4rem;
+        text-decoration: none;
+        color: inherit;
+    }
+    .hero-id-rule {
+        width: 46px; height: 2px;
+        background: var(--sand);
+        margin-top: 1.3rem;
     }
 
     /* ── 四角相框 ── */
@@ -658,192 +655,191 @@ const slides = [
         white-space: nowrap;
     }
 
-    .banner-content {
-        position: absolute; inset: 0; z-index: 3;
-        display: flex; flex-direction: column;
-        align-items: center; justify-content: center;
-        text-align: center;
-    }
-    .banner-title  { font-size: 2.2rem; margin: 0; font-weight: 700; letter-spacing: -1px; }
-    .banner-slogan { font-size: 0.9rem; margin-top: 0.7rem; color: var(--muted); font-style: italic; letter-spacing: 0.1rem; transition: opacity 0.5s; }
+    .banner-title  { font-size: 2.6rem; margin: 0; font-weight: 700; letter-spacing: -1px; }
+    .banner-slogan { font-size: 1.1rem; margin-top: 0.95rem; color: var(--muted); font-style: italic; letter-spacing: 0.08rem; transition: opacity 0.5s; }
 
-    .profile-cta  { margin-top: 1.5rem; position: relative; padding-bottom: 6px; font-weight: bold; }
-    .cta-text     { font-size: 0.7rem; font-family: var(--font-mono); color: var(--muted); letter-spacing: 2px; transition: color 0.4s; }
-    .cta-line     { position: absolute; bottom: 0; left: 50%; width: 30px; height: 1px; background: var(--border); transform: translateX(-50%); transition: width 0.4s, background 0.4s; }
-    .banner-link-wrapper:hover .cta-text { color: var(--accent-deep); }
-    .banner-link-wrapper:hover .cta-line { width: 120px; background: var(--accent); }
+    .profile-cta  { margin-top: 1.5rem; position: relative; padding-bottom: 7px; width: max-content; font-weight: bold; }
+    .cta-text     { font-size: 0.78rem; font-family: var(--font-mono); color: var(--muted); letter-spacing: 2px; transition: color 0.4s; }
+    .cta-line     { position: absolute; bottom: 0; left: 0; width: 34px; height: 1px; background: var(--sand); transition: width 0.4s; }
+    .hero-id:hover .cta-text { color: var(--accent-deep); }
+    .hero-id:hover .cta-line { width: 110px; }
 
-    /* ══ Hero Bottom（Carousel）══════════════════════════════ */
-    .hero-bottom {
-        flex: 0 0 60%;
+    /* ── 右欄：最近更新 ── */
+    .hero-recent {
+        position: relative;
+        z-index: 3;
+        min-height: 0;
+        overflow: hidden;
         display: flex;
         flex-direction: column;
-        background: var(--paper);
-        border-top: 1px solid var(--border);
-        padding: 0.6rem 0 0.5rem;
-        overflow: hidden;
-    }
-
-    /* Arrow + track 水平排列 */
-    .c-layout {
-        flex: 1;
-        min-height: 0;
-        display: flex;
-        align-items: center;
-        gap: 0;
-    }
-
-    /* 箭頭按鈕 */
-    .c-arrow {
-        flex-shrink: 0;
-        width: 36px; height: 36px;
-        background: none;
-        border: 1px solid var(--border);
-        border-radius: 50%;
-        font-size: 0.8rem;
-        color: var(--muted);
-        display: flex; align-items: center; justify-content: center;
-        transition: border-color 0.25s, color 0.25s;
-        margin: 0 0.4rem;
-    }
-    .c-arrow:hover:not(:disabled) { border-color: var(--accent); color: var(--accent-deep); }
-    .c-arrow:disabled { opacity: 0.25; }
-
-    /* Track：絕對定位容器（疊牌用）*/
-    .c-track {
-        flex: 1;
-        min-width: 0;
-        height: 100%;
-        position: relative;
-        overflow: hidden;
-    }
-
-    /* ══ Slide：帳冊風格＋絕對定位疊牌 ════════════════════════ */
-    .c-slide {
-        /* 尺寸由 JS 設定 */
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        /* 初始：隱藏在右側 */
-        transform: translateX(-50%) translateY(-50%);
-        transform-origin: 50% 50%;
-        transition: transform 0.48s cubic-bezier(0.4, 0, 0.2, 1),
-                    opacity   0.38s ease,
-                    box-shadow 0.38s ease;
-        border: 1px solid var(--border);
-        border-radius: 6px;
-        padding: 0.75rem 1.1rem;
+        padding: 1.7rem 2.2rem 1.6rem;
+        border-left: 1px solid var(--hair);
         text-decoration: none;
         color: inherit;
-        display: flex;
-        flex-direction: column;
-        gap: 0.45rem;
-        background: var(--paper);
-        overflow: hidden;
-        will-change: transform, opacity;
-    }
-    /* active 牌加陰影 */
-    .c-slide--active {
-        box-shadow: 0 8px 32px color-mix(in srgb, var(--accent) 14%, transparent);
-    }
-    .c-slide:hover { border-color: var(--accent); }
-
-    /* 頂部：英文 · 中文 */
-    .cs-header {
-        display: flex;
-        align-items: center;
-        gap: 0.4rem;
-    }
-    .cs-en {
-        font-size: 0.72rem;
-        font-family: var(--font-mono);
-        letter-spacing: 3px;
-        color: var(--accent-deep);
-        font-weight: 700;
-        text-transform: uppercase;
-    }
-    .cs-sep  { font-size: 0.68rem; color: var(--border); }
-    .cs-name { font-size: 0.9rem; color: var(--muted); font-family: "LXGW WenKai TC", serif; }
-
-    /* 中央數字 */
-    .cs-body {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 0.1rem;
-    }
-    .cs-count {
-        font-size: clamp(2.2rem, 4vw, 3.4rem);
-        font-weight: 700;
-        font-family: var(--font-mono);
-        color: var(--accent-deep);
-        line-height: 1;
-        letter-spacing: -2px;
-    }
-    .cs-unit {
-        font-size: 0.85rem;
-        color: var(--muted);
-        font-family: "LXGW WenKai TC", serif;
-        letter-spacing: 1px;
-    }
-
-    /* 底部：最新一篇 */
-    .cs-footer {
-        display: flex;
-        align-items: center;
-        gap: 0.45rem;
         min-width: 0;
     }
-    .cs-label {
-        flex-shrink: 0;
-        font-size: 0.66rem;
-        font-family: var(--font-mono);
-        letter-spacing: 2px;
-        color: var(--muted);
-        font-weight: 700;
-        text-transform: uppercase;
+    .hr-k {
+        font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 2px;
+        text-transform: uppercase; color: var(--muted);
+        display: flex; gap: 0.9rem; align-items: baseline; flex-wrap: wrap;
     }
-    .cs-latest {
-        flex: 1;
-        font-size: 0.88rem;
-        font-family: "LXGW WenKai TC", serif;
-        color: var(--ink);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    .cs-go {
-        flex-shrink: 0;
-        font-size: 0.9rem;
-        color: var(--muted);
-        transition: transform 0.25s, color 0.25s;
-    }
-    .c-slide--active .cs-go,
-    .c-slide:hover    .cs-go { color: var(--accent-deep); transform: translateX(3px); }
+    .hr-k b { color: var(--accent-deep); font-weight: 500; }
 
-    /* ══ Dots ════════════════════════════════════════════════ */
-    .c-dots {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 6px;
-        padding: 0.35rem 0;
-        flex-shrink: 0;
+    /* 照片給固定 16:9 的框，不滿版流血——面板 2.4:1、照片 1.78:1，
+       滿版 cover 會切掉約 26% 的高度，而且沒辦法逐張調重心。 */
+    .hr-media {
+        margin-top: 0.75rem;
+        aspect-ratio: 16 / 9;
+        width: 100%;
+        min-height: 0;
+        flex: 0 1 auto;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        background: var(--paper-lift);
     }
-    .c-dot {
-        width: 6px; height: 6px;
-        border-radius: 50%;
-        border: none;
-        background: var(--border);
-        padding: 0;
-        transition: background 0.25s, transform 0.25s;
+    .hr-media img {
+        width: 100%; height: 100%; object-fit: cover; display: block;
+        filter: saturate(0.62) contrast(0.96) brightness(1.04);
+        transition: filter 0.4s ease;
     }
-    .c-dot.active {
-        background: var(--accent);
-        transform: scale(1.4);
+    .hero-recent:hover .hr-media img { filter: none; }
+
+    /* 解析度不夠的圖不要放大：YouTube hqdefault 只有 480×360 */
+    .hr-media.small {
+        aspect-ratio: auto; height: 104px;
+        display: flex; align-items: center; gap: 1rem;
+        padding: 0.85rem 1rem;
     }
+    .hr-thumb { width: 148px; height: 76px; flex: none; overflow: hidden; border: 1px solid var(--hair); }
+    .hr-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .hr-thumb-note { font-size: 0.88rem; color: var(--muted); line-height: 1.6; }
+
+    /* 沒有任何圖時的退路：星空 */
+    .hr-sky {
+        margin-top: 0.75rem; flex: 1 1 0; min-height: 48px; position: relative;
+        border: 1px solid var(--border); background: var(--paper-lift); overflow: hidden;
+    }
+    .hr-sky canvas { display: block; width: 100%; height: 100%; }
+    .hr-sky-cap {
+        position: absolute; left: 0.75rem; bottom: 0.6rem;
+        font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 2px;
+        color: var(--muted);
+    }
+
+    .hr-body { margin-top: 0.85rem; }
+    .hr-title { font-size: 1.3rem; line-height: 1.45; }
+    .hr-desc {
+        font-size: 0.92rem; color: var(--muted); margin-top: 0.45rem; line-height: 1.7;
+        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .hr-go { margin-top: auto; padding-top: 0.8rem; display: flex; align-items: baseline; gap: 0.6rem; }
+    .hr-go .t {
+        font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 2px;
+        text-transform: uppercase; color: var(--accent-deep);
+    }
+    .hr-go .ar { color: var(--accent-deep); font-size: 0.85rem; transition: transform 0.3s; }
+    .hero-recent:hover .hr-go .ar { transform: translateX(5px); }
+
+    /* ══ Hero Bottom：關於我 ＋ 篇數長條 ═══════════════════════ */
+    .hero-bottom {
+        flex: 0 0 46%;
+        min-height: 0;
+        display: grid;
+        grid-template-columns: 25% 1fr;
+        background: var(--paper);
+        border-top: 1px solid var(--border);
+        overflow: hidden;
+    }
+
+    /* ── 左：關於我 ── */
+    .db-about {
+        border-right: 1px solid var(--hair);
+        padding: 1.3rem 1.4rem 1.2rem 4rem;
+        display: flex; flex-direction: column; align-items: center; text-align: center;
+        text-decoration: none; color: inherit;
+        min-width: 0; min-height: 0; overflow: hidden;
+    }
+    .db-hd {
+        font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 2px;
+        text-transform: uppercase; color: var(--muted); align-self: flex-start;
+    }
+    /* 相框比例鎖死 3:4：照片是 960×1705 直式，框一旦變橫臉就會被裁掉 */
+    .db-frame {
+        margin-top: auto; aspect-ratio: 3 / 4; height: 50%; width: auto;
+        padding: 5px; background: var(--paper-lift); border: 1px solid var(--border);
+        transform: rotate(-1.5deg); position: relative;
+        transition: transform 0.35s ease, box-shadow 0.35s ease;
+        box-shadow: 3px 3px 0 color-mix(in srgb, var(--accent) 8%, transparent),
+                    0 8px 22px color-mix(in srgb, var(--accent) 12%, transparent);
+    }
+    .db-about:hover .db-frame { transform: rotate(0deg) scale(1.03); }
+    .db-frame img { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
+    .db-nm { margin-top: 0.75rem; font-size: 1.05rem; }
+    .db-en { font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 3px; color: var(--muted); margin-top: 0.25rem; }
+    .db-go {
+        margin-top: auto; padding-top: 0.75rem; align-self: stretch;
+        display: flex; align-items: baseline; justify-content: space-between;
+        font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 2px;
+        text-transform: uppercase; color: var(--accent-deep);
+    }
+    .db-go span:last-child { transition: transform 0.3s; }
+    .db-about:hover .db-go span:last-child { transform: translateX(4px); }
+
+    /* ── 右：長條 ── */
+    .db-chart {
+        position: relative;
+        padding: 1.25rem 2rem 1rem;
+        /* grid 的 minmax(0,1fr) 不會像 flex:1 那樣被內容撐開 */
+        display: grid; grid-template-rows: auto minmax(0, 1fr);
+        min-width: 0; min-height: 0;
+    }
+    .db-head {
+        font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 2px;
+        text-transform: uppercase; color: var(--muted);
+        display: flex; gap: 1rem; align-items: baseline;
+    }
+    .db-head b { color: var(--ink); font-weight: 500; }
+    /* 共用讀數：滑過哪一欄就顯示那一區最新一篇。
+       放頂端所以永遠不會跟長條或數字打架。 */
+    .db-read {
+        margin-left: auto; font-family: "LXGW WenKai TC", serif; font-size: 0.8rem;
+        color: var(--muted); text-transform: none; letter-spacing: 0;
+        opacity: 0; transition: opacity 0.22s;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 46%;
+    }
+    .db-chart:hover .db-read { opacity: 1; }
+
+    .db-plot { position: relative; min-height: 0; margin-top: 0.9rem; }
+    .db-cols { position: absolute; inset: 0 0 46px; display: flex; gap: 10px; align-items: stretch; }
+    .db-col {
+        flex: 1; min-width: 0; position: relative;
+        display: flex; flex-direction: column; justify-content: flex-end;
+        text-decoration: none; color: inherit;
+        background: color-mix(in srgb, var(--haze) 26%, transparent);
+        transition: background 0.25s;
+    }
+    .db-col:hover { background: color-mix(in srgb, var(--haze) 55%, transparent); }
+    .db-fill {
+        background: color-mix(in srgb, var(--accent) 26%, transparent);
+        border-top: 2px solid var(--accent);
+        position: relative;
+    }
+    .db-col.newest .db-fill { border-top-color: var(--sand); }
+    .db-col.newest .db-fill::after {
+        content: ''; position: absolute; right: 6px; top: -9px;
+        width: 5px; height: 5px; background: var(--sand);
+    }
+    .db-axis { position: absolute; left: 0; right: 0; bottom: 46px; height: 1px; background: var(--ink); }
+    .db-labels { position: absolute; left: 0; right: 0; bottom: 0; height: 46px; display: flex; gap: 10px; }
+    .db-lab { flex: 1; min-width: 0; padding-top: 6px; text-align: center; }
+    .db-lab .zh { font-size: 0.72rem; display: block; }
+    .db-lab .num {
+        font-family: var(--font-mono); font-size: 1.12rem; color: var(--ink);
+        font-variant-numeric: tabular-nums; margin-left: 6px;
+    }
+    .db-lab .num i { font-style: normal; font-size: 0.62rem; color: var(--muted); margin-left: 2px; }
+    .db-lab .en { font-family: var(--font-mono); font-size: 0.56rem; letter-spacing: 2px; color: var(--muted); display: block; margin-top: 3px; }
+
 
     /* ══ Content Section（以下沿用既有樣式）════════════════════ */
     .featured-projects { margin-bottom: 3rem; }
@@ -915,95 +911,185 @@ const slides = [
     .see-more-btn:hover { color: var(--accent-deep); }
     .see-more-btn:hover .btn-line { width: 100%; background: var(--accent); }
 
-    /* ══ About card 樣式 ══════════════════════════════════════ */
-    .cs-about-body {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        min-height: 0;
-    }
-
-    /* 相框效果 */
-    .cs-about-photo {
-        flex: 0 0 58%;
-        width: 58%;
-        min-height: 0;
-        position: relative;
-        padding: 5px;
-        background: var(--paper);
-        border: 1px solid var(--border);
-        box-shadow:
-            3px 3px 0 color-mix(in srgb, var(--accent) 7%, transparent),
-            0 8px 24px color-mix(in srgb, var(--accent) 12%, transparent);
-        transform: rotate(-1.5deg);
-        transition: transform 0.35s ease, box-shadow 0.35s ease;
-    }
-    /* 四角裝飾線 */
-    .cs-about-photo::before,
-    .cs-about-photo::after {
-        content: "";
-        position: absolute;
-        width: 10px;
-        height: 10px;
-        border-color: var(--accent);
-        border-style: solid;
-        opacity: 0.5;
-        transition: opacity 0.35s, width 0.35s, height 0.35s;
-        z-index: 2;
-    }
-    .cs-about-photo::before {
-        top: -1px; left: -1px;
-        border-width: 2px 0 0 2px;
-    }
-    .cs-about-photo::after {
-        bottom: -1px; right: -1px;
-        border-width: 0 2px 2px 0;
-    }
-    .c-slide:hover .cs-about-photo {
-        transform: rotate(0deg) scale(1.03);
-        box-shadow:
-            4px 4px 0 color-mix(in srgb, var(--accent) 10%, transparent),
-            0 12px 32px color-mix(in srgb, var(--accent) 18%, transparent);
-    }
-    .c-slide:hover .cs-about-photo::before,
-    .c-slide:hover .cs-about-photo::after {
-        opacity: 1;
-        width: 14px;
-        height: 14px;
-    }
-    .cs-about-photo img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        object-position: center top;
-        display: block;
-    }
-
-    .cs-about-name {
-        font-size: 0.9rem;
-        font-weight: 700;
-        font-family: "LXGW WenKai TC", serif;
-        color: var(--ink);
-    }
-    .cs-about-sub {
-        font-size: 0.62rem;
-        font-family: var(--font-mono);
-        color: var(--muted);
-        letter-spacing: 2px;
-    }
-
     /* ══ Responsive ══════════════════════════════════════════ */
+    @media (max-width: 900px) {
+        /* 兩欄擠不下就疊起來，並把 hero 上半放高一點容納兩塊 */
+        .hero-top      { grid-template-columns: 1fr; grid-template-rows: auto 1fr; flex-basis: 62%; }
+        .hero-id       { padding: 1.4rem 1.4rem 1rem 4rem; }
+        .hero-id-rule  { margin-top: 0.9rem; }
+        .profile-cta   { margin-top: 0.9rem; }
+        .hero-bottom   { flex-basis: 38%; }
+        .hero-recent   { border-left: 0; border-top: 1px solid var(--hair); padding: 1rem 1.4rem 1.2rem; }
+        .hr-desc       { -webkit-line-clamp: 1; }
+        /* 下半：關於我改成橫向一列，長條在下 */
+        .hero-bottom   { grid-template-columns: 1fr; grid-template-rows: auto 1fr; flex-basis: 38%; }
+        .db-about      { flex-direction: row; align-items: center; gap: 1rem;
+                         text-align: left; border-right: 0; border-bottom: 1px solid var(--hair);
+                         padding: 0.8rem 1.4rem 0.8rem 4rem; }
+        .db-hd         { display: none; }
+        .db-frame      { margin: 0; height: 62px; }
+        .db-nm         { margin-top: 0; }
+        .db-go         { margin-left: auto; align-self: center; padding-top: 0; width: auto; gap: 0.6rem; }
+        .db-chart      { padding: 0.9rem 1.4rem 0.8rem; }
+    }
     @media (max-width: 768px) {
         .hero-section  { margin-left: -1rem; margin-right: -1rem; width: calc(100% + 2rem); }
         .fp-grid       { grid-template-columns: 1fr; }
         .fm-grid       { grid-template-columns: 1fr; }
-        .banner-title  { font-size: 1.5rem; }
-        .cs-count      { font-size: 2rem; }
+        .banner-title  { font-size: 1.9rem; }
+        .hero-id       { padding-left: 1rem; }
+        .hero-recent   { padding-left: 1rem; padding-right: 1rem; }
+        .db-about      { padding-left: 1rem; }
+        .db-chart      { padding-left: 1rem; padding-right: 1rem; }
+        .db-lab .zh    { font-size: 0.62rem; }
+        .db-lab .num   { font-size: 0.88rem; margin-left: 3px; }
+        .db-lab .en    { display: none; }
+        .db-cols       { inset: 0 0 32px; gap: 6px; }
+        .db-axis       { bottom: 32px; }
+        .db-labels     { height: 32px; gap: 6px; }
+        .db-read       { display: none; }
+        .hr-media.small { height: 84px; gap: 0.7rem; }
+        .hr-thumb      { width: 108px; height: 60px; }
+        .hr-thumb-note { font-size: 0.7rem; }
     }
     @media (max-width: 500px) {
         .banner-slogan { display: none; }
+        .hr-desc       { display: none; }
     }
 </style>
+
+<script>
+    // ══ 星空：一顆星 = 一篇文章 ══════════════════════════════
+    // 只在「最近更新沒有任何圖片可用」時才會出現在 DOM 裡。
+    function initSky() {
+        const cv = document.getElementById("sky-canvas") as HTMLCanvasElement | null;
+        const raw = document.getElementById("sky-data");
+        if (!cv || !raw) return;
+
+        let posts: { c: string; t: number; k: string }[] = [];
+        try { posts = JSON.parse(raw.textContent || "[]"); } catch { return; }
+        if (!posts.length) return;
+
+        // 位置由標題雜湊決定，所以每次載入都在同一個地方，不會亂跳
+        const hash = (str: string) => {
+            let h = 2166136261;
+            for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = (h * 16777619) >>> 0; }
+            return h;
+        };
+        const rnd = (seed: number, n: number) => {
+            const out: number[] = []; let h = seed;
+            for (let i = 0; i < n; i++) { h = (h * 1103515245 + 12345) >>> 0; out.push(h / 4294967296); }
+            return out;
+        };
+
+        const times = posts.map((p) => p.t);
+        const tMin = Math.min(...times), tMax = Math.max(...times);
+        const span = Math.max(1, tMax - tMin);
+
+        const stars = posts.map((p) => {
+            const r = rnd(hash(p.c + p.k), 3);
+            const age = (p.t - tMin) / span;
+            return {
+                c: p.c,
+                x: 0.06 + r[0] * 0.88,
+                y: 0.08 + r[1] * 0.84,
+                mag: 0.35 + Math.pow(age, 1.8) * 0.65,
+                phase: r[2] * Math.PI * 2,
+                newest: age > 0.999,
+            };
+        });
+
+        const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        let raf = 0;
+
+        const paint = (t: number) => {
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            const w = cv.clientWidth, h = cv.clientHeight;
+            if (!w || !h) return;
+            if (cv.width !== w * dpr) { cv.width = w * dpr; cv.height = h * dpr; }
+            const g = cv.getContext("2d");
+            if (!g) return;
+            g.setTransform(dpr, 0, 0, dpr, 0, 0);
+            g.clearRect(0, 0, w, h);
+
+            const cs = getComputedStyle(document.documentElement);
+            const ink = cs.getPropertyValue("--ink").trim() || "#141a1c";
+            const soft = cs.getPropertyValue("--muted-soft").trim() || "#8fa4ab";
+            const accent = cs.getPropertyValue("--accent").trim() || "#4e8496";
+
+            const byCat: Record<string, typeof stars> = {};
+            stars.forEach((st) => { (byCat[st.c] = byCat[st.c] || []).push(st); });
+            g.lineWidth = 0.6;
+            g.strokeStyle = soft;
+            g.globalAlpha = 0.16;
+            Object.keys(byCat).forEach((k) => {
+                const list = byCat[k].slice().sort((a, b) => a.x - b.x);
+                for (let i = 1; i < list.length; i++) {
+                    g.beginPath();
+                    g.moveTo(list[i - 1].x * w, list[i - 1].y * h);
+                    g.lineTo(list[i].x * w, list[i].y * h);
+                    g.stroke();
+                }
+            });
+            g.globalAlpha = 1;
+
+            stars.forEach((st) => {
+                const tw = reduce ? 1 : 0.82 + 0.18 * Math.sin(t / 1400 + st.phase);
+                const r = (0.9 + st.mag * 2.1) * tw;
+                g.beginPath();
+                g.arc(st.x * w, st.y * h, r, 0, Math.PI * 2);
+                g.fillStyle = st.newest ? accent : ink;
+                g.globalAlpha = (0.28 + st.mag * 0.6) * tw;
+                g.fill();
+                if (st.newest) {
+                    g.beginPath();
+                    g.arc(st.x * w, st.y * h, r + 4.5, 0, Math.PI * 2);
+                    g.strokeStyle = accent;
+                    g.globalAlpha = 0.3 * tw;
+                    g.lineWidth = 1;
+                    g.stroke();
+                }
+            });
+            g.globalAlpha = 1;
+        };
+
+        const loop = (t: number) => { paint(t); raf = requestAnimationFrame(loop); };
+        if (raf) cancelAnimationFrame(raf);
+        if (reduce) paint(0); else raf = requestAnimationFrame(loop);
+
+        document.addEventListener("astro:before-swap", () => {
+            if (raf) cancelAnimationFrame(raf);
+        }, { once: true });
+    }
+
+    // ══ YouTube maxresdefault 不是每支影片都有，404 就退回 hqdefault ══
+    function initThumbFallback() {
+        document.querySelectorAll<HTMLImageElement>(".hr-thumb img[data-fallback]").forEach((img) => {
+            img.addEventListener("error", () => {
+                const fb = img.dataset.fallback;
+                if (fb && img.src !== fb) img.src = fb;
+            }, { once: true });
+        });
+    }
+
+    // ══ 儀表板：頂端共用讀數 ══════════════════════════════════
+    // 滑過哪一欄就在標題列右側顯示那一區最新一篇。
+    // 六個各自浮動的提示會互相打架，最高那根上方也沒有空間放。
+    function initBarReadout() {
+        const read = document.getElementById("db-read");
+        const chart = document.querySelector(".db-chart");
+        if (!read || !chart) return;
+        chart.querySelectorAll<HTMLElement>(".db-col").forEach((col) => {
+            col.addEventListener("mouseenter", () => {
+                read.textContent = col.dataset.latest || "";
+            });
+        });
+        chart.addEventListener("mouseleave", () => { read.textContent = ""; });
+    }
+
+    document.addEventListener("astro:page-load", () => {
+        initSky();
+        initThumbFallback();
+        initBarReadout();
+    });
+</script>
