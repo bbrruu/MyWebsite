@@ -728,8 +728,10 @@ const slides = [
        KV 本身就是把攝影層洗到接近白，硬留成一塊深色板會變成外來物。 */
     .hr-img {
         width: 100%; height: 100%; object-fit: cover; display: block;
-        opacity: 0.42;
-        filter: saturate(0.18) contrast(0.82) brightness(1.28);
+        /* 不要再提亮：brightness > 1 會把本來就亮的圖（例如 YouTube 縮圖）
+           推向純白，暗圖和亮圖的落差會被放大。密度交給 opacity 控制。 */
+        opacity: 0.66;
+        filter: saturate(0.3) contrast(0.95) brightness(0.98);
         transition: opacity 0.5s ease, filter 0.5s ease, transform 0.6s ease;
     }
     /* 染上主色調的藍：blend color 只換色相與彩度，保留照片自己的明暗結構 */
@@ -741,8 +743,8 @@ const slides = [
     }
     /* hover 才讓照片回到比較清楚的樣子——當作「靠近看」的獎勵 */
     .hero-recent:hover .hr-img {
-        opacity: 0.72;
-        filter: saturate(0.5) contrast(0.94) brightness(1.06);
+        opacity: 0.88;
+        filter: saturate(0.62) contrast(1) brightness(1);
         transform: scale(1.02);
     }
     /* YouTube 縮圖只有 480×360，滿版一定會糊，所以直接承認並柔化 */
