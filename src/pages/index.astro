@@ -1,5 +1,6 @@
 ---
-import { existsSync } from "node:fs";
+import { existsSync, statSync } from "node:fs";
+import { join } from "node:path";
 import Layout from "../layouts/Layout.astro";
 import { getCollection } from "astro:content";
 import type { CollectionEntry } from "astro:content";
@@ -40,10 +41,27 @@ type Recent = {
     date: Date; title: string; desc: string;
     image?: string; imageKind?: "photo" | "cover" | "youtube";
     youtubeId?: string;
+    mtime: number;
+    cta: string;
 };
+
+// pubDate 只有日期沒有時間，同一天發的兩篇會打平；平手時原本是靠
+// 「宣告 collection 的順序」在決定，那是任意的。改用檔案的實際修改時間
+// 當第二層排序——這也才真的符合「最近更新」的語意。
+function fileMtime(collection: string, id: string): number {
+    // 不能用 import.meta.url：build 時它解析到 dist/，不是原始碼位置。
+    // process.cwd() 在 astro build 期間就是專案根目錄。
+    try {
+        return statSync(join(process.cwd(), "src", "content", collection, id)).mtimeMs;
+    } catch {
+        return 0;
+    }
+}
 
 const recentCandidates: Recent[] = [
     ...allJournalPosts.map((p) => ({
+        mtime: fileMtime("blog", p.id),
+        cta: "閱讀全文",
         href: `/blog/${p.id}`, kind: "生活隨筆", kindEn: "JOURNAL",
         date: p.data.pubDate, title: p.data.title,
         desc: p.data.quote ?? "",
@@ -51,22 +69,30 @@ const recentCandidates: Recent[] = [
         imageKind: "photo" as const,
     })),
     ...allNotesPosts.map((p) => ({
+        mtime: fileMtime("notes", p.id),
+        cta: "閱讀筆記",
         href: `/notes/${p.id}`, kind: "學習筆記", kindEn: "NOTES",
         date: p.data.pubDate, title: p.data.title,
         desc: p.data.description ?? "",
     })),
     ...allResearchPosts.map((p) => ({
+        mtime: fileMtime("research", p.id),
+        cta: "閱讀筆記",
         href: `/research/${p.id}`, kind: "讀讀文獻", kindEn: "RESEARCH",
         date: p.data.pubDate, title: p.data.title,
         desc: p.data.abstract ?? "",
     })),
     ...allReadingPosts.map((p) => ({
+        mtime: fileMtime("reading", p.id),
+        cta: "看看心得",
         href: `/reading/${p.id}`, kind: "看看書籍", kindEn: "READING",
         date: p.data.pubDate, title: p.data.title,
         desc: `${p.data.bookTitle} · ${p.data.author}`,
         image: p.data.coverImage, imageKind: "cover" as const,
     })),
     ...allMusicPosts.map((p) => ({
+        mtime: fileMtime("music", p.id),
+        cta: "聽聽看",
         href: `/music/${p.id}`, kind: "聽聽音樂", kindEn: "MUSIC",
         date: p.data.pubDate, title: p.data.songName,
         desc: p.data.artist,
@@ -77,6 +103,8 @@ const recentCandidates: Recent[] = [
         youtubeId: p.data.youtubeId,
     })),
     ...allProjects.map((p) => ({
+        mtime: fileMtime("projects", p.id),
+        cta: "看看作品",
         href: `/projects/${p.id}`, kind: "作品集", kindEn: "PROJECTS",
         date: p.data.pubDate, title: p.data.title,
         desc: p.data.description,
@@ -85,7 +113,7 @@ const recentCandidates: Recent[] = [
 ];
 
 const recent = recentCandidates
-    .sort((a, b) => b.date.valueOf() - a.date.valueOf())[0];
+    .sort((a, b) => (b.date.valueOf() - a.date.valueOf()) || (b.mtime - a.mtime))[0];
 
 const recentDateStr = recent
     ? recent.date.toLocaleDateString("zh-TW", { year: "numeric", month: "2-digit", day: "2-digit" })
@@ -113,7 +141,7 @@ function sectionFallback(kindEn: string | undefined): string | undefined {
     if (!slug) return undefined;
     for (const ext of ["jpg", "jpeg", "png", "webp"]) {
         const rel = `images/fallback/${slug}.${ext}`;
-        if (existsSync(new URL(`../../public/${rel}`, import.meta.url))) {
+        if (existsSync(join(process.cwd(), "public", rel))) {
             return `/${rel}`;
         }
     }
@@ -283,7 +311,7 @@ const slides = [
                         <div class="hr-title">{recent?.title}</div>
                         {recent?.desc && <div class="hr-desc">{recent.desc}</div>}
                         <div class="hr-go">
-                            <span class="t">閱讀全文</span>
+                            <span class="t">{recent?.cta ?? "閱讀全文"}</span>
                             <span class="ar">&#8594;</span>
                         </div>
                     </div>
