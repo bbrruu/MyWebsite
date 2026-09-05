@@ -82,9 +82,9 @@ import MinesweeperGame from "../components/minesweeper/MinesweeperGame";
     border-radius: 2px;
   }
   .ms-diff-btn:hover {
-    background: var(--accent);
+    background: var(--accent-deep);
     color: var(--paper);
-    border-color: var(--accent);
+    border-color: var(--accent-deep);
   }
   .ms-diff-btn.active {
     background: var(--ink);
@@ -107,7 +107,7 @@ import MinesweeperGame from "../components/minesweeper/MinesweeperGame";
     margin-top: 0.75rem;
     padding: 0.75rem;
     border: 1px solid var(--border);
-    background: rgba(139, 69, 19, 0.03);
+    background: color-mix(in srgb, var(--accent) 3%, transparent);
   }
   .ms-custom-form label {
     display: flex;
@@ -131,7 +131,7 @@ import MinesweeperGame from "../components/minesweeper/MinesweeperGame";
     width: 100%;
     text-align: center;
     font-size: 0.75rem;
-    color: #cc3030;
+    color: #a2585c;
     margin: 0;
   }
   .ms-apply-btn {
@@ -157,7 +157,7 @@ import MinesweeperGame from "../components/minesweeper/MinesweeperGame";
     gap: 1rem;
     padding: 0.6rem 1rem;
     border: 2px solid var(--border);
-    background: rgba(139, 69, 19, 0.04);
+    background: color-mix(in srgb, var(--accent) 4%, transparent);
     width: fit-content;
     min-width: 220px;
   }
@@ -165,7 +165,7 @@ import MinesweeperGame from "../components/minesweeper/MinesweeperGame";
     font-size: 1.5rem;
     font-weight: bold;
     letter-spacing: 0.1em;
-    color: #cc3030;
+    color: #a2585c;
     font-variant-numeric: tabular-nums;
     min-width: 3ch;
     text-align: center;
@@ -240,11 +240,11 @@ import MinesweeperGame from "../components/minesweeper/MinesweeperGame";
       font-size: 0.65rem;
     }
   }
-  .ms-cell:not(.revealed):hover  { background: rgba(139, 69, 19, 0.08); }
-  .ms-cell:not(.revealed):active { background: rgba(139, 69, 19, 0.15); }
-  .ms-cell.revealed  { background: rgba(139, 69, 19, 0.05); cursor: default; }
-  .ms-cell.mine      { background: rgba(139, 69, 19, 0.08); }
-  .ms-cell.exploded  { background: #ffaaaa; }
+  .ms-cell:not(.revealed):hover  { background: color-mix(in srgb, var(--accent) 8%, transparent); }
+  .ms-cell:not(.revealed):active { background: color-mix(in srgb, var(--accent) 15%, transparent); }
+  .ms-cell.revealed  { background: color-mix(in srgb, var(--accent) 5%, transparent); cursor: default; }
+  .ms-cell.mine      { background: color-mix(in srgb, var(--accent) 8%, transparent); }
+  .ms-cell.exploded  { background: rgba(162, 88, 92, 0.28); }
   .ms-cell.flagged   { background: rgba(255, 200, 0, 0.1); }
 
   /* Status banner */
@@ -255,8 +255,8 @@ import MinesweeperGame from "../components/minesweeper/MinesweeperGame";
     border: 1px solid var(--border);
     text-align: center;
   }
-  .ms-status.won  { border-color: #4a9c5a; color: #4a9c5a; background: rgba(74, 156, 90, 0.06); }
-  .ms-status.lost { border-color: #cc3030; color: #cc3030; background: rgba(204, 48, 48, 0.06); }
+  .ms-status.won  { border-color: #5d7a63; color: #5d7a63; background: rgba(93, 122, 99, 0.09); }
+  .ms-status.lost { border-color: #a2585c; color: #a2585c; background: rgba(162, 88, 92, 0.09); }
 
   /* Flag toggle */
   .ms-flag-toggle {
@@ -276,8 +276,8 @@ import MinesweeperGame from "../components/minesweeper/MinesweeperGame";
     transition: background 0.15s;
   }
   .ms-flag-btn.active {
-    background: #f0c040;
-    border-color: #c09000;
+    background: var(--sand);
+    border-color: #a8916d;
     color: #333;
   }
   .ms-flag-hint {

@@ -36,6 +36,7 @@ export function NodeCircle({
   let stroke = 'var(--border)';
   let strokeWidth = 1;
   let textFill = 'var(--muted)';
+  let fillOpacity = 1;
 
   if (isSelected) {
     fill = 'var(--accent)';
@@ -43,12 +44,14 @@ export function NodeCircle({
     strokeWidth = 2;
     textFill = 'var(--accent)';
   } else if (isHovered) {
-    fill = 'rgba(139,69,19,0.15)';
+    fill = 'var(--accent)';
+    fillOpacity = 0.15;
     stroke = 'var(--accent)';
     strokeWidth = 2;
-    textFill = 'var(--accent)';
+    textFill = 'var(--accent-deep)';
   } else if (isHighlighted) {
-    fill = 'rgba(139,69,19,0.08)';
+    fill = 'var(--accent)';
+    fillOpacity = 0.08;
     stroke = 'var(--accent)';
     strokeWidth = 1.5;
     textFill = 'var(--ink)';
@@ -70,6 +73,7 @@ export function NodeCircle({
         cy={cy}
         r={radius}
         fill={fill}
+        fillOpacity={fillOpacity}
         stroke={stroke}
         strokeWidth={strokeWidth}
       />

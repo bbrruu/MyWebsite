@@ -10,15 +10,17 @@ interface CellProps {
   onFlag: (row: number, col: number) => void;
 }
 
+// 冷色系數字：保留八個可辨識的色相，但降低彩度以配合全站霧色調。
+// 這裡不套用 --accent 等 token：數字必須彼此可分辨，那是功能不是裝飾。
 const NUMBER_COLORS: Record<number, string> = {
-  1: '#3b6fd4',
-  2: '#4a9c5a',
-  3: '#cc3030',
-  4: '#6a3d9a',
-  5: '#8b3a1a',
-  6: '#2a8a8a',
-  7: '#111',
-  8: '#555',
+  1: '#4e8496',
+  2: '#5d7a63',
+  3: '#a2585c',
+  4: '#5a5f8c',
+  5: '#8a6a4a',
+  6: '#3f7f85',
+  7: '#141a1c',
+  8: '#7d8f96',
 };
 
 export default function Cell({ cell, row, col, isExploded, onReveal, onFlag }: CellProps) {

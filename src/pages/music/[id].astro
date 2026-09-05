@@ -101,12 +101,12 @@ const { Content } = await render(post);
 
   .inner-nav { margin-bottom: 1.5rem; }
   .back-link { display: inline-flex; align-items: center; text-decoration: none; color: var(--muted); font-size: 0.7rem; letter-spacing: 2px; font-family: var(--font-mono); }
-  .back-link:hover { color: var(--accent); }
+  .back-link:hover { color: var(--accent-deep); }
   .back-link .arrow { margin-right: 8px; transition: 0.4s ease; }
 
   .music-header { text-align: center; margin-bottom: 3rem; }
   .music-header h1 { font-size: 1.8rem; margin-top: 0.5rem; }
-  .meta { color: var(--accent); font-size: 0.9rem; letter-spacing: 2px; }
+  .meta { color: var(--accent-deep); font-size: 0.9rem; letter-spacing: 2px; }
 
   /* 影片區 */
   .video-container {
@@ -129,11 +129,11 @@ const { Content } = await render(post);
   .lyrics-scroll-box {
     height: 40vh; /* 佔據螢幕高度的 40% */
     overflow-y: auto;
-    background: rgba(139, 69, 19, 0.03); /* 極淡的皮革棕背景 */
+    background: color-mix(in srgb, var(--accent) 3%, transparent); /* 極淡的皮革棕背景 */
     padding: 2rem;
     border-left: 2px solid var(--accent);
     scrollbar-width: thin; /* Firefox */
-    scrollbar-color: var(--accent) transparent;
+    scrollbar-color: var(--accent-deep) transparent;
   }
   
   /* 歌詞內文字樣式 */
@@ -162,10 +162,10 @@ const { Content } = await render(post);
   .post-pagination { margin-top: 3rem; padding-top: 2rem; border-top: 1px dashed var(--border); }
   .pagination-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
   .pag-link { display: flex; flex-direction: column; gap: 0.4rem; text-decoration: none; color: var(--muted); transition: color 0.3s; padding: 0.8rem 0; }
-  .pag-link:hover { color: var(--accent); }
+  .pag-link:hover { color: var(--accent-deep); }
   .pag-dir { font-size: 0.6rem; font-family: var(--font-mono); letter-spacing: 2px; text-transform: uppercase; }
   .pag-title { font-size: 0.9rem; font-weight: 700; font-family: "LXGW WenKai TC", serif; color: var(--ink); line-height: 1.4; }
-  .pag-link:hover .pag-title { color: var(--accent); }
+  .pag-link:hover .pag-title { color: var(--accent-deep); }
   .pag-next { text-align: right; }
 
   @media (max-width: 768px) {

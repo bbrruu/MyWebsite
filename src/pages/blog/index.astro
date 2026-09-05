@@ -167,27 +167,26 @@ const catCounts = allPosts.reduce((acc, p) => {
   .book-page {
     flex: 1;
     position: relative;
-    background: var(--paper);
+    background: var(--paper-lift);
+    background-image: var(--grain);
     overflow: hidden;
     display: flex;
     flex-direction: column;
   }
-
-  /* Horizontal ruled lines (like a notebook) */
-  .page-lines {
+  /* 裝訂溝：紙彎進書脊的陰影 */
+  .book-page::after {
+    content: '';
     position: absolute;
-    inset: 0;
-    background-image: repeating-linear-gradient(
-      to bottom,
-      transparent,
-      transparent 31px,
-      rgba(180, 160, 130, 0.12) 31px,
-      rgba(180, 160, 130, 0.12) 32px
-    );
-    background-position: 0 48px;
+    top: 0; bottom: 0;
+    width: 30px;
     pointer-events: none;
-    z-index: 0;
+    z-index: 4;
   }
+  .left-page::after  { right: 0; background: linear-gradient(90deg,  transparent, rgba(20,26,28,0.055)); }
+  .right-page::after { left: 0;  background: linear-gradient(270deg, transparent, rgba(20,26,28,0.055)); }
+
+  /* A9：內頁不畫橫線。日記本的訊號改由裝訂、頁邊線、頁角與頁碼承擔。 */
+  .page-lines { display: none; }
 
   /* Page number */
   .page-num {
@@ -220,15 +219,15 @@ const catCounts = allPosts.reduce((acc, p) => {
     mask-image: linear-gradient(to bottom, black 50%, transparent 76%);
     -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 76%);
   }
-  .lf-fill   { fill: rgba(139,69,19,0.08); }
-  .lf-fill-sm{ fill: rgba(139,69,19,0.10); }
-  .lf-hole   { fill: var(--paper); stroke: rgba(139,69,19,0.55); stroke-width: 1.2; }
-  .lf-stroke { fill: none; stroke: rgba(139,69,19,0.55); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
-  .lf-stroke-sm{ fill: none; stroke: rgba(139,69,19,0.40); stroke-width: 1.1; stroke-linecap: round; }
-  .lf-vein   { fill: none; stroke: rgba(139,69,19,0.30); stroke-width: 0.9; stroke-linecap: round; }
-  .lf-vein-sm{ fill: none; stroke: rgba(139,69,19,0.25); stroke-width: 0.8; stroke-linecap: round; }
-  .lf-berry  { fill: rgba(139,69,19,0.40); stroke: rgba(139,69,19,0.55); stroke-width: 0.8; }
-  .lf-berry-sm{ fill: rgba(139,69,19,0.20); }
+  .lf-fill   { fill: color-mix(in srgb, var(--sand) 8%, transparent); }
+  .lf-fill-sm{ fill: color-mix(in srgb, var(--sand) 10%, transparent); }
+  .lf-hole   { fill: var(--paper-lift); stroke: color-mix(in srgb, var(--sand) 55%, transparent); stroke-width: 1.2; }
+  .lf-stroke { fill: none; stroke: color-mix(in srgb, var(--sand) 55%, transparent); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .lf-stroke-sm{ fill: none; stroke: color-mix(in srgb, var(--sand) 40%, transparent); stroke-width: 1.1; stroke-linecap: round; }
+  .lf-vein   { fill: none; stroke: color-mix(in srgb, var(--sand) 30%, transparent); stroke-width: 0.9; stroke-linecap: round; }
+  .lf-vein-sm{ fill: none; stroke: color-mix(in srgb, var(--sand) 25%, transparent); stroke-width: 0.8; stroke-linecap: round; }
+  .lf-berry  { fill: color-mix(in srgb, var(--sand) 40%, transparent); stroke: color-mix(in srgb, var(--sand) 55%, transparent); stroke-width: 0.8; }
+  .lf-berry-sm{ fill: color-mix(in srgb, var(--sand) 20%, transparent); }
 
   /* Cover text block */
   .cover-text {
@@ -254,12 +253,6 @@ const catCounts = allPosts.reduce((acc, p) => {
     font-weight: 700;
     line-height: 2.4;
     margin: 0;
-    background-image: repeating-linear-gradient(
-      transparent 0, transparent calc(2.4em - 3px),
-      rgba(180,160,130,0.18) calc(2.4em - 3px),
-      rgba(180,160,130,0.18) calc(2.4em - 1px)
-    );
-    background-size: 100% 2.4em;
   }
   .journal-title {
     font-size: 2.1rem;
@@ -268,12 +261,6 @@ const catCounts = allPosts.reduce((acc, p) => {
     letter-spacing: -0.5px;
     line-height: 1.4;
     margin: 0;
-    background-image: repeating-linear-gradient(
-      transparent 0, transparent calc(1.4em - 3px),
-      rgba(180,160,130,0.18) calc(1.4em - 3px),
-      rgba(180,160,130,0.18) calc(1.4em - 1px)
-    );
-    background-size: 100% 1.4em;
   }
   .journal-rule {
     width: 40px;
@@ -293,7 +280,7 @@ const catCounts = allPosts.reduce((acc, p) => {
     letter-spacing: 0.5px;
   }
   .cover-stat strong {
-    color: var(--accent);
+    color: var(--accent-deep);
     font-size: 0.78rem;
     margin-right: 2px;
   }
@@ -304,12 +291,6 @@ const catCounts = allPosts.reduce((acc, p) => {
     font-style: italic;
     line-height: 2.0;
     margin: 0;
-    background-image: repeating-linear-gradient(
-      transparent 0, transparent calc(2.0em - 3px),
-      rgba(180,160,130,0.18) calc(2.0em - 3px),
-      rgba(180,160,130,0.18) calc(2.0em - 1px)
-    );
-    background-size: 100% 2.0em;
   }
 
   /* ── SPINE ── */
@@ -317,19 +298,29 @@ const catCounts = allPosts.reduce((acc, p) => {
     width: 38px;
     flex-shrink: 0;
     background: linear-gradient(to right,
-      rgba(100,60,20,0.20) 0%,
-      rgba(139,69,19,0.28) 30%,
-      rgba(100,60,20,0.22) 60%,
-      rgba(80,45,12,0.32) 100%
+      rgba(20,26,28,0.05) 0%,
+      var(--paper-lift) 45%,
+      var(--paper-lift) 55%,
+      rgba(20,26,28,0.05) 100%
     );
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
     z-index: 3;
-    box-shadow:
-      inset -3px 0 8px rgba(0,0,0,0.12),
-      inset  3px 0 8px rgba(0,0,0,0.08);
+  }
+  /* 縫線：全書最像「一本本子」的記號 */
+  .book-spine::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 30px; bottom: 30px;
+    width: 1px;
+    background: repeating-linear-gradient(to bottom,
+      var(--muted) 0, var(--muted) 7px,
+      transparent 7px, transparent 15px);
+    opacity: 0.45;
   }
   .spine-label {
     writing-mode: vertical-rl;
@@ -338,7 +329,7 @@ const catCounts = allPosts.reduce((acc, p) => {
     font-size: 0.48rem;
     font-family: var(--font-mono);
     letter-spacing: 2px;
-    color: rgba(139,69,19,0.8);
+    color: var(--muted);
     font-weight: 700;
     white-space: nowrap;
   }
@@ -348,11 +339,23 @@ const catCounts = allPosts.reduce((acc, p) => {
     border-radius: 0 6px 6px 0;
     padding: 32px 28px 40px;
   }
+  /* 頁邊線：編號在左、內文在右，這條線是兩者的界線 */
+  .right-page::before {
+    content: '';
+    position: absolute;
+    top: 32px; bottom: 32px;
+    left: 60px;
+    width: 1px;
+    background: var(--sand);
+    opacity: 0.5;
+    z-index: 2;
+  }
 
   .toc-header {
     position: relative;
     z-index: 2;
     margin-bottom: 1.2rem;
+    padding-left: 44px;
   }
   .toc-eyebrow {
     font-size: 0.52rem;
@@ -379,7 +382,7 @@ const catCounts = allPosts.reduce((acc, p) => {
     position: absolute;
     left: 0; top: -1px;
     width: 50px; height: 3px;
-    background: var(--accent);
+    background: var(--sand);
   }
 
   /* 類別篩選按鈕 */
@@ -390,21 +393,24 @@ const catCounts = allPosts.reduce((acc, p) => {
     gap: 6px;
     margin-bottom: 0.6rem;
     flex-wrap: wrap;
+    padding-left: 44px;
   }
+  /* A9：篩選是「詞」不是藥丸 */
   .cat-btn {
     background: none;
-    border: 1px solid var(--border);
-    border-radius: 2px;
+    border: 0;
+    border-radius: 0;
+    padding: 3px 0;
+    margin-right: 14px;
     font-size: 0.55rem;
     font-family: var(--font-mono);
     letter-spacing: 1px;
     color: var(--muted);
-    padding: 2px 8px;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: color 0.2s;
   }
-  .cat-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .cat-btn.active { background: var(--accent); border-color: var(--accent); color: var(--paper); }
+  .cat-btn:hover { color: var(--ink); }
+  .cat-btn.active { color: var(--ink); box-shadow: inset 0 -1px 0 var(--sand); }
 
   .toc-list {
     position: relative;
@@ -417,28 +423,29 @@ const catCounts = allPosts.reduce((acc, p) => {
   .toc-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
   .toc-item {
-    display: flex;
+    /* A9：不用橫線分隔，靠留白撐開；編號留在頁邊線左側的索引欄 */
+    display: grid;
+    grid-template-columns: 34px 1fr auto;
     align-items: center;
     gap: 0.6rem;
-    height: 44px;
+    height: 40px;
     overflow: hidden;
     text-decoration: none;
     color: var(--ink);
-    transition: all 0.25s ease;
+    transition: color 0.25s ease;
     font-size: 0.98rem;
-    border-bottom: 1px solid rgba(180, 160, 130, 0.30);
-    padding: 0 0 0 0;
+    padding: 0;
   }
-  .toc-item:hover { color: var(--accent); padding-left: 6px; }
+  .toc-item:hover { color: var(--accent-deep); }
 
   .toc-num {
     font-size: 0.55rem;
     font-family: var(--font-mono);
-    color: var(--accent);
+    color: var(--muted);
     font-weight: 700;
     letter-spacing: 1px;
-    flex-shrink: 0;
-    min-width: 24px;
+    text-align: right;
+    padding-right: 10px;
   }
   .toc-item-title {
     flex: 1;
@@ -458,7 +465,7 @@ const catCounts = allPosts.reduce((acc, p) => {
     font-size: 0.52rem;
     font-family: var(--font-mono);
     letter-spacing: 1px;
-    color: var(--accent);
+    color: var(--violet-deep);
     font-weight: 700;
   }
   .toc-date {
@@ -469,13 +476,13 @@ const catCounts = allPosts.reduce((acc, p) => {
 
   /* ── Dark mode ── */
   [data-theme="dark"] .book-page {
-    background: #231e16;
+    background: var(--paper-lift);
   }
   [data-theme="dark"] .botanical {
     opacity: 0.40;
   }
   [data-theme="dark"] .lf-hole {
-    fill: #231e16;
+    fill: var(--paper-lift);
   }
   [data-theme="dark"] .toc-item {
     border-bottom-color: rgba(255, 220, 170, 0.10);

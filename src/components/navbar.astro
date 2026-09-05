@@ -146,7 +146,7 @@ const { currentPath } = Astro.props;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid rgba(139, 69, 19, 0.2);
+    border-bottom: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
     padding: 0.8rem 0;
   }
 
@@ -193,7 +193,7 @@ const { currentPath } = Astro.props;
   }
 
   .current-time {
-    color: var(--accent);
+    color: var(--accent-deep);
     font-family: var(--font-mono);
     font-size: 0.78rem;
     letter-spacing: 0.5px;
@@ -211,7 +211,7 @@ const { currentPath } = Astro.props;
     padding: 0;
     transition: 0.3s;
   }
-  .lang-toggle-btn:hover .lang-option { color: var(--accent); }
+  .lang-toggle-btn:hover .lang-option { color: var(--accent-deep); }
   .lang-option { color: var(--muted); transition: 0.3s; font-weight: 400; letter-spacing: 1px; }
   .lang-option.active { color: var(--ink); font-weight: 700; }
   .lang-divider { color: var(--border); font-size: 0.7rem; }
@@ -227,7 +227,7 @@ const { currentPath } = Astro.props;
     transition: color 0.3s;
     line-height: 1;
   }
-  .search-btn:hover { color: var(--accent); }
+  .search-btn:hover { color: var(--accent-deep); }
 
   .theme-btn {
     display: flex;
@@ -240,7 +240,7 @@ const { currentPath } = Astro.props;
     transition: color 0.3s;
     line-height: 1;
   }
-  .theme-btn:hover { color: var(--accent); }
+  .theme-btn:hover { color: var(--accent-deep); }
 
   /* 亮色：顯示月亮；深色：顯示太陽 */
   .icon-sun { display: none; }
@@ -327,6 +327,6 @@ const { currentPath } = Astro.props;
     }
     .mobile-menu a:last-child { border-bottom: none; }
     .mobile-menu a.active { color: var(--ink); font-weight: 700; }
-    .mobile-menu a:hover  { color: var(--accent); padding-left: 0.5rem; }
+    .mobile-menu a:hover  { color: var(--accent-deep); padding-left: 0.5rem; }
   }
 </style>

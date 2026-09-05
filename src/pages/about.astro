@@ -416,13 +416,6 @@ import Layout from "../layouts/Layout.astro";
 </script>
 
 <style>
-  :root {
-    --ink: #2c2c2c;
-    --paper: #fdfaf6;
-    --accent: #8b4513;
-    --muted: #8e8e8e;
-    --border: #e0dcd5;
-  }
   .about-container {
     max-width: 1400px;
     margin: 2rem 0;
@@ -456,7 +449,7 @@ import Layout from "../layouts/Layout.astro";
     border-radius: 4px;
     border: 4px solid var(--paper);
     outline: 1px solid var(--border);
-    box-shadow: 0 12px 36px rgba(139, 69, 19, 0.12);
+    box-shadow: 0 12px 36px color-mix(in srgb, var(--accent) 12%, transparent);
     transition: 0.5s;
   }
   .profile-image-wrapper:hover {
@@ -464,7 +457,7 @@ import Layout from "../layouts/Layout.astro";
   }
   .profile-image-wrapper:hover .profile-img {
     transform: scale(1.02);
-    box-shadow: 0 16px 48px rgba(139, 69, 19, 0.18);
+    box-shadow: 0 16px 48px color-mix(in srgb, var(--accent) 18%, transparent);
   }
   .profile-image-wrapper:hover .img-edge-hint {
     inset: -4px;
@@ -510,7 +503,7 @@ import Layout from "../layouts/Layout.astro";
     border: 2px solid var(--accent);
     border-radius: 6px;
     padding: 2rem 2.2rem;
-    box-shadow: 4px 4px 0 rgba(139, 69, 19, 0.12);
+    box-shadow: 4px 4px 0 color-mix(in srgb, var(--accent) 12%, transparent);
   }
   .bio-bubble::before {
     content: '';
@@ -518,7 +511,7 @@ import Layout from "../layouts/Layout.astro";
     left: -16px;
     top: 36px;
     border: 8px solid transparent;
-    border-right-color: var(--accent);
+    border-right-color: var(--accent-deep);
   }
   .bio-bubble::after {
     content: '';
@@ -532,7 +525,7 @@ import Layout from "../layouts/Layout.astro";
     font-size: 1rem;
     font-family: var(--font-mono);
     letter-spacing: 3px;
-    color: var(--accent);
+    color: var(--accent-deep);
     text-transform: uppercase;
     margin-bottom: 1.2rem;
     font-weight: 700;
@@ -558,7 +551,7 @@ import Layout from "../layouts/Layout.astro";
   .fun-facts-strip {
     display: flex;
     align-items: center;
-    background: rgba(139, 69, 19, 0.05);
+    background: color-mix(in srgb, var(--accent) 5%, transparent);
     border: 1px solid var(--border);
     border-radius: 4px;
     padding: 1.4rem 2rem;
@@ -577,7 +570,7 @@ import Layout from "../layouts/Layout.astro";
     font-family: var(--font-mono);
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--accent);
+    color: var(--accent-deep);
     letter-spacing: -0.5px;
     line-height: 1;
   }
@@ -644,18 +637,18 @@ import Layout from "../layouts/Layout.astro";
   }
   .r-tag:hover {
     border-color: var(--accent);
-    color: var(--accent);
-    background: rgba(139, 69, 19, 0.04);
+    color: var(--accent-deep);
+    background: color-mix(in srgb, var(--accent) 4%, transparent);
     cursor: url('/images/cursor_2-removebg-preview.png') 0 0, pointer;
   }
   .r-tag.primary {
     border-color: var(--accent);
-    color: var(--accent);
-    background: rgba(139, 69, 19, 0.06);
+    color: var(--accent-deep);
+    background: color-mix(in srgb, var(--accent) 6%, transparent);
     font-weight: 600;
   }
   .r-tag.primary:hover {
-    background: rgba(139, 69, 19, 0.12);
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
   }
 
   /* ── PUBLICATIONS ── */
@@ -668,7 +661,7 @@ import Layout from "../layouts/Layout.astro";
     border: 1px dashed var(--border);
     border-radius: 4px;
     padding: 1.2rem 1.4rem;
-    background: rgba(139, 69, 19, 0.02);
+    background: color-mix(in srgb, var(--accent) 2%, transparent);
   }
   .pub-status-row {
     margin-bottom: 0.6rem;
@@ -699,7 +692,7 @@ import Layout from "../layouts/Layout.astro";
   .edu-date {
     font-family: var(--font-mono);
     font-size: 0.8rem;
-    color: var(--accent);
+    color: var(--accent-deep);
     display: block;
     margin-bottom: 0.4rem;
   }
@@ -799,14 +792,14 @@ import Layout from "../layouts/Layout.astro";
   }
   .interest-item:hover {
     border-color: var(--accent);
-    background: rgba(139, 69, 19, 0.04);
+    background: color-mix(in srgb, var(--accent) 4%, transparent);
     transform: translateY(-3px);
     cursor: url('/images/cursor_2-removebg-preview.png') 0 0, pointer;
   }
   .interest-glyph {
     font-size: 1.6rem;
     font-weight: 700;
-    color: var(--accent);
+    color: var(--accent-deep);
     opacity: 0.75;
     line-height: 1;
     font-family: "LXGW WenKai TC", serif;
@@ -827,7 +820,7 @@ import Layout from "../layouts/Layout.astro";
   .now-card {
     border-left: 2px solid var(--accent);
     padding: 1rem 1.4rem;
-    background: rgba(139, 69, 19, 0.025);
+    background: color-mix(in srgb, var(--accent) 2%, transparent);
     border-radius: 0 4px 4px 0;
   }
   .now-header {
@@ -863,7 +856,7 @@ import Layout from "../layouts/Layout.astro";
     font-family: var(--font-mono);
     font-size: 0.68rem;
     letter-spacing: 2px;
-    color: var(--accent);
+    color: var(--accent-deep);
     text-transform: uppercase;
   }
   .now-list {
@@ -885,7 +878,7 @@ import Layout from "../layouts/Layout.astro";
     content: '→';
     position: absolute;
     left: 0;
-    color: var(--accent);
+    color: var(--accent-deep);
     font-size: 0.75rem;
     top: 0.1em;
     font-family: var(--font-mono);
@@ -918,7 +911,7 @@ import Layout from "../layouts/Layout.astro";
     flex-shrink: 0;
   }
   .contact-item:hover {
-    color: var(--accent);
+    color: var(--accent-deep);
   }
 
   /* ── RESPONSIVE ── */

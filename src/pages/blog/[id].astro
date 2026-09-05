@@ -410,27 +410,27 @@ const { category, tags, quote } = post.data;
   }
 
   /* ── Shared page ── */
+  .book-page::after {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 30px;
+    pointer-events: none;
+    z-index: 4;
+  }
+  .left-page::after  { right: 0; background: linear-gradient(90deg,  transparent, rgba(20,26,28,0.055)); }
+  .right-page::after { left: 0;  background: linear-gradient(270deg, transparent, rgba(20,26,28,0.055)); }
   .book-page {
     flex: 1;
     position: relative;
-    background: var(--paper);
+    background: var(--paper-lift);
+    background-image: var(--grain);
     overflow: hidden;
     display: flex;
     flex-direction: column;
   }
-  .page-lines {
-    position: absolute;
-    inset: 0;
-    background-image: repeating-linear-gradient(
-      to bottom,
-      transparent, transparent 31px,
-      rgba(180,160,130,0.12) 31px,
-      rgba(180,160,130,0.12) 32px
-    );
-    background-position: 0 48px;
-    pointer-events: none;
-    z-index: 0;
-  }
+  /* A9：內頁不畫橫線 */
+  .page-lines { display: none; }
   .page-num {
     position: absolute;
     bottom: 16px;
@@ -458,13 +458,13 @@ const { category, tags, quote } = post.data;
     opacity: 0.75;
     z-index: 0;
   }
-  .mb-fill    { fill: rgba(139,69,19,0.07); }
-  .mb-stroke  { fill: none; stroke: rgba(139,69,19,0.50); stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
-  .mb-hole    { fill: var(--paper); stroke: rgba(139,69,19,0.50); stroke-width: 1.2; }
-  .mb-vein    { fill: none; stroke: rgba(139,69,19,0.28); stroke-width: 0.9; stroke-linecap: round; }
-  .mb-berry   { fill: rgba(139,69,19,0.38); stroke: rgba(139,69,19,0.55); stroke-width: 0.8; }
-  .mb-berry-sm{ fill: rgba(139,69,19,0.20); }
-  .mb-sprig   { fill: none; stroke: rgba(139,69,19,0.38); stroke-width: 1; stroke-linecap: round; }
+  .mb-fill    { fill: color-mix(in srgb, var(--sand) 7%, transparent); }
+  .mb-stroke  { fill: none; stroke: color-mix(in srgb, var(--sand) 50%, transparent); stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+  .mb-hole    { fill: var(--paper-lift); stroke: color-mix(in srgb, var(--sand) 50%, transparent); stroke-width: 1.2; }
+  .mb-vein    { fill: none; stroke: color-mix(in srgb, var(--sand) 28%, transparent); stroke-width: 0.9; stroke-linecap: round; }
+  .mb-berry   { fill: color-mix(in srgb, var(--sand) 38%, transparent); stroke: color-mix(in srgb, var(--sand) 55%, transparent); stroke-width: 0.8; }
+  .mb-berry-sm{ fill: color-mix(in srgb, var(--sand) 20%, transparent); }
+  .mb-sprig   { fill: none; stroke: color-mix(in srgb, var(--sand) 38%, transparent); stroke-width: 1; stroke-linecap: round; }
 
   .back-link {
     position: relative;
@@ -481,7 +481,7 @@ const { category, tags, quote } = post.data;
     transition: color 0.3s;
     margin-bottom: 1.2rem;
   }
-  .back-link:hover { color: var(--accent); }
+  .back-link:hover { color: var(--accent-deep); }
 
   .meta-block {
     position: relative;
@@ -495,7 +495,7 @@ const { category, tags, quote } = post.data;
     left: 20px;
     width: 116px;
     height: 116px;
-    color: var(--accent);
+    color: var(--accent-deep);
     opacity: 0.50;
     transform: rotate(-8deg);
     z-index: 2;
@@ -514,7 +514,7 @@ const { category, tags, quote } = post.data;
     color: var(--muted);
     margin: 0.3rem 0 0.5rem;
     padding-left: 8px;
-    border-left: 2px solid rgba(139,69,19,0.25);
+    border-left: 1px solid var(--sand);
     line-height: 1.5;
   }
   .meta-rule {
@@ -538,7 +538,7 @@ const { category, tags, quote } = post.data;
     text-transform: uppercase;
     align-self: baseline;
     padding: 4px 0;
-    border-bottom: 1px solid rgba(180, 160, 130, 0.30);
+    border-bottom: 1px solid var(--hair);
   }
   .meta-dl dd {
     font-size: 0.9rem;
@@ -547,7 +547,7 @@ const { category, tags, quote } = post.data;
     margin: 0;
     align-self: baseline;
     padding: 4px 0;
-    border-bottom: 1px solid rgba(180, 160, 130, 0.30);
+    border-bottom: 1px solid var(--hair);
   }
 
   /* Post prev/next nav at bottom of left page */
@@ -572,7 +572,7 @@ const { category, tags, quote } = post.data;
     color: var(--muted);
     transition: color 0.25s;
   }
-  .post-nav-link:hover { color: var(--accent); }
+  .post-nav-link:hover { color: var(--accent-deep); }
   .post-nav-right { align-items: flex-end; margin-left: auto; }
   .nav-dir {
     font-size: 0.52rem;
@@ -590,26 +590,36 @@ const { category, tags, quote } = post.data;
     text-overflow: ellipsis;
     max-width: 100%;
   }
-  .post-nav-link:hover .nav-title { color: var(--accent); }
+  .post-nav-link:hover .nav-title { color: var(--accent-deep); }
 
   /* ── SPINE ── */
   .book-spine {
     width: 38px;
     flex-shrink: 0;
     background: linear-gradient(to right,
-      rgba(100,60,20,0.20) 0%,
-      rgba(139,69,19,0.28) 30%,
-      rgba(100,60,20,0.22) 60%,
-      rgba(80,45,12,0.32) 100%
+      rgba(20,26,28,0.05) 0%,
+      var(--paper-lift) 45%,
+      var(--paper-lift) 55%,
+      rgba(20,26,28,0.05) 100%
     );
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
     z-index: 3;
-    box-shadow:
-      inset -3px 0 8px rgba(0,0,0,0.12),
-      inset  3px 0 8px rgba(0,0,0,0.08);
+  }
+  /* 縫線 */
+  .book-spine::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 30px; bottom: 30px;
+    width: 1px;
+    background: repeating-linear-gradient(to bottom,
+      var(--muted) 0, var(--muted) 7px,
+      transparent 7px, transparent 15px);
+    opacity: 0.45;
   }
   .spine-label {
     writing-mode: vertical-rl;
@@ -618,7 +628,7 @@ const { category, tags, quote } = post.data;
     font-size: 0.48rem;
     font-family: var(--font-mono);
     letter-spacing: 2px;
-    color: rgba(139,69,19,0.8);
+    color: var(--muted);
     font-weight: 700;
     white-space: nowrap;
   }
@@ -709,17 +719,19 @@ const { category, tags, quote } = post.data;
   dd.tag-list {
     display: flex;
     flex-wrap: wrap;
-    gap: 3px;
+    gap: 0 4px;
     align-items: center;
   }
+  /* A9：標籤是「詞」不是藥丸，用 · 分隔 */
   .tag {
-    font-size: 0.55rem;
-    font-family: var(--font-mono);
+    font-size: 0.6rem;
     letter-spacing: 0.5px;
-    padding: 1px 5px;
-    border: 1px solid rgba(139, 69, 19, 0.28);
-    border-radius: 2px;
-    color: var(--accent);
+    color: var(--muted);
+  }
+  .tag + .tag::before {
+    content: '·';
+    margin-right: 5px;
+    color: var(--border);
   }
 
   /* Page controls */
@@ -752,7 +764,7 @@ const { category, tags, quote } = post.data;
     justify-content: center;
     padding: 0;
   }
-  .pg-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  .pg-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent-deep); }
   .pg-btn:disabled { opacity: 0.25; cursor: default; }
 .pg-indicator {
     font-size: 0.6rem;
@@ -765,13 +777,13 @@ const { category, tags, quote } = post.data;
 
   /* ── Dark mode ── */
   [data-theme="dark"] .book-page {
-    background: #231e16;
+    background: var(--paper-lift);
   }
   [data-theme="dark"] .meta-botanical {
     opacity: 0.40;
   }
   [data-theme="dark"] .mb-hole {
-    fill: #231e16;
+    fill: var(--paper-lift);
   }
   [data-theme="dark"] .meta-dl dt,
   [data-theme="dark"] .meta-dl dd {

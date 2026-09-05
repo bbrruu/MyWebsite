@@ -156,9 +156,9 @@ const months = Object.keys(groupedNotes);
     cursor: pointer; transition: border-color 0.3s, color 0.3s; min-width: 160px;
   }
   .filter-select:focus { outline: none; border-color: var(--accent); }
-  .filter-select:hover { border-color: var(--accent); color: var(--accent); }
+  .filter-select:hover { border-color: var(--accent); color: var(--accent-deep); }
   .select-arrow { position: absolute; right: 0.5rem; font-size: 0.6rem; color: var(--muted); pointer-events: none; transition: color 0.3s; }
-  .select-wrapper:hover .select-arrow { color: var(--accent); }
+  .select-wrapper:hover .select-arrow { color: var(--accent-deep); }
 
   .month-section { margin-bottom: 3.5rem; transition: opacity 0.4s, transform 0.4s; }
   .month-section.month-hidden { opacity: 0; height: 0; margin-bottom: 0; overflow: hidden; pointer-events: none; }
@@ -168,7 +168,7 @@ const months = Object.keys(groupedNotes);
     padding-bottom: 0.8rem; border-bottom: 2px solid var(--ink); margin-bottom: 0.8rem;
   }
   .month-title { font-size: 1.4rem; margin: 0; color: var(--ink); font-weight: 700; }
-  .note-count { font-size: 0.72rem; color: var(--accent); font-weight: 700; font-family: var(--font-mono); letter-spacing: 1px; }
+  .note-count { font-size: 0.72rem; color: var(--accent-deep); font-weight: 700; font-family: var(--font-mono); letter-spacing: 1px; }
 
   .note-wrapper { transition: opacity 0.4s, max-height 0.4s; max-height: 200px; overflow: visible; }
   .note-wrapper.is-hidden { overflow: hidden; }
@@ -180,7 +180,7 @@ const months = Object.keys(groupedNotes);
     padding: 0.9rem 0; border-bottom: 1px dashed var(--border);
     transition: 0.4s;
   }
-  .note-entry:hover { background: rgba(139,69,19,0.02); padding-left: 1.5rem; }
+  .note-entry:hover { background: color-mix(in srgb, var(--accent) 2%, transparent); padding-left: 1.5rem; }
 
   .entry-left { flex: 1; overflow: hidden; }
 
@@ -194,15 +194,15 @@ const months = Object.keys(groupedNotes);
   }
   .title-hover {
     position: absolute; top: 0; left: 0; opacity: 0;
-    transform: translateY(15px); color: var(--accent);
+    transform: translateY(15px); color: var(--accent-deep);
     display: flex; align-items: center; gap: 0.8rem;
   }
   .note-entry:hover .title-default { opacity: 0; transform: translateY(-15px); }
   .note-entry:hover .title-hover { opacity: 1; transform: translateY(0); }
 
   .cat-tag {
-    font-size: 0.78rem; font-weight: 700; color: var(--accent);
-    background: rgba(139,69,19,0.1); padding: 2px 8px;
+    font-size: 0.78rem; font-weight: 700; color: var(--accent-deep);
+    background: color-mix(in srgb, var(--accent) 10%, transparent); padding: 2px 8px;
     border-radius: 4px; font-family: var(--font-mono);
   }
   .sub-tag { font-size: 0.72rem; color: var(--muted); font-weight: 400; font-family: var(--font-mono); }
@@ -219,7 +219,7 @@ const months = Object.keys(groupedNotes);
     font-size: 0.75rem; letter-spacing: 2px; color: var(--muted);
     opacity: 0.4; transition: 0.4s; font-family: var(--font-mono); flex-shrink: 0;
   }
-  .note-entry:hover .entry-arrow { opacity: 1; color: var(--accent); transform: translateX(5px); }
+  .note-entry:hover .entry-arrow { opacity: 1; color: var(--accent-deep); transform: translateX(5px); }
   .view-text { font-weight: 700; }
 
   @media (max-width: 850px) {

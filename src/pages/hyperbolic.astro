@@ -65,7 +65,7 @@ import PoincareDisk from "../components/hyperbolic/PoincareDisk";
   /* ── SVG Disk ── */
   .hb-disk-svg {
     border: 1px solid var(--border);
-    background: rgba(139, 69, 19, 0.02);
+    background: color-mix(in srgb, var(--accent) 2%, transparent);
     flex-shrink: 0;
   }
 
@@ -75,7 +75,7 @@ import PoincareDisk from "../components/hyperbolic/PoincareDisk";
     min-width: 180px;
     border: 1px solid var(--border);
     padding: 1rem;
-    background: rgba(139, 69, 19, 0.02);
+    background: color-mix(in srgb, var(--accent) 2%, transparent);
     font-size: 0.85rem;
     display: flex;
     flex-direction: column;
@@ -115,7 +115,7 @@ import PoincareDisk from "../components/hyperbolic/PoincareDisk";
 
   .hb-node-name {
     font-size: 0.95rem;
-    color: var(--accent);
+    color: var(--accent-deep);
     font-weight: 600;
     letter-spacing: 0.02em;
     margin-bottom: 0.1rem;
@@ -140,7 +140,7 @@ import PoincareDisk from "../components/hyperbolic/PoincareDisk";
     gap: 0.5rem;
     padding: 0.6rem;
     border: 1px solid var(--border);
-    background: rgba(139, 69, 19, 0.04);
+    background: color-mix(in srgb, var(--accent) 4%, transparent);
   }
 
   .hb-dist-row {
@@ -151,7 +151,7 @@ import PoincareDisk from "../components/hyperbolic/PoincareDisk";
   .hb-distance-value {
     font-size: 1.2rem;
     font-weight: bold;
-    color: var(--accent);
+    color: var(--accent-deep);
     font-variant-numeric: tabular-nums;
     font-family: 'JetBrains Mono', 'Fira Code', monospace;
   }

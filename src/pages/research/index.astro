@@ -66,6 +66,17 @@ const researchGroups = Object.entries(groupedResearch)
                 </section>
             ))}
         </div>
+        <!-- 環境定位記號：同心圓＋四個放射短刻度。沒有貫穿的十字線，
+             也不與任何結構線重疊；放在頁尾空白處。 -->
+        <svg class="amb-dial" viewBox="0 0 120 120" aria-hidden="true">
+            <circle cx="60" cy="60" r="46"></circle>
+            <circle cx="60" cy="60" r="27"></circle>
+            <circle cx="60" cy="60" r="2"></circle>
+            <line x1="60" y1="3"   x2="60"  y2="11"></line>
+            <line x1="60" y1="109" x2="60"  y2="117"></line>
+            <line x1="3"  y1="60"  x2="11"  y2="60"></line>
+            <line x1="109" y1="60" x2="117" y2="60"></line>
+        </svg>
     </main>
 </Layout>
 
@@ -112,6 +123,20 @@ const researchGroups = Object.entries(groupedResearch)
     /* ── Month section ── */
     .month-section { margin-bottom: 3.5rem; }
 
+    .amb-dial {
+        display: block;
+        width: 112px; height: 112px;
+        margin: 1rem 2rem 3rem auto;
+        opacity: 0.32;
+        pointer-events: none;
+    }
+    .amb-dial circle, .amb-dial line {
+        stroke: var(--muted-soft);
+        fill: none;
+        stroke-width: 1;
+    }
+    .amb-dial circle:last-of-type { fill: var(--muted-soft); stroke: none; }
+
     .month-header {
         display: flex;
         justify-content: space-between;
@@ -121,20 +146,37 @@ const researchGroups = Object.entries(groupedResearch)
         margin-bottom: 0.8rem;
     }
     .month-title { font-size: 1.4rem; margin: 0; color: var(--ink); font-weight: 700; }
-    .note-count { font-size: 0.72rem; color: var(--accent); font-weight: 700; font-family: var(--font-mono); letter-spacing: 1px; }
+    .note-count { font-size: 0.72rem; color: var(--accent-deep); font-weight: 700; font-family: var(--font-mono); letter-spacing: 1px; }
 
     /* ── Entries ── */
+    /* ── 幾何層 ──
+       直線負責結構（軸線、分隔），圓弧負責標註。兩者不重疊，
+       而且每個記號都標註真實資料：刻度＝一篇論文在該月軸上的位置。 */
+    .note-list {
+        border-left: 1px solid var(--border);
+        padding-left: 1.4rem;
+    }
     .research-entry {
+        position: relative;
         display: flex;
         align-items: center;
         justify-content: space-between;
         text-decoration: none;
         color: inherit;
         padding: 0.8rem 0;
-        border-bottom: 1px dashed var(--border);
+        border-bottom: 1px dashed var(--hair);
         transition: 0.4s ease;
     }
-    .research-entry:hover { background: rgba(139, 69, 19, 0.02); padding-left: 1.5rem; }
+    .research-entry::before {
+        content: '';
+        position: absolute;
+        left: -1.4rem;
+        top: 50%;
+        width: 12px;
+        height: 1px;
+        background: var(--accent);
+    }
+    .research-entry:hover { background: color-mix(in srgb, var(--accent) 4%, transparent); padding-left: 1.5rem; }
 
     .title-swap-container { flex: 1; position: relative; height: 1.5rem; overflow: hidden; display: flex; align-items: center; }
     .title-default, .title-hover {
@@ -142,13 +184,13 @@ const researchGroups = Object.entries(groupedResearch)
         transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
         white-space: nowrap; line-height: 1.5rem;
     }
-    .title-hover { position: absolute; top: 0; left: 0; opacity: 0; transform: translateY(15px); color: var(--accent); display: flex; align-items: center; gap: 1rem; }
-    .cat-tag { font-size: 0.8rem; font-weight: 700; color: var(--accent); background: rgba(139,69,19,0.1); padding: 2px 8px; border-radius: 4px; font-family: var(--font-mono); }
+    .title-hover { position: absolute; top: 0; left: 0; opacity: 0; transform: translateY(15px); color: var(--accent-deep); display: flex; align-items: center; gap: 1rem; }
+    .cat-tag { font-size: 0.8rem; font-weight: 700; color: var(--violet-deep); background: color-mix(in srgb, var(--violet) 12%, transparent); padding: 2px 8px; border-radius: 4px; font-family: var(--font-mono); }
     .research-entry:hover .title-default { opacity: 0; transform: translateY(-15px); }
     .research-entry:hover .title-hover { opacity: 1; transform: translateY(0); }
 
     .entry-arrow { display: flex; align-items: center; gap: 1rem; font-size: 0.75rem; letter-spacing: 2px; color: var(--muted); opacity: 0.4; transition: 0.4s; font-family: var(--font-mono); }
-    .research-entry:hover .entry-arrow { opacity: 1; color: var(--accent); transform: translateX(5px); }
+    .research-entry:hover .entry-arrow { opacity: 1; color: var(--accent-deep); transform: translateX(5px); }
     .view-text { font-weight: 700; }
 
     @media (max-width: 850px) {

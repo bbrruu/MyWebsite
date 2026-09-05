@@ -106,12 +106,19 @@ const currentPath = pathname.slice(1).split('/')[0];
 			ClickParticle.prototype.draw = function() {
 				_clickCtx.save();
 				_clickCtx.globalAlpha = Math.max(0, this.alpha);
-				_clickCtx.fillStyle = "#8b4513";
+				_clickCtx.fillStyle = _clickColor();
 				_clickCtx.beginPath();
 				_clickCtx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
 				_clickCtx.fill();
 				_clickCtx.restore();
 			};
+
+			// 粒子顏色跟著主題走，不寫死
+			function _clickColor() {
+				var v = getComputedStyle(document.documentElement)
+					.getPropertyValue('--accent').trim();
+				return v || '#4e8496';
+			}
 
 			function spawnBurst(x, y, count) {
 				for (var i = 0; i < (count || 10); i++) {
@@ -290,23 +297,44 @@ const currentPath = pathname.slice(1).split('/')[0];
 </html>
 
 <style is:global>
-	/* --- 全域變數定義 --- */
+	/* --- 全域變數定義 ---
+	   配色來源：《眾生行記》主視覺。方法不是色相，而是「大面積冷霧 ＋ 硬墨
+	   ＋ 極少量彩度」。彩色被嚴格配給，不平均分配。 */
 	:root {
-		--ink: #2c2c2c;       /* 墨水黑 */
-		--paper: #fdfaf6;     /* 紙張底色 */
-		--accent: #8b4513;    /* 焦糖褐色（強調色） */
-		--muted: #8e8e8e;     /* 輔助灰色 */
-		--border: #e0dcd5;    /* 邊框色 */
+		--ink: #141a1c;         /* 冷墨黑（落在霧上，中間不過渡） */
+		--paper: #eef3f5;       /* 冷霧底色，不是白 */
+		--paper-lift: #f8fbfc;  /* 卡片／書頁：比底色「亮」，不靠邊框分離 */
+		--accent: #4e8496;      /* 主視覺標題的藍綠，只做線與底線，不做文字 */
+		--accent-deep: #3d6d7d; /* 同色加深，給要「讀」的文字用（4.8:1） */
+		--violet: #7d86b8;      /* 主視覺右上色帶，唯一去處：分類標籤 */
+		--violet-deep: #5a63a0; /* 標籤文字，10px 也讀得到（5.0:1） */
+		--sand: #c9b394;        /* 全站唯一的暖色，只給植物線稿與分類印章 */
+		--muted: #56707a;       /* 日期、說明。偏藍的灰，不是中性灰（4.6:1） */
+		--muted-soft: #8fa4ab;  /* 定位記號、髮絲線。永遠不當文字 */
+		--border: #cfdde2;      /* 冰色邊框，比以前細 */
+		--hair: #dce8ec;        /* 更細的分隔線 */
+		--haze: #c3d5db;        /* 只用於底色漸層，不用於文字 */
+		--grain: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180"><filter id="g"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="4" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter><rect width="180" height="180" filter="url(%23g)" opacity="0.055"/></svg>');
 		--font-mono: 'JetBrains Mono', monospace;
 	}
 
-	/* ── 深色模式 ── */
+	/* ── 深色模式 ──
+	   不是反轉：主視覺沒有深色版。這是「夜霧」，維持藍冷，
+	   不沿用舊的褐黑 #1c1814。 */
 	:root[data-theme="dark"] {
-		--ink: #e8ddd0;
-		--paper: #1c1814;
-		--accent: #c47a3a;
-		--muted: #7a7570;
-		--border: #38322c;
+		--ink: #dbe7ea;
+		--paper: #0e1518;
+		--paper-lift: #151f24;
+		--accent: #6fb0c4;
+		--accent-deep: #8ac4d6;
+		--violet: #9298cc;
+		--violet-deep: #a8adda;
+		--sand: #c2ab8c;
+		--muted: #8fa4ab;
+		--muted-soft: #6d858d;
+		--border: #223138;
+		--hair: #1c2a30;
+		--haze: #2b3d45;
 	}
 	/* 主題切換平滑過渡 */
 	*, *::before, *::after {
@@ -334,6 +362,14 @@ const currentPath = pathname.slice(1).split('/')[0];
 		line-height: 1.6;
 		font-synthesis: none; /* 禁止瀏覽器合成假斜體，避免中文字被強制傾斜 */
 	}
+	/* 底色永遠不是平的：主視覺整張圖沒有一塊純色區域 */
+	body {
+		background-image:
+			radial-gradient(ellipse 90% 50% at 50% -6%, var(--paper-lift) 0%, transparent 60%),
+			radial-gradient(ellipse 55% 38% at 88% 18%, var(--haze) 0%, transparent 55%);
+		background-attachment: fixed;
+		background-repeat: no-repeat;
+	}
 	/* body 用 hidden 防止橫向溢位，html 不設 overflow（保留 scroll-snap 正常運作）*/
 	body { overflow-x: hidden; }
 
@@ -357,12 +393,12 @@ const currentPath = pathname.slice(1).split('/')[0];
 		position: fixed;
 		inset: 0;
 		z-index: -1;
-		opacity: 0.04;
-		background-image: url("https://www.transparenttextures.com/patterns/paper-fibers.png");
+		opacity: 0.5;
+		background-image: var(--grain);
 		pointer-events: none;
 	}
 	[data-theme="dark"] .paper-texture {
-		opacity: 0.10;
+		opacity: 0.6;
 		mix-blend-mode: screen;
 	}
 
@@ -388,12 +424,12 @@ const currentPath = pathname.slice(1).split('/')[0];
 		position: sticky;
 		top: 0;
 		z-index: 100;
-		background: rgba(253, 250, 246, 0.75);
+		background: rgba(238, 243, 245, 0.78);
 		backdrop-filter: blur(12px);
 		-webkit-backdrop-filter: blur(12px);
 	}
 	[data-theme="dark"] .sticky-nav {
-		background: rgba(28, 24, 20, 0.85);
+		background: rgba(14, 21, 24, 0.86);
 	}
 	.nav-inner {
 		max-width: 1400px;
@@ -483,12 +519,12 @@ const currentPath = pathname.slice(1).split('/')[0];
 		color: var(--ink);
 		transition: background 0.2s;
 	}
-	.search-result-item:hover { background: rgba(139, 69, 19, 0.07); }
+	.search-result-item:hover { background: color-mix(in srgb, var(--accent) 7%, transparent); }
 	.result-type {
 		font-size: 0.58rem;
 		font-family: sans-serif;
 		letter-spacing: 2px;
-		color: var(--accent);
+		color: var(--accent-deep);
 		font-weight: 700;
 		flex-shrink: 0;
 		min-width: 60px;
