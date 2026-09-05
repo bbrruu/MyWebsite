@@ -33,19 +33,31 @@ enum PhotoService {
         return formatter.date(from: dateString)
     }
 
-    /// HEIC（iPhone 預設格式）轉成 JPEG，因為不是所有瀏覽器都能顯示 HEIC。其他格式原樣使用。
-    static func normalizeToJPEG(sourcePath: String, workDir: String) throws -> String {
-        let ext = (sourcePath as NSString).pathExtension.lowercased()
-        guard ext == "heic" || ext == "heif" else { return sourcePath }
+    /// 網站上照片的最長邊。手機原檔是 4080px、2.5–3.6 MB，直接進 repo 會把
+    /// public/images 撐爆（曾經累積到 16 MB）。1800px 對 retina 顯示已經綽綽有餘。
+    private static let maxDimension = 1800
 
+    /// 統一處理成適合上網的 JPEG：HEIC（iPhone 預設格式）轉檔，
+    /// 並且**所有格式**都縮到 maxDimension 以內。
+    ///
+    /// 輸出一律寫到 workDir，不會就地改動 Drive Inbox 裡的原檔——
+    /// 原始照片留在雲端，進 repo 的是縮過的副本。
+    static func normalizeToJPEG(sourcePath: String, workDir: String) throws -> String {
         guard let sipsPath = findExecutable("sips") else {
             throw DiaryError.executableNotFound("sips")
         }
+
         let outputPath = workDir + "/" + ((sourcePath as NSString).lastPathComponent as NSString)
             .deletingPathExtension + ".jpg"
-        let result = try runProcess(sipsPath, ["-s", "format", "jpeg", sourcePath, "--out", outputPath])
+
+        let result = try runProcess(sipsPath, [
+            "-Z", String(maxDimension),
+            "-s", "format", "jpeg",
+            "-s", "formatOptions", "82",
+            sourcePath, "--out", outputPath,
+        ])
         guard result.exitCode == 0 else {
-            throw DiaryError.claudeFailed("HEIC 轉檔失敗：\(result.stderr)")
+            throw DiaryError.claudeFailed("照片轉檔／縮圖失敗：\(result.stderr)")
         }
         return outputPath
     }
@@ -68,6 +80,11 @@ enum PhotoService {
             : "今天還沒有日記文字，這張照片會是當天唯一的內容。"
 
         let prompt = """
+        【最重要的規則，違反就是失敗】
+        你的輸出必須全部使用**台灣慣用的繁體中文**，每一個字元都是繁體，
+        絕對不可以出現任何簡體字（「个、们、这、说、时、过、发、后、体、来、对、会」等等一律禁止）。
+        用詞也要用台灣的說法，不要用中國大陸的詞彙。
+
         你是我的私人日記編輯。請讀取這張照片：\(imagePath)
         \(contextNote)
 
@@ -86,7 +103,7 @@ enum PhotoService {
         // 明確把圖片所在的資料夾加入信任範圍才會真的放行。
         let imageDir = (imagePath as NSString).deletingLastPathComponent
 
-        let result = try runProcess(
+        var result = try runProcess(
             claudePath,
             [
                 "-p", prompt, "--output-format", "json", "--model", "sonnet",
@@ -95,6 +112,28 @@ enum PhotoService {
             ],
             cwd: Config.repoRoot
         )
+        reportAuth(exitCode: result.exitCode, stderr: result.stderr)
+
+        // 圖說也走同一套簡體字檢查
+        if result.exitCode == 0 {
+            let offenders = ChineseText.simplifiedCharacters(in: result.stdout)
+            if !offenders.isEmpty {
+                let retry = try runProcess(
+                    claudePath,
+                    [
+                        "-p", prompt + ChineseText.correctionInstruction(for: offenders),
+                        "--output-format", "json", "--model", "sonnet",
+                        "--allowedTools", allowedTools,
+                        "--add-dir", imageDir,
+                    ],
+                    cwd: Config.repoRoot
+                )
+                reportAuth(exitCode: retry.exitCode, stderr: retry.stderr)
+                if retry.exitCode == 0 && !ChineseText.containsSimplified(retry.stdout) {
+                    result = retry
+                }
+            }
+        }
 
         guard result.exitCode == 0 else {
             throw DiaryError.claudeFailed(result.stderr.isEmpty ? "exit \(result.exitCode)" : result.stderr)

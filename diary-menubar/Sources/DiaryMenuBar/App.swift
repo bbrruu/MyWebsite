@@ -5,10 +5,13 @@ struct DiaryMenuBarApp: App {
     @StateObject private var photoWatcher = PhotoWatcher.shared
     @StateObject private var photoProcessor = PhotoProcessor.shared
     @StateObject private var draftState = DiaryDraftState.shared
+    @StateObject private var auth = AuthService.shared
 
     init() {
-        PhotoWatcher.shared.start()
+        PhotoWatcher.shared.prepareDirectories()
         _ = PhotoProcessor.shared // 確保它的 Combine 訂閱在 App 啟動時就建立好
+        AuthService.shared.requestNotificationPermissionIfNeeded()
+        AuthService.shared.refreshLocally()
     }
 
     var body: some Scene {
@@ -19,9 +22,16 @@ struct DiaryMenuBarApp: App {
                 .environmentObject(photoWatcher)
                 .environmentObject(photoProcessor)
                 .environmentObject(draftState)
+                .environmentObject(auth)
         } label: {
-            Image(systemName: photoWatcher.queue.isEmpty ? "book.closed" : "photo.badge.plus")
+            // 認證出問題優先蓋掉其他狀態——這是唯一會讓整條流程靜默失效的情況
+            Image(systemName: menuBarSymbol)
         }
         .menuBarExtraStyle(.window)
+    }
+
+    private var menuBarSymbol: String {
+        if auth.state.needsAttention { return "exclamationmark.triangle" }
+        return photoWatcher.queue.isEmpty ? "book.closed" : "photo.badge.plus"
     }
 }

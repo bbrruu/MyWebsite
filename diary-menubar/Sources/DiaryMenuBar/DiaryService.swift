@@ -40,12 +40,21 @@ enum DiaryError: LocalizedError {
 enum DiaryService {
     /// 把使用者隨手寫的原文交給 claude -p 整理成結構化欄位。
     /// claude 這一步只做純文字生成，不給任何工具權限，所以不會去動檔案或執行指令。
+    ///
+    /// 用 sonnet 而不是 haiku：這裡有兩個很吃指令遵守度的約束——「全繁體、台灣用語」
+    /// 以及「content 不准改寫，只能排版」。haiku 兩者都會偶爾放掉。
+    /// 認證檢查那種一次性 ping 才留在 haiku（AuthService.verify）。
     static func organize(rawText: String, dateStr: String) throws -> DiaryFields {
         guard let claudePath = findExecutable("claude") else {
             throw DiaryError.executableNotFound("claude")
         }
 
         let prompt = """
+        【最重要的規則，違反就是失敗】
+        你的輸出必須全部使用**台灣慣用的繁體中文**。JSON 裡每一個欄位、每一個字元都是繁體，
+        絕對不可以出現任何簡體字（例如「个、们、这、说、时、过、发、后、体、来、对、会」等等一律禁止）。
+        用詞也要用台灣的說法，不要用中國大陸的詞彙。原文若本來就是繁體，逐字保留即可。
+
         你是我的私人日記編輯。以下是我剛剛隨手寫下的日記原文，可能很口語、沒有標點、想到什麼寫什麼。
         content 欄位是重點：我要原汁原味呈現，你「不可以」改寫、潤飾、修正語病、調整語序、替換用詞，也不可以新增原文沒有的句子或內容。你唯一能對原文做的事是排版層面的：適當分段（用 <br/> 換行）、把明顯缺漏的標點稍微補上以利閱讀、去除多餘空白。除此之外必須逐字保留我的原文，包括我的口語、贅字、錯字、語氣詞——那些都是我，不要幫我「修好」。
 
@@ -53,12 +62,12 @@ enum DiaryService {
 
         JSON 欄位：
         - title: string，簡短有畫面感的標題，繁體中文
-        - mood: string，一兩個詞描述當天心情，例如「還行」「興奮」「疲憊」「平靜」
+        - mood: string，繁體中文，一兩個詞描述當天心情，例如「還行」「興奮」「疲憊」「平靜」
         - category: 必須是 "日常"、"旅行"、"省思" 三選一
         - location: string，若原文有提到地點就用該地點，否則用 "Taipei, Taiwan"
         - tags: string 陣列，2 到 5 個從原文萃取的關鍵字標籤，繁體中文
-        - quote: string，從原文「直接摘錄」一句最有感覺的話當金句，不要改寫；若原文情緒平淡可留空字串
-        - content: string，見上方規則——只排版分段、補標點、不改寫
+        - quote: string，從原文「直接摘錄」一句最有感覺的話當金句，不要改寫（原文是繁體，摘錄出來自然也是繁體）；若原文情緒平淡可留空字串
+        - content: string，見上方規則——只排版分段、補標點、不改寫。逐字保留原文，因此必然是繁體
 
         日記日期：\(dateStr)
 
@@ -68,7 +77,25 @@ enum DiaryService {
         \"\"\"
         """
 
-        let result = try runProcess(claudePath, ["-p", prompt, "--output-format", "json", "--model", "haiku"])
+        // 第一次嘗試；若混進簡體字，帶著「哪幾個字犯規」再要求一次。
+        var result = try runProcess(claudePath, ["-p", prompt, "--output-format", "json", "--model", "sonnet"])
+        reportAuth(exitCode: result.exitCode, stderr: result.stderr)
+
+        if result.exitCode == 0 {
+            let offenders = ChineseText.simplifiedCharacters(in: result.stdout)
+            if !offenders.isEmpty {
+                let retryPrompt = prompt + ChineseText.correctionInstruction(for: offenders)
+                let retry = try runProcess(
+                    claudePath,
+                    ["-p", retryPrompt, "--output-format", "json", "--model", "sonnet"]
+                )
+                reportAuth(exitCode: retry.exitCode, stderr: retry.stderr)
+                // 只有在重試真的變乾淨時才採用，否則保留第一次的結果
+                if retry.exitCode == 0 && !ChineseText.containsSimplified(retry.stdout) {
+                    result = retry
+                }
+            }
+        }
 
         guard result.exitCode == 0 else {
             throw DiaryError.claudeFailed(result.stderr.isEmpty ? "exit \(result.exitCode)" : result.stderr)

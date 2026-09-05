@@ -18,6 +18,7 @@ struct DiaryPopoverView: View {
     @EnvironmentObject private var photoWatcher: PhotoWatcher
     @EnvironmentObject private var photoProcessor: PhotoProcessor
     @EnvironmentObject private var draftState: DiaryDraftState
+    @EnvironmentObject private var auth: AuthService
 
     @State private var selectedTab: DiaryTab = .diary
 
@@ -49,15 +50,81 @@ struct DiaryPopoverView: View {
             case .photo:
                 photoTabView
             }
+
+            Divider()
+            authStatusBar
         }
         .padding(14)
         .frame(width: 360)
         .onAppear {
+            auth.refreshLocally()
             // 有照片在等的時候先幫忙切過去，但使用者隨時可以自己切回「日記」，不會被鎖住。
             if pendingPhotoPath != nil {
                 selectedTab = .photo
             }
             draftState.refreshDateIfFresh()
+        }
+    }
+
+    // MARK: - 認證狀態
+
+    private var authStatusBar: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 6) {
+                Image(systemName: auth.state.symbol)
+                    .foregroundColor(auth.state.color)
+                    .font(.caption)
+                Text("Claude 認證")
+                    .font(.caption.bold())
+                    .foregroundColor(.secondary)
+                Text(auth.state.label)
+                    .font(.caption)
+                    .foregroundColor(auth.state.color)
+
+                Spacer()
+
+                if case .checking = auth.state {
+                    ProgressView().controlSize(.small)
+                } else {
+                    // 這個 App 用的是 Keychain 裡的 OAuth 登入憑證（訂閱帳號），
+                    // 不是 API key，所以不會產生按次計費——用量算在方案額度上。
+                    // 但每次呼叫仍要重建 CLI 的系統提示快取（約 1 萬 token），
+                    // 所以還是把上次檢查時間顯示出來，避免無謂重複按。
+                    if let last = auth.lastCheck {
+                        Text(last, format: .dateTime.hour().minute())
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
+                    Button("檢查") { auth.verify() }
+                        .font(.caption)
+                        .buttonStyle(.borderless)
+                        .help("跑一次最小的 claude 呼叫確認憑證還能用（算在訂閱額度裡，不另外計費）")
+                }
+
+                if auth.state.needsAttention {
+                    Button("登入") { auth.openLogin() }
+                        .font(.caption.bold())
+                        .buttonStyle(.borderedProminent)
+                        .controlSize(.small)
+                }
+            }
+
+            if case .expired(let detail) = auth.state {
+                Text(detail)
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+                Text("按「登入」會開一個 Terminal 視窗跑 claude login。")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+            }
+            if case .noCredentials = auth.state {
+                Text("Keychain 裡找不到 Claude 憑證，日記與圖說都無法產生。")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         }
     }
 
@@ -234,9 +301,26 @@ struct DiaryPopoverView: View {
             if let path = pendingPhotoPath {
                 photoFlowView(path: path)
             } else {
-                Text("目前沒有待處理的照片。手機分享照片到 Google Drive 的 DiaryPhotos/Inbox 後，會自動出現在這裡。")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("手機分享照片到 Google Drive 的 DiaryPhotos/Inbox 後，按下面的按鈕掃描。")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+
+                    if let message = photoWatcher.lastScanMessage {
+                        Text(message)
+                            .font(.caption)
+                            .foregroundColor(.orange)
+                    }
+
+                    HStack {
+                        Spacer()
+                        Button(photoWatcher.isScanning ? "掃描中..." : "掃描 Inbox") {
+                            photoWatcher.scanNow()
+                        }
+                        .keyboardShortcut(.return, modifiers: .command)
+                        .disabled(photoWatcher.isScanning)
+                    }
+                }
             }
         }
     }

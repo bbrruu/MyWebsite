@@ -1,31 +1,36 @@
 import Foundation
 import Combine
 
-/// 監看 Google Drive 裡的 DiaryPhotos/Inbox 資料夾，手機把照片分享進去後，
-/// 這裡會偵測到新照片並排進佇列給 UI 處理。全程本機運作，沒有對外開放任何服務。
+/// Google Drive 裡的 DiaryPhotos/Inbox 資料夾——手機把照片分享進去後，
+/// 使用者在「圖片」分頁按「掃描 Inbox」才會真的去列目錄找新照片。
+///
+/// 原本用 DispatchSource + 背景輪詢自動監看，但長時間（好幾天）常駐後這條
+/// 背景路徑偶爾會悄悄停止反應，使用者完全看不出來、也難以排查。改成完全
+/// 由使用者手動觸發：按下去立刻掃描、立刻有結果，沒有任何長駐的背景機制
+/// 可能默默壞掉。
 final class PhotoWatcher: ObservableObject {
     static let shared = PhotoWatcher()
     private init() {}
 
     @Published var queue: [String] = []
+    @Published var isScanning = false
+    @Published var lastScanMessage: String?
 
-    private var source: DispatchSourceFileSystemObject?
-    private var pollTimer: DispatchSourceTimer?
-    private var fileDescriptor: CInt = -1
-    private var debounceWorkItem: DispatchWorkItem?
     private var notifiedPaths = Set<String>()
     private var inboxDir = ""
     private var processedDir = ""
+    private var directoriesReady = false
 
     private let imageExtensions: Set<String> = ["jpg", "jpeg", "png", "heic", "heif"]
 
-    /// 找不到 Google Drive（還沒裝、還沒登入、或還沒同步出資料夾）就每隔一段時間自動重試，
+    /// App 啟動時呼叫一次：只解析 Google Drive 路徑、建好資料夾，不做任何監看。
+    /// 找不到 Google Drive（還沒裝、還沒登入）就每隔一段時間自動重試路徑解析，
     /// 這樣使用者晚一點才裝 Google Drive 也不用手動重開 App。
-    func start() {
-        guard source == nil else { return } // 已經在跑了，不重複啟動
+    func prepareDirectories() {
+        guard !directoriesReady else { return }
         guard let inbox = Config.photoInboxDir, let processed = Config.photoProcessedDir else {
             DispatchQueue.global(qos: .utility).asyncAfter(deadline: .now() + 60) { [weak self] in
-                self?.start()
+                self?.prepareDirectories()
             }
             return
         }
@@ -35,53 +40,33 @@ final class PhotoWatcher: ObservableObject {
         let fm = FileManager.default
         try? fm.createDirectory(atPath: inboxDir, withIntermediateDirectories: true)
         try? fm.createDirectory(atPath: processedDir, withIntermediateDirectories: true)
+        directoriesReady = true
+    }
 
-        fileDescriptor = open(inboxDir, O_EVTONLY)
-        guard fileDescriptor >= 0 else { return }
-
-        let src = DispatchSource.makeFileSystemObjectSource(
-            fileDescriptor: fileDescriptor,
-            eventMask: .write,
-            queue: DispatchQueue.global(qos: .utility)
-        )
-        src.setEventHandler { [weak self] in
-            self?.scheduleScan()
+    /// 使用者按下「掃描 Inbox」時觸發，一次性列出資料夾、找新照片排進佇列。
+    func scanNow() {
+        guard directoriesReady else {
+            lastScanMessage = "找不到 Google Drive，請確認已安裝並登入"
+            return
         }
-        src.setCancelHandler { [weak self] in
-            if let fd = self?.fileDescriptor, fd >= 0 { close(fd) }
+        isScanning = true
+        lastScanMessage = nil
+
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self else { return }
+            let found = self.performScan()
+            DispatchQueue.main.async {
+                self.isScanning = false
+                self.lastScanMessage = found > 0 ? nil : "沒有偵測到新照片"
+            }
         }
-        src.resume()
-        source = src
-
-        scheduleScan() // App 沒開的時候進來的照片，啟動時補掃一次
-
-        // Google Drive 同步中的檔案就算大小已經穩定，還是可能被同步行程鎖住
-        // （open() 會丟 Resource deadlock avoided）。目錄本身在鎖釋放前不會再
-        // 觸發變更事件，所以額外用一個定時器每 5 秒重掃一次，直到鎖真的放開。
-        let timer = DispatchSource.makeTimerSource(queue: DispatchQueue.global(qos: .utility))
-        timer.schedule(deadline: .now() + 5, repeating: 5)
-        timer.setEventHandler { [weak self] in self?.scan() }
-        timer.resume()
-        pollTimer = timer
     }
 
-    func stop() {
-        source?.cancel()
-        source = nil
-        pollTimer?.cancel()
-        pollTimer = nil
-    }
-
-    private func scheduleScan() {
-        debounceWorkItem?.cancel()
-        let item = DispatchWorkItem { [weak self] in self?.scan() }
-        debounceWorkItem = item
-        DispatchQueue.global(qos: .utility).asyncAfter(deadline: .now() + 1.5, execute: item)
-    }
-
-    private func scan() {
+    @discardableResult
+    private func performScan() -> Int {
         let fm = FileManager.default
-        guard let entries = try? fm.contentsOfDirectory(atPath: inboxDir) else { return }
+        guard let entries = try? fm.contentsOfDirectory(atPath: inboxDir) else { return 0 }
+        var foundCount = 0
 
         for entry in entries.sorted() {
             if entry.hasPrefix(".") { continue } // .DS_Store、同步中的暫存檔等
@@ -94,6 +79,7 @@ final class PhotoWatcher: ObservableObject {
             guard isStable(path: fullPath) else { continue }
 
             notifiedPaths.insert(fullPath)
+            foundCount += 1
             DispatchQueue.main.async { [weak self] in
                 guard let self else { return }
                 if !self.queue.contains(fullPath) {
@@ -101,6 +87,7 @@ final class PhotoWatcher: ObservableObject {
                 }
             }
         }
+        return foundCount
     }
 
     /// 等檔案大小穩定下來，且真的能打開讀取，才算「新照片」就緒。
