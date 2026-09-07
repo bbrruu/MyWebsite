@@ -8,6 +8,14 @@ struct DiaryFields: Codable {
     var tags: [String]
     var quote: String
     var content: String
+
+    static let empty = DiaryFields(
+        title: "", mood: "", category: "日常",
+        location: "", tags: [], quote: "", content: ""
+    )
+
+    /// 對應 src/content/config.ts 的 category enum
+    static let categories = ["日常", "旅行", "省思"]
 }
 
 struct SaveOutcome {

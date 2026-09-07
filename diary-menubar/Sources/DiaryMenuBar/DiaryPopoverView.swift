@@ -3,8 +3,8 @@ import SwiftUI
 enum Phase {
     case editing
     case organizing
-    case reviewing(DiaryFields, dateStr: String)
-    case saving(DiaryFields, dateStr: String)
+    case reviewing(dateStr: String)
+    case saving(dateStr: String)
     case success(String)
     case failure(String)
 }
@@ -144,8 +144,8 @@ struct DiaryPopoverView: View {
             switch draftState.phase {
             case .editing, .organizing:
                 editingView
-            case .reviewing(let fields, let dateStr), .saving(let fields, let dateStr):
-                reviewView(fields: fields, dateStr: dateStr)
+            case .reviewing(let dateStr), .saving(let dateStr):
+                reviewView(dateStr: dateStr)
             case .success(let message):
                 resultView(message: message, isError: false)
             case .failure(let message):
@@ -201,9 +201,22 @@ struct DiaryPopoverView: View {
         }
     }
 
-    private func reviewView(fields: DiaryFields, dateStr: String) -> some View {
+    // 標籤是陣列，UI 用一行字編輯；、和逗號都當分隔
+    private var tagsBinding: Binding<String> {
+        Binding(
+            get: { draftState.fields.tags.joined(separator: "、") },
+            set: { text in
+                draftState.fields.tags = text
+                    .split(whereSeparator: { "、,，".contains($0) })
+                    .map { $0.trimmingCharacters(in: .whitespaces) }
+                    .filter { !$0.isEmpty }
+            }
+        )
+    }
+
+    private func reviewView(dateStr: String) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("送出前先確認，內容沒有被改寫，只是排版跟補上 metadata：")
+            Text("Claude 只做了排版和 metadata，內文沒有被改寫。下面都可以直接改。")
                 .font(.caption)
                 .foregroundColor(.secondary)
 
@@ -214,28 +227,53 @@ struct DiaryPopoverView: View {
             }
 
             ScrollView {
-                VStack(alignment: .leading, spacing: 6) {
-                    metaRow("標題", fields.title)
-                    metaRow("日期", dateStr)
-                    metaRow("心情", fields.mood)
-                    metaRow("分類", fields.category)
-                    metaRow("地點", fields.location)
-                    if !fields.tags.isEmpty {
-                        metaRow("標籤", fields.tags.joined(separator: "、"))
+                VStack(alignment: .leading, spacing: 7) {
+                    editRow("標題") {
+                        TextField("", text: $draftState.fields.title)
                     }
-                    if !fields.quote.isEmpty {
-                        metaRow("金句", fields.quote)
+                    HStack(alignment: .top, spacing: 6) {
+                        Text("日期").font(.caption.bold()).foregroundColor(.secondary)
+                            .frame(width: 36, alignment: .leading)
+                        Text(dateStr).font(.caption).foregroundColor(.secondary)
                     }
-                    Divider()
-                    Text(fields.content)
+                    editRow("心情") {
+                        TextField("還行", text: $draftState.fields.mood)
+                    }
+                    // category 在 config.ts 是 enum，用選單避免打錯字讓 build 失敗
+                    editRow("分類") {
+                        Picker("", selection: $draftState.fields.category) {
+                            ForEach(DiaryFields.categories, id: \.self) { Text($0).tag($0) }
+                        }
+                        .labelsHidden()
+                        .pickerStyle(.segmented)
+                    }
+                    editRow("地點") {
+                        TextField("Taipei, Taiwan", text: $draftState.fields.location)
+                    }
+                    editRow("標籤") {
+                        TextField("用、分隔", text: tagsBinding)
+                    }
+                    editRow("金句") {
+                        TextField("可留空", text: $draftState.fields.quote)
+                    }
+
+                    Divider().padding(.vertical, 2)
+
+                    Text("內文")
+                        .font(.caption.bold())
+                        .foregroundColor(.secondary)
+                    TextEditor(text: $draftState.fields.content)
                         .font(.system(size: 12.5))
-                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(minHeight: 110)
+                        .scrollContentBackground(.hidden)
+                        .overlay(RoundedRectangle(cornerRadius: 4).stroke(Color.gray.opacity(0.25)))
                 }
                 .padding(8)
             }
-            .frame(height: 180)
+            .frame(height: 260)
             .background(Color(nsColor: .textBackgroundColor))
             .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.gray.opacity(0.3)))
+            .disabled(isSaving)
 
             if isSaving {
                 HStack(spacing: 6) {
@@ -255,23 +293,26 @@ struct DiaryPopoverView: View {
                 Spacer()
 
                 Button(isSaving ? "上傳中..." : "確認上傳") {
-                    draftState.confirmSave(fields: fields, dateStr: dateStr)
+                    draftState.confirmSave(dateStr: dateStr)
                 }
                 .keyboardShortcut(.return, modifiers: .command)
-                .disabled(isSaving)
+                .disabled(isSaving || draftState.fields.title.trimmingCharacters(in: .whitespaces).isEmpty)
             }
         }
     }
 
-    private func metaRow(_ label: String, _ value: String) -> some View {
-        HStack(alignment: .top, spacing: 6) {
+    private func editRow<Content: View>(
+        _ label: String,
+        @ViewBuilder _ field: () -> Content
+    ) -> some View {
+        HStack(alignment: .center, spacing: 6) {
             Text(label)
                 .font(.caption.bold())
                 .foregroundColor(.secondary)
                 .frame(width: 36, alignment: .leading)
-            Text(value.isEmpty ? "—" : value)
+            field()
                 .font(.caption)
-                .fixedSize(horizontal: false, vertical: true)
+                .textFieldStyle(.roundedBorder)
         }
     }
 

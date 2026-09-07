@@ -13,6 +13,17 @@ final class DiaryDraftState: ObservableObject {
     @Published var date: Date = Date()
     @Published var phase: Phase = .editing
 
+    /// Claude 產生的欄位在確認前是可以改的，所以要放在這裡而不是包在 Phase 的
+    /// associated value 裡——那個沒辦法做雙向綁定。一併存進 UserDefaults，
+    /// 理由跟 rawText 一樣：彈出視窗關掉再打開會重新掛載 View。
+    @Published var fields: DiaryFields = .empty {
+        didSet {
+            if let data = try? JSONEncoder().encode(fields) {
+                UserDefaults.standard.set(data, forKey: Self.fieldsKey)
+            }
+        }
+    }
+
     private static let dateFormatter: DateFormatter = {
         let f = DateFormatter()
         f.dateFormat = "yyyy-MM-dd"
@@ -20,13 +31,20 @@ final class DiaryDraftState: ObservableObject {
         return f
     }()
     private static let draftKey = "diary-draft-text-v1"
+    private static let fieldsKey = "diary-draft-fields-v1"
 
     private init() {
         rawText = UserDefaults.standard.string(forKey: Self.draftKey) ?? ""
+        if let data = UserDefaults.standard.data(forKey: Self.fieldsKey),
+           let saved = try? JSONDecoder().decode(DiaryFields.self, from: data) {
+            fields = saved
+        }
     }
 
     func clear() {
         rawText = ""
+        fields = .empty
+        UserDefaults.standard.removeObject(forKey: Self.fieldsKey)
         phase = .editing
         date = Date()
     }
@@ -49,22 +67,26 @@ final class DiaryDraftState: ObservableObject {
                 let fields = try await Task.detached(priority: .userInitiated) {
                     try DiaryService.organize(rawText: text, dateStr: dateStr)
                 }.value
-                phase = .reviewing(fields, dateStr: dateStr)
+                self.fields = fields
+                phase = .reviewing(dateStr: dateStr)
             } catch {
                 phase = .failure(error.localizedDescription)
             }
         }
     }
 
-    func confirmSave(fields: DiaryFields, dateStr: String) {
-        phase = .saving(fields, dateStr: dateStr)
+    func confirmSave(dateStr: String) {
+        let edited = fields          // 使用者改過的版本才是要存的
+        phase = .saving(dateStr: dateStr)
 
         Task {
             do {
                 let outcome = try await Task.detached(priority: .userInitiated) {
-                    try DiaryService.save(fields: fields, dateStr: dateStr)
+                    try DiaryService.save(fields: edited, dateStr: dateStr)
                 }.value
                 rawText = ""
+                self.fields = .empty
+                UserDefaults.standard.removeObject(forKey: Self.fieldsKey)
                 if outcome.pushed {
                     phase = .success("已儲存並推送：\(outcome.filePath)")
                 } else {
